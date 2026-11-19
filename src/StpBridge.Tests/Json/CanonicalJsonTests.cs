@@ -16,10 +16,21 @@ namespace Maptek.Vulcan.Stp.Bridge.Tests.Json
         public static IEnumerable<object[]> GoldenPackages()
             => Directory.GetFiles(TestPaths.GoldenExpected, "*.apply.canonical.json").OrderBy(f => f, StringComparer.Ordinal).Select(f => new object[] { Path.GetFileName(f) });
 
+        /// <summary>Every case index.json records with an apply package has its canonical file, and all of them are tested.</summary>
         [Fact]
-        public void ThereAreEighteenGoldenPackages()
+        public void EveryIndexedGoldenPackageIsTested()
         {
-            Assert.Equal(18, GoldenPackages().Count());
+            var index = (JObject)WireJson.Parse(File.ReadAllBytes(Path.Combine(TestPaths.GoldenExpected, "index.json")));
+            var indexed = ((JArray)index["cases"])
+                .Where(c => c["applySha256"]?.Type == JTokenType.String)
+                .Select(c => $"{(string)c["fixture"]}.{(string)c["case"]}.apply.canonical.json")
+                .OrderBy(f => f, StringComparer.Ordinal)
+                .ToList();
+            var tested = GoldenPackages().Select(r => (string)r[0]).ToList();
+            Assert.True(tested.Count >= 18, $"only {tested.Count} golden packages");
+            Assert.Equal(indexed, tested);
+            var normalized = ((JArray)TestPaths.PythonVectors["goldenNormalized"]).Select(v => (string)v["file"]);
+            Assert.Equal(tested, normalized.OrderBy(f => f, StringComparer.Ordinal)); // regenerate TestData when goldens change
         }
 
         [Theory]
@@ -36,10 +47,28 @@ namespace Maptek.Vulcan.Stp.Bridge.Tests.Json
             Assert.Equal(raw, canonical);
             Assert.Equal(recorded, CanonicalJson.Sha256Hex(canonical));
 
-            // Typed round trip: what the client sends and the server re-serializes.
+            // Typed round trip: what the client sends equals what the Python server stores and hashes
+            // (load_apply_package -> apply_package_to_json_value). That is the JS bytes, except that Python
+            // re-normalizes some spellings, e.g. fractional seconds ".250" -> ".250000".
+            var python = ((JArray)TestPaths.PythonVectors["goldenNormalized"]).Single(v => (string)v["file"] == fileName);
             var package = ApplyPackage.FromJson(WireJson.Parse(raw));
-            Assert.Equal(raw, package.ToCanonicalBytes());
-            Assert.Equal(recorded, package.ComputeSha256());
+            Assert.Equal((string)python["canonical"], Encoding.UTF8.GetString(package.ToCanonicalBytes()));
+            Assert.Equal((string)python["sha256"], package.ComputeSha256());
+            Assert.Equal((bool)python["sameAsJs"], package.ComputeSha256() == recorded);
+        }
+
+        [Theory]
+        [InlineData("2026-03-02T06:30:00.250")]
+        [InlineData("2026-03-02T06:30:00.25")]
+        [InlineData("2026-03-02T06:30:00.000001")]
+        [InlineData("2026-03-02T06:30:00")]
+        [InlineData("2026-03-02T06:30")]
+        [InlineData("2026-03-02")]
+        public void DateLikeStringsKeepTheirExactSpelling(string text)
+        {
+            var json = "{\"a\":[\"" + text + "\"],\"b\":{\"t\":\"" + text + "\"}}";
+            Assert.Equal(json, CanonicalJson.ToText(WireJson.Parse(json)));
+            Assert.Equal(JTokenType.String, WireJson.Parse(json)["b"]["t"].Type);
         }
 
         public static IEnumerable<object[]> CanonicalVectors()
