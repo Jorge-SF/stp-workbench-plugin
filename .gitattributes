@@ -1,3 +1,6 @@
+# Embedded-source fidelity: stp_core modules and entry scripts must stay LF.
+python/** text eol=lf
+
 # Reference sources and golden files are compared byte-for-byte: never
 # convert line endings, whatever core.autocrlf says.
 reference/web/** -text
