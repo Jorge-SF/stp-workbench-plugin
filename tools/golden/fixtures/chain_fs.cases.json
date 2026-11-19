@@ -1,0 +1,86 @@
+{
+  "cases": [
+    {
+      "name": "shift_forward_cascade",
+      "description": "Day shift: A100 +1 day pushes B200 +1 (FS) and C300 +1 (12 h slack rounded up to a whole civil day).",
+      "steps": [
+        { "op": "activityEligibility", "activityId": "A100" },
+        { "op": "moveActivity", "activityId": "A100", "days": 1 },
+        { "op": "activityEligibility", "activityId": "B200" }
+      ]
+    },
+    {
+      "name": "shift_backward_blocked",
+      "description": "Pulling a successor earlier than its predecessor allows is rejected; an unlinked activity may move back.",
+      "steps": [
+        { "op": "moveActivity", "activityId": "B200", "days": -1 },
+        { "op": "moveActivity", "activityId": "C300", "days": -1 },
+        { "op": "moveActivity", "activityId": "D400", "days": -1 }
+      ]
+    },
+    {
+      "name": "shift_roundtrip_no_changes",
+      "description": "+2 then -2 days returns to the native schedule: no apply package can be built.",
+      "steps": [
+        { "op": "moveActivity", "activityId": "A100", "days": 2 },
+        { "op": "moveActivity", "activityId": "A100", "days": -2 }
+      ]
+    },
+    {
+      "name": "daily_tail_insert",
+      "description": "Moving the 2026-03-03 day of A100 to 2026-03-05 shifts that day and the rest of the tail by +2 and cascades B200/C300.",
+      "steps": [
+        { "op": "moveDailyTail", "activityId": "A100", "fragmentId": "A100:x1:1:1:2026-03-03T00:00:00:2026-03-04T00:00:00", "targetDate": "2026-03-05" }
+      ]
+    },
+    {
+      "name": "defer_tail_next_period",
+      "description": "Defer the last day of C300 to the first day after the horizon.",
+      "steps": [
+        { "op": "deferDailyTail", "activityId": "C300", "fragmentId": "C300:x1:1:1:2026-03-08T00:00:00:2026-03-08T20:00:00" }
+      ]
+    },
+    {
+      "name": "stagger_tail",
+      "description": "Split-and-stagger A100 after its first day: one division with a one-day gap; then a request for too many divisions.",
+      "steps": [
+        { "op": "staggerDailyTail", "activityId": "A100", "fragmentId": "A100:x1:1:0:2026-03-02T08:00:00:2026-03-03T00:00:00", "divisions": 1, "gapDays": 1 },
+        { "op": "staggerDailyTail", "activityId": "A100", "fragmentId": "A100:x1:1:0:2026-03-02T08:00:00:2026-03-03T00:00:00", "divisions": 5, "gapDays": 1 }
+      ]
+    },
+    {
+      "name": "horizon_edit_and_containment",
+      "description": "A 7-day horizon blocks moving C300 past its end; the range is frozen once local moves exist; preference is persisted.",
+      "steps": [
+        { "op": "editDuration", "value": 7 },
+        { "op": "activityEligibility", "activityId": "C300" },
+        { "op": "moveActivity", "activityId": "C300", "days": 1 },
+        { "op": "moveActivity", "activityId": "A100", "days": 1 },
+        { "op": "editDuration", "value": 14 },
+        { "op": "savePreference" }
+      ]
+    },
+    {
+      "name": "horizon_preference_v2_migration",
+      "description": "A version-2 stored preference (duration only) migrates to version 3 with a derived start day.",
+      "storage": { "vgs-stp-v2:horizon:{projectKey}": { "version": 2, "duration_days": 10 } },
+      "steps": [
+        { "op": "moveActivity", "activityId": "D400", "days": 1 }
+      ]
+    },
+    {
+      "name": "horizon_preference_v3",
+      "description": "A version-3 stored preference fixes the start day and duration.",
+      "storage": { "vgs-stp-v2:horizon:{projectKey}": { "version": 3, "start_day": "2026-03-03", "duration_days": 12 } },
+      "steps": [
+        { "op": "moveActivity", "activityId": "B200", "days": 1 }
+      ]
+    },
+    {
+      "name": "horizon_preference_invalid",
+      "description": "A corrupt stored preference falls back to 28 days with a warning.",
+      "storage": { "vgs-stp-v2:horizon:{projectKey}": "{not json" },
+      "steps": []
+    }
+  ]
+}

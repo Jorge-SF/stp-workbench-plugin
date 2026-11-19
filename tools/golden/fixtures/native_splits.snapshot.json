@@ -1,0 +1,217 @@
+{
+  "schema": "vgs-stp-snapshot/2",
+  "projectName": "native_splits.vgantt",
+  "projectPath": "X:\\synthetic\\native_splits.vgantt",
+  "projectKey": "881a647d7ff59e82a185e07408171a3cad5ab430d8225b8de5ba108ca8c17653",
+  "projectFingerprint": "c73ecef939e29a7ea38065566e7aa3b98105c0c925371e3f36c93d82dca41a02",
+  "precedenceFingerprint": "8bae32ca03cdc3e6ae5eb4291ebdccbc5e363440d25ec439347dd1f55f799757",
+  "exportedAt": "2026-03-01T06:00:00",
+  "dateFormat": "dd/MM/yyyy",
+  "activities": [
+    {
+      "id": "S100",
+      "collectionKey": "c-S100",
+      "overallPercentComplete": "0",
+      "grid": {
+        "ID": "S100",
+        "Description": "Desarrollo frente S (split)",
+        "Resource": "Jumbo 03",
+        "Type": "Desarrollo"
+      },
+      "nativeBars": [
+        {
+          "xmlKey": "x1",
+          "key": "1",
+          "start": "2026-03-02T08:00:00",
+          "finish": "2026-03-03T12:00:00",
+          "quantityPercentage": "45",
+          "percentComplete": "0",
+          "completeWorkedMinutes": "0"
+        },
+        {
+          "xmlKey": "x2",
+          "key": "2",
+          "start": "2026-03-03T14:00:00",
+          "finish": "2026-03-04T20:00:00",
+          "quantityPercentage": "35",
+          "percentComplete": "0",
+          "completeWorkedMinutes": "0"
+        },
+        {
+          "xmlKey": "x3",
+          "key": "3",
+          "start": "2026-03-06T08:00:00",
+          "finish": "2026-03-06T20:00:00",
+          "quantityPercentage": "20",
+          "percentComplete": "0",
+          "completeWorkedMinutes": "0"
+        }
+      ],
+      "fragments": [
+        {
+          "id": "S100:x1:1:0:2026-03-02T08:00:00:2026-03-03T00:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-02T08:00:00",
+          "finish": "2026-03-03T00:00:00",
+          "originalStart": "2026-03-02T08:00:00",
+          "originalFinish": "2026-03-03T00:00:00",
+          "logicalUnitDate": "2026-03-02",
+          "displaySuppressed": false,
+          "quantityPercentage": "25.7142",
+          "lockedCompleted": false
+        },
+        {
+          "id": "S100:x1:1:1:2026-03-03T00:00:00:2026-03-03T12:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-03T00:00:00",
+          "finish": "2026-03-03T12:00:00",
+          "originalStart": "2026-03-03T00:00:00",
+          "originalFinish": "2026-03-03T12:00:00",
+          "logicalUnitDate": "2026-03-03",
+          "displaySuppressed": false,
+          "quantityPercentage": "19.2858",
+          "lockedCompleted": false
+        },
+        {
+          "id": "S100:x2:2:0:2026-03-03T14:00:00:2026-03-04T00:00:00",
+          "nativeBarXmlKey": "x2",
+          "nativeBarKey": "2",
+          "start": "2026-03-03T14:00:00",
+          "finish": "2026-03-04T00:00:00",
+          "originalStart": "2026-03-03T14:00:00",
+          "originalFinish": "2026-03-04T00:00:00",
+          "logicalUnitDate": "2026-03-03",
+          "displaySuppressed": false,
+          "quantityPercentage": "11.6666",
+          "lockedCompleted": false
+        },
+        {
+          "id": "S100:x2:2:1:2026-03-04T00:00:00:2026-03-04T20:00:00",
+          "nativeBarXmlKey": "x2",
+          "nativeBarKey": "2",
+          "start": "2026-03-04T00:00:00",
+          "finish": "2026-03-04T20:00:00",
+          "originalStart": "2026-03-04T00:00:00",
+          "originalFinish": "2026-03-04T20:00:00",
+          "logicalUnitDate": "2026-03-04",
+          "displaySuppressed": false,
+          "quantityPercentage": "23.3334",
+          "lockedCompleted": false
+        },
+        {
+          "id": "S100:x3:3:0:2026-03-06T08:00:00:2026-03-06T20:00:00",
+          "nativeBarXmlKey": "x3",
+          "nativeBarKey": "3",
+          "start": "2026-03-06T08:00:00",
+          "finish": "2026-03-06T20:00:00",
+          "originalStart": "2026-03-06T08:00:00",
+          "originalFinish": "2026-03-06T20:00:00",
+          "logicalUnitDate": "2026-03-06",
+          "displaySuppressed": false,
+          "quantityPercentage": "20",
+          "lockedCompleted": false
+        }
+      ],
+      "nativeAnchors": [
+        {
+          "leftBarXmlKey": "x1",
+          "leftBarKey": "1",
+          "rightBarXmlKey": "x2",
+          "rightBarKey": "2",
+          "at": "2026-03-03T12:00:00",
+          "rightAt": "2026-03-03T14:00:00",
+          "contiguous": false,
+          "cumulativeQuantityPercentage": "45",
+          "links": []
+        },
+        {
+          "leftBarXmlKey": "x2",
+          "leftBarKey": "2",
+          "rightBarXmlKey": "x3",
+          "rightBarKey": "3",
+          "at": "2026-03-04T20:00:00",
+          "rightAt": "2026-03-06T08:00:00",
+          "contiguous": false,
+          "cumulativeQuantityPercentage": "80",
+          "links": [
+            {
+              "key": "L30",
+              "role": "predecessor",
+              "endpointBar": "3",
+              "otherActivityId": "T200",
+              "otherBar": "1",
+              "type": "FinishStart",
+              "lagMicroseconds": "0",
+              "groupKey": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T200",
+      "collectionKey": "c-T200",
+      "overallPercentComplete": "0",
+      "grid": {
+        "ID": "T200",
+        "Description": "Fortificación frente S",
+        "Resource": "Empernador 02",
+        "Type": "Fortificación"
+      },
+      "nativeBars": [
+        {
+          "xmlKey": "x1",
+          "key": "1",
+          "start": "2026-03-07T00:00:00",
+          "finish": "2026-03-09T00:00:00",
+          "quantityPercentage": "100",
+          "percentComplete": "0",
+          "completeWorkedMinutes": "0"
+        }
+      ],
+      "fragments": [
+        {
+          "id": "T200:x1:1:0:2026-03-07T00:00:00:2026-03-08T00:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-07T00:00:00",
+          "finish": "2026-03-08T00:00:00",
+          "originalStart": "2026-03-07T00:00:00",
+          "originalFinish": "2026-03-08T00:00:00",
+          "logicalUnitDate": "2026-03-07",
+          "displaySuppressed": false,
+          "quantityPercentage": "50",
+          "lockedCompleted": false
+        },
+        {
+          "id": "T200:x1:1:1:2026-03-08T00:00:00:2026-03-09T00:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-08T00:00:00",
+          "finish": "2026-03-09T00:00:00",
+          "originalStart": "2026-03-08T00:00:00",
+          "originalFinish": "2026-03-09T00:00:00",
+          "logicalUnitDate": "2026-03-08",
+          "displaySuppressed": false,
+          "quantityPercentage": "50",
+          "lockedCompleted": false
+        }
+      ],
+      "nativeAnchors": []
+    }
+  ],
+  "precedences": [
+    {
+      "key": "L30",
+      "predecessorId": "S100",
+      "successorId": "T200",
+      "predecessorBar": "3",
+      "successorBar": "1",
+      "type": "FinishStart",
+      "lagMicroseconds": "0",
+      "groupKey": ""
+    }
+  ]
+}

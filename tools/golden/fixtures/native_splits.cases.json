@@ -1,0 +1,34 @@
+{
+  "cases": [
+    {
+      "name": "move_split_activity",
+      "description": "Whole-activity move of a three-bar native split; T200 is pushed by ceil(20 h) = 1 day.",
+      "steps": [
+        { "op": "moveActivity", "activityId": "S100", "days": 1 }
+      ]
+    },
+    {
+      "name": "tail_from_shared_day",
+      "description": "2026-03-03 holds fragments of two native bars (one logical unit); moving it to 2026-03-05 moves both and the tail.",
+      "steps": [
+        { "op": "fragmentEligibility", "fragmentId": "S100:x2:2:0:2026-03-03T14:00:00:2026-03-04T00:00:00" },
+        { "op": "moveDailyTail", "activityId": "S100", "fragmentId": "S100:x2:2:0:2026-03-03T14:00:00:2026-03-04T00:00:00", "targetDate": "2026-03-05" }
+      ]
+    },
+    {
+      "name": "tail_into_occupied_day",
+      "description": "Moving the last day back onto an occupied day is rejected; onto the free gap day it is allowed.",
+      "steps": [
+        { "op": "moveDailyTail", "activityId": "S100", "fragmentId": "S100:x3:3:0:2026-03-06T08:00:00:2026-03-06T20:00:00", "targetDate": "2026-03-04" },
+        { "op": "moveDailyTail", "activityId": "S100", "fragmentId": "S100:x3:3:0:2026-03-06T08:00:00:2026-03-06T20:00:00", "targetDate": "2026-03-05" }
+      ]
+    },
+    {
+      "name": "stagger_split",
+      "description": "Split-and-stagger after the first day: two divisions with one-day gaps.",
+      "steps": [
+        { "op": "staggerDailyTail", "activityId": "S100", "fragmentId": "S100:x1:1:0:2026-03-02T08:00:00:2026-03-03T00:00:00", "divisions": 2, "gapDays": 1 }
+      ]
+    }
+  ]
+}

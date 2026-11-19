@@ -1,0 +1,264 @@
+{
+  "plannerLogicSha256": "876acec8c2a32bcb5f26938d9bc8fdeb4eef705e14290e47a3e6e881e6a929f9",
+  "exports": [
+    "deriveCivilHorizon",
+    "validateCivilHorizon",
+    "loadHorizonPreference",
+    "saveHorizonPreference",
+    "acquireHorizonStorage",
+    "escapeHtml",
+    "buildPlannerModel",
+    "validatePlannerModel",
+    "preexistingPrecedenceConflicts",
+    "assessPrecedenceConflicts",
+    "createCivilHorizonController",
+    "cascadeForward",
+    "moveFragment",
+    "moveDailyTail",
+    "staggerDailyTail",
+    "moveActivity",
+    "buildScenario",
+    "buildVgsApplyPackage"
+  ],
+  "cases": [
+    {
+      "fixture": "chain_fs",
+      "case": "shift_forward_cascade",
+      "steps": [
+        "value",
+        "ok",
+        "value"
+      ],
+      "applySha256": "ef14d16aef11e6f50810c276ea5601eaec186035d521ef876fcdf20f15d9f750",
+      "applyError": null
+    },
+    {
+      "fixture": "chain_fs",
+      "case": "shift_backward_blocked",
+      "steps": [
+        "fail:incoming-precedence",
+        "fail:incoming-precedence",
+        "ok"
+      ],
+      "applySha256": "ca16ecaa7b7c19c16af9726796388b9463b1bbda41a4b3b06d21cb2f8c7d9f42",
+      "applyError": null
+    },
+    {
+      "fixture": "chain_fs",
+      "case": "shift_roundtrip_no_changes",
+      "steps": [
+        "ok",
+        "ok"
+      ],
+      "applySha256": null,
+      "applyError": "el paquete de aplicación no contiene cambios directos o por cascada"
+    },
+    {
+      "fixture": "chain_fs",
+      "case": "daily_tail_insert",
+      "steps": [
+        "ok"
+      ],
+      "applySha256": "5f573b4b0c82d8a11201a997f5c34bb727f2aa99749c9ad2e9e531c9973e7f05",
+      "applyError": null
+    },
+    {
+      "fixture": "chain_fs",
+      "case": "defer_tail_next_period",
+      "steps": [
+        "ok"
+      ],
+      "applySha256": "50c79e6cc22674a6d1479e1c0848024d223d2d7eb6e424dfda0d09e722dd516f",
+      "applyError": null
+    },
+    {
+      "fixture": "chain_fs",
+      "case": "stagger_tail",
+      "steps": [
+        "ok",
+        "fail:invalid-move"
+      ],
+      "applySha256": "2c7af60481d088568a3c3cde2bd9b98c6e4a7f9f26c039eea40a4f705db8f745",
+      "applyError": null
+    },
+    {
+      "fixture": "chain_fs",
+      "case": "horizon_edit_and_containment",
+      "steps": [
+        "ok",
+        "value",
+        "fail:horizon-range",
+        "ok",
+        "fail:local-changes",
+        "ok"
+      ],
+      "applySha256": "8178f14671783cf38943acc3b2929e511b253091b12811ac2a479cadeb5cc636",
+      "applyError": null
+    },
+    {
+      "fixture": "chain_fs",
+      "case": "horizon_preference_v2_migration",
+      "steps": [
+        "ok"
+      ],
+      "applySha256": "fe32166c812e9bdd9b9c1841a0ef5a76dac2b58001f52c340cc529168c39be0f",
+      "applyError": null
+    },
+    {
+      "fixture": "chain_fs",
+      "case": "horizon_preference_v3",
+      "steps": [
+        "ok"
+      ],
+      "applySha256": "9adbae2f61f9fb9b95b24765c4a3b7ae55c3e8b47dcefd09c11e11a5cc502c2e",
+      "applyError": null
+    },
+    {
+      "fixture": "chain_fs",
+      "case": "horizon_preference_invalid",
+      "steps": [],
+      "applySha256": null,
+      "applyError": "el paquete de aplicación no contiene cambios directos o por cascada"
+    },
+    {
+      "fixture": "completed_lock",
+      "case": "move_pending_after_completed",
+      "steps": [
+        "value",
+        "value",
+        "ok",
+        "value"
+      ],
+      "applySha256": "6a1d220b0aefd02c5489a8e3edb8948cdfa8ee305cc9e9ba6b4e45cec3ee3451",
+      "applyError": null
+    },
+    {
+      "fixture": "completed_lock",
+      "case": "completed_activity_immovable",
+      "steps": [
+        "value",
+        "fail:completed-work"
+      ],
+      "applySha256": null,
+      "applyError": "el paquete de aplicación no contiene cambios directos o por cascada"
+    },
+    {
+      "fixture": "completed_lock",
+      "case": "cascade_blocked_by_completed_successor",
+      "steps": [
+        "fail:completed-work",
+        "fail:horizon-range"
+      ],
+      "applySha256": null,
+      "applyError": "el paquete de aplicación no contiene cambios directos o por cascada"
+    },
+    {
+      "fixture": "completed_lock",
+      "case": "tail_move_on_locked_unit",
+      "steps": [
+        "fail:completed-work"
+      ],
+      "applySha256": null,
+      "applyError": "el paquete de aplicación no contiene cambios directos o por cascada"
+    },
+    {
+      "fixture": "completed_lock",
+      "case": "mixed_day_completion_boundary",
+      "steps": [
+        "value",
+        "fail:invalid-move",
+        "ok"
+      ],
+      "applySha256": "0e81f9a87c87d5118643c335626f1b865fe3e2f3e34adb74806efe32a5b84e2a",
+      "applyError": null
+    },
+    {
+      "fixture": "native_splits",
+      "case": "move_split_activity",
+      "steps": [
+        "ok"
+      ],
+      "applySha256": "de366d32dac2e17a9e130771468edb303f740cf2a7382fdd9c1440215090959d",
+      "applyError": null
+    },
+    {
+      "fixture": "native_splits",
+      "case": "tail_from_shared_day",
+      "steps": [
+        "value",
+        "ok"
+      ],
+      "applySha256": "38845c58d1dc7eb4ac4a89bd3b657e63aa0907ae3ef0274eff020f5f837f943f",
+      "applyError": null
+    },
+    {
+      "fixture": "native_splits",
+      "case": "tail_into_occupied_day",
+      "steps": [
+        "fail:invalid-move",
+        "ok"
+      ],
+      "applySha256": "9a14e9b2ed8980715de1e8c528713aa88fe3729b9539334c20da48304940dfbb",
+      "applyError": null
+    },
+    {
+      "fixture": "native_splits",
+      "case": "stagger_split",
+      "steps": [
+        "ok"
+      ],
+      "applySha256": "3aba0a911e0153b956e26a910c9debcb04b194334721a8878b4373d9ae5d7f92",
+      "applyError": null
+    },
+    {
+      "fixture": "precedence_conflict",
+      "case": "assess_policies",
+      "steps": [
+        "value",
+        "value"
+      ],
+      "applySha256": null,
+      "applyError": "el paquete de aplicación no contiene cambios directos o por cascada"
+    },
+    {
+      "fixture": "precedence_conflict",
+      "case": "push_beyond_inherited_deficit",
+      "steps": [
+        "ok",
+        "ok"
+      ],
+      "applySha256": "f272c668127aaafcb774d561f22056a389a98afc87f0e2ca8bdd3c1249e85ff5",
+      "applyError": null
+    },
+    {
+      "fixture": "precedence_conflict",
+      "case": "aggravate_inherited_blocked",
+      "steps": [
+        "fail:incoming-precedence",
+        "ok"
+      ],
+      "applySha256": "29e08aa92209742e7594a0c61a275ba74c138b634d2872ec6b5c38ba1739ab4f",
+      "applyError": null
+    },
+    {
+      "fixture": "precedence_conflict",
+      "case": "start_start_lag_push",
+      "steps": [
+        "ok"
+      ],
+      "applySha256": "8610a2d85ca85e19c683e351cf05ac68e41869c28a24055f234ecb1e100c9955",
+      "applyError": null
+    },
+    {
+      "fixture": "precedence_conflict",
+      "case": "finish_finish_push",
+      "steps": [
+        "ok",
+        "fail:incoming-precedence",
+        "ok"
+      ],
+      "applySha256": "ca752ce900781b59bfeb6e15c82bcbc7b308c7bfecd83b54ccddae8f98d4cfc4",
+      "applyError": null
+    }
+  ]
+}
