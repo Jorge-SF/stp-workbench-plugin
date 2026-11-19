@@ -6,6 +6,6 @@ See `docs/STP_Workbench_Plugin_Design.md` for the architecture and phase plan.
 
 ## Layout (planned)
 
-- `python/` – STP Python core (extracted from the bundled VGS scripts)
+- `python/` – STP Python core (extracted from the bundled VGS scripts; see `python/README.md`)
 - `reference/web/` – original HTML/JS planner, kept as the reference for the C# port
 - `src/` – C# Workbench plugin (Phase 1+)
