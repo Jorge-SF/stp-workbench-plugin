@@ -1,0 +1,16 @@
+# Project / client data – never commit
+*.vgantt
+*.xlsx
+Respaldos_STPUG-VGS_v2/
+Back up STP/
+.stp_ug_v2_runtime/
+# Python
+__pycache__/
+*.pyc
+.venv/
+# .NET
+bin/
+obj/
+.vs/
+*.user
+node_modules/
