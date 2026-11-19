@@ -1,0 +1,200 @@
+{
+  "case": "invalid_requests",
+  "description": "Port coverage: unknown activity/fragment, zero move, foreign fragment, same-day target, malformed target date.",
+  "steps": [
+    {
+      "step": {
+        "op": "moveActivity",
+        "activityId": "ZZZ",
+        "days": 1
+      },
+      "outcome": {
+        "ok": false,
+        "message": "actividad desconocida: ZZZ",
+        "code": "invalid-move"
+      }
+    },
+    {
+      "step": {
+        "op": "moveActivity",
+        "activityId": "A100",
+        "days": 0
+      },
+      "outcome": {
+        "ok": false,
+        "message": "movimiento civil inválido",
+        "code": "invalid-move"
+      }
+    },
+    {
+      "step": {
+        "op": "fragmentEligibility",
+        "fragmentId": "nope"
+      },
+      "outcome": {
+        "error": "fragmento desconocido: nope",
+        "code": ""
+      }
+    },
+    {
+      "step": {
+        "op": "moveDailyTail",
+        "activityId": "A100",
+        "fragmentId": "C300:x1:1:0:2026-03-07T08:00:00:2026-03-08T00:00:00",
+        "targetDate": "2026-03-10"
+      },
+      "outcome": {
+        "ok": false,
+        "message": "fragmento ajeno a actividad A100",
+        "code": "invalid-move"
+      }
+    },
+    {
+      "step": {
+        "op": "moveDailyTail",
+        "activityId": "A100",
+        "fragmentId": "A100:x1:1:1:2026-03-03T00:00:00:2026-03-04T00:00:00",
+        "targetDate": "2026-03-03"
+      },
+      "outcome": {
+        "ok": false,
+        "message": "la unidad diaria ya ocupa la fecha destino",
+        "code": "invalid-move"
+      }
+    },
+    {
+      "step": {
+        "op": "moveDailyTail",
+        "activityId": "A100",
+        "fragmentId": "A100:x1:1:1:2026-03-03T00:00:00:2026-03-04T00:00:00",
+        "targetDate": "2026-3-5"
+      },
+      "outcome": {
+        "ok": false,
+        "message": "fecha civil inválida: 2026-3-5T00:00:00",
+        "code": "invalid-move"
+      }
+    },
+    {
+      "step": {
+        "op": "deferDailyTail",
+        "activityId": "A100",
+        "fragmentId": "nope"
+      },
+      "outcome": {
+        "ok": false,
+        "message": "fragmento desconocido: nope",
+        "code": "invalid-move"
+      }
+    }
+  ],
+  "initial": {
+    "horizon": {
+      "horizonStart": "2026-03-02T00:00:00",
+      "horizonFinish": "2026-03-30T00:00:00",
+      "durationDays": 28
+    },
+    "displayHorizon": {
+      "start": "2026-03-02",
+      "finish": "2026-03-29",
+      "durationDays": 28
+    },
+    "hasPending": true,
+    "hasLocalMovements": false,
+    "canDownload": false,
+    "status": ""
+  },
+  "final": {
+    "horizon": {
+      "horizonStart": "2026-03-02T00:00:00",
+      "horizonFinish": "2026-03-30T00:00:00",
+      "durationDays": 28
+    },
+    "displayHorizon": {
+      "start": "2026-03-02",
+      "finish": "2026-03-29",
+      "durationDays": 28
+    },
+    "hasPending": true,
+    "hasLocalMovements": false,
+    "canDownload": false,
+    "status": ""
+  },
+  "fragments": [
+    {
+      "id": "A100:x1:1:0:2026-03-02T08:00:00:2026-03-03T00:00:00",
+      "start": "2026-03-02T08:00:00",
+      "finish": "2026-03-03T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "A100:x1:1:1:2026-03-03T00:00:00:2026-03-04T00:00:00",
+      "start": "2026-03-03T00:00:00",
+      "finish": "2026-03-04T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "A100:x1:1:2:2026-03-04T00:00:00:2026-03-04T20:00:00",
+      "start": "2026-03-04T00:00:00",
+      "finish": "2026-03-04T20:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "B200:x1:1:0:2026-03-04T20:00:00:2026-03-05T00:00:00",
+      "start": "2026-03-04T20:00:00",
+      "finish": "2026-03-05T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "B200:x1:1:1:2026-03-05T00:00:00:2026-03-06T00:00:00",
+      "start": "2026-03-05T00:00:00",
+      "finish": "2026-03-06T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "B200:x1:1:2:2026-03-06T00:00:00:2026-03-06T20:00:00",
+      "start": "2026-03-06T00:00:00",
+      "finish": "2026-03-06T20:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "C300:x1:1:0:2026-03-07T08:00:00:2026-03-08T00:00:00",
+      "start": "2026-03-07T08:00:00",
+      "finish": "2026-03-08T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "C300:x1:1:1:2026-03-08T00:00:00:2026-03-08T20:00:00",
+      "start": "2026-03-08T00:00:00",
+      "finish": "2026-03-08T20:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "D400:x1:1:0:2026-03-03T00:00:00:2026-03-04T00:00:00",
+      "start": "2026-03-03T00:00:00",
+      "finish": "2026-03-04T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "D400:x1:1:1:2026-03-04T00:00:00:2026-03-05T00:00:00",
+      "start": "2026-03-04T00:00:00",
+      "finish": "2026-03-05T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    }
+  ],
+  "storage": {},
+  "applyPackage": {
+    "error": "el paquete de aplicación no contiene cambios directos o por cascada",
+    "code": ""
+  }
+}

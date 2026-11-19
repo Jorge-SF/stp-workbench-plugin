@@ -1,0 +1,6 @@
+{
+  "cases": [
+    {"name": "civil_range_setup", "description": "Deriving a 28-day horizon past 9999-12-31 fails at setup (CIVIL_RANGE).", "steps": []},
+    {"name": "civil_range_moves", "description": "Seeded horizon ending 9999-12-31: forward moves hit the civil range, backward moves work.", "initialHorizon": {"horizonStart": "9999-12-02T00:00:00", "horizonFinish": "9999-12-31T00:00:00"}, "steps": [{"op": "activityEligibility", "activityId": "Z900"}, {"op": "moveActivity", "activityId": "Z900", "days": 1}, {"op": "deferDailyTail", "activityId": "Z900", "fragmentId": "Z900:x1:1:1:9999-12-30T00:00:00:9999-12-31T00:00:00"}, {"op": "editFinish", "value": "9999-12-30"}, {"op": "moveActivity", "activityId": "Z900", "days": -1}]}
+  ]
+}

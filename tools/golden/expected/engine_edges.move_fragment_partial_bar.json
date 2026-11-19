@@ -1,0 +1,165 @@
+{
+  "case": "move_fragment_partial_bar",
+  "description": "moveFragment shifts the fragment and the rest of its bar; non-whole-day deltas are rejected.",
+  "steps": [
+    {
+      "step": {
+        "op": "moveFragment",
+        "fragmentId": "U100:x1:1:1:2026-03-03T00:00:00:2026-03-04T00:00:00",
+        "newStart": "2026-03-04T00:00:00"
+      },
+      "outcome": {
+        "fragments": [
+          {
+            "id": "U100:x1:1:0:2026-03-02T06:30:00.250:2026-03-03T00:00:00",
+            "start": "2026-03-02T06:30:00.250",
+            "finish": "2026-03-03T00:00:00",
+            "provenance": "",
+            "lockedCompleted": false
+          },
+          {
+            "id": "U100:x1:1:1:2026-03-03T00:00:00:2026-03-04T00:00:00",
+            "start": "2026-03-04T00:00:00",
+            "finish": "2026-03-05T00:00:00",
+            "provenance": "direct",
+            "lockedCompleted": false
+          },
+          {
+            "id": "U100:x1:1:2:2026-03-04T00:00:00:2026-03-04T18:15:00.500",
+            "start": "2026-03-05T00:00:00",
+            "finish": "2026-03-05T18:15:00.5",
+            "provenance": "direct",
+            "lockedCompleted": false
+          },
+          {
+            "id": "V200:x1:1:0:2026-03-04T20:00:2026-03-05T00:00:00",
+            "start": "2026-03-05T20:00:00",
+            "finish": "2026-03-06T00:00:00",
+            "provenance": "cascade",
+            "lockedCompleted": false
+          },
+          {
+            "id": "V200:x1:1:1:2026-03-05T00:00:00:2026-03-05T12:00",
+            "start": "2026-03-06T00:00:00",
+            "finish": "2026-03-06T12:00:00",
+            "provenance": "cascade",
+            "lockedCompleted": false
+          },
+          {
+            "id": "W300:x1:1:0:2026-03-01T00:00:00:2026-03-02T00:00:00",
+            "start": "2026-03-01T00:00:00",
+            "finish": "2026-03-02T00:00:00",
+            "provenance": "",
+            "lockedCompleted": false
+          },
+          {
+            "id": "W300:x1:1:1:2026-03-02T00:00:00:2026-03-03T00:00:00",
+            "start": "2026-03-02T00:00:00",
+            "finish": "2026-03-03T00:00:00",
+            "provenance": "",
+            "lockedCompleted": false
+          }
+        ]
+      }
+    },
+    {
+      "step": {
+        "op": "moveFragment",
+        "fragmentId": "U100:x1:1:1:2026-03-03T00:00:00:2026-03-04T00:00:00",
+        "newStart": "2026-03-03T01:00:00"
+      },
+      "outcome": {
+        "error": "el movimiento debe ser en días civiles enteros",
+        "code": ""
+      }
+    }
+  ],
+  "initial": {
+    "horizon": {
+      "horizonStart": "2026-03-01T00:00:00",
+      "horizonFinish": "2026-03-29T00:00:00",
+      "durationDays": 28
+    },
+    "displayHorizon": {
+      "start": "2026-03-01",
+      "finish": "2026-03-28",
+      "durationDays": 28
+    },
+    "hasPending": true,
+    "hasLocalMovements": false,
+    "canDownload": false,
+    "status": ""
+  },
+  "final": {
+    "horizon": {
+      "horizonStart": "2026-03-01T00:00:00",
+      "horizonFinish": "2026-03-29T00:00:00",
+      "durationDays": 28
+    },
+    "displayHorizon": {
+      "start": "2026-03-01",
+      "finish": "2026-03-28",
+      "durationDays": 28
+    },
+    "hasPending": true,
+    "hasLocalMovements": false,
+    "canDownload": false,
+    "status": ""
+  },
+  "fragments": [
+    {
+      "id": "U100:x1:1:0:2026-03-02T06:30:00.250:2026-03-03T00:00:00",
+      "start": "2026-03-02T06:30:00.250",
+      "finish": "2026-03-03T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "U100:x1:1:1:2026-03-03T00:00:00:2026-03-04T00:00:00",
+      "start": "2026-03-03T00:00:00",
+      "finish": "2026-03-04T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "U100:x1:1:2:2026-03-04T00:00:00:2026-03-04T18:15:00.500",
+      "start": "2026-03-04T00:00:00",
+      "finish": "2026-03-04T18:15:00.500",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "V200:x1:1:0:2026-03-04T20:00:2026-03-05T00:00:00",
+      "start": "2026-03-04T20:00",
+      "finish": "2026-03-05T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "V200:x1:1:1:2026-03-05T00:00:00:2026-03-05T12:00",
+      "start": "2026-03-05T00:00:00",
+      "finish": "2026-03-05T12:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "W300:x1:1:0:2026-03-01T00:00:00:2026-03-02T00:00:00",
+      "start": "2026-03-01T00:00:00",
+      "finish": "2026-03-02T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "W300:x1:1:1:2026-03-02T00:00:00:2026-03-03T00:00:00",
+      "start": "2026-03-02T00:00:00",
+      "finish": "2026-03-03T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    }
+  ],
+  "storage": {},
+  "applyPackage": {
+    "error": "el paquete de aplicación no contiene cambios directos o por cascada",
+    "code": ""
+  }
+}

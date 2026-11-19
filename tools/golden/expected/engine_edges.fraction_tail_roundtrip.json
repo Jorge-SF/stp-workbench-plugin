@@ -1,0 +1,175 @@
+{
+  "case": "fraction_tail_roundtrip",
+  "description": "A tail moved away and back keeps scalar times but re-rendered text (.500 -> .5), so JS still reports it as a direct change.",
+  "steps": [
+    {
+      "step": {
+        "op": "moveDailyTail",
+        "activityId": "U100",
+        "fragmentId": "U100:x1:1:2:2026-03-04T00:00:00:2026-03-04T18:15:00.500",
+        "targetDate": "2026-03-06"
+      },
+      "outcome": {
+        "ok": true,
+        "message": "Movimiento validado.",
+        "code": ""
+      }
+    },
+    {
+      "step": {
+        "op": "moveDailyTail",
+        "activityId": "U100",
+        "fragmentId": "U100:x1:1:2:2026-03-04T00:00:00:2026-03-04T18:15:00.500",
+        "targetDate": "2026-03-04"
+      },
+      "outcome": {
+        "ok": true,
+        "message": "Movimiento validado.",
+        "code": ""
+      }
+    }
+  ],
+  "initial": {
+    "horizon": {
+      "horizonStart": "2026-03-01T00:00:00",
+      "horizonFinish": "2026-03-29T00:00:00",
+      "durationDays": 28
+    },
+    "displayHorizon": {
+      "start": "2026-03-01",
+      "finish": "2026-03-28",
+      "durationDays": 28
+    },
+    "hasPending": true,
+    "hasLocalMovements": false,
+    "canDownload": false,
+    "status": ""
+  },
+  "final": {
+    "horizon": {
+      "horizonStart": "2026-03-01T00:00:00",
+      "horizonFinish": "2026-03-29T00:00:00",
+      "durationDays": 28
+    },
+    "displayHorizon": {
+      "start": "2026-03-01",
+      "finish": "2026-03-28",
+      "durationDays": 28
+    },
+    "hasPending": true,
+    "hasLocalMovements": true,
+    "canDownload": true,
+    "status": ""
+  },
+  "fragments": [
+    {
+      "id": "U100:x1:1:0:2026-03-02T06:30:00.250:2026-03-03T00:00:00",
+      "start": "2026-03-02T06:30:00.250",
+      "finish": "2026-03-03T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "U100:x1:1:1:2026-03-03T00:00:00:2026-03-04T00:00:00",
+      "start": "2026-03-03T00:00:00",
+      "finish": "2026-03-04T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "U100:x1:1:2:2026-03-04T00:00:00:2026-03-04T18:15:00.500",
+      "start": "2026-03-04T00:00:00",
+      "finish": "2026-03-04T18:15:00.5",
+      "provenance": "direct",
+      "lockedCompleted": false
+    },
+    {
+      "id": "V200:x1:1:0:2026-03-04T20:00:2026-03-05T00:00:00",
+      "start": "2026-03-04T20:00",
+      "finish": "2026-03-05T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "V200:x1:1:1:2026-03-05T00:00:00:2026-03-05T12:00",
+      "start": "2026-03-05T00:00:00",
+      "finish": "2026-03-05T12:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "W300:x1:1:0:2026-03-01T00:00:00:2026-03-02T00:00:00",
+      "start": "2026-03-01T00:00:00",
+      "finish": "2026-03-02T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "W300:x1:1:1:2026-03-02T00:00:00:2026-03-03T00:00:00",
+      "start": "2026-03-02T00:00:00",
+      "finish": "2026-03-03T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    }
+  ],
+  "storage": {},
+  "applyPackage": {
+    "sha256": "aa2e03bcbc4bf3cba415800b8de566f2d5cda59d4fdfd517f5fa088354473e00",
+    "package": {
+      "schema": "vgs-stp-apply/1",
+      "project_fingerprint": "5de969893490156de852d4a65c9cc64b8e997a3599a84c8d27b4a7dd7e635ade",
+      "precedence_fingerprint": "67145e960626af90adb1266508527cf8033ce3207fb7f92bdad0d8e3163331da",
+      "horizon_start": "2026-03-01T00:00:00",
+      "horizon_finish": "2026-03-29T00:00:00",
+      "activities": [
+        {
+          "activity_id": "U100",
+          "fragments": [
+            {
+              "id": "U100:x1:1:0:2026-03-02T06:30:00.250:2026-03-03T00:00:00",
+              "native_bar_xml_key": "x1",
+              "native_bar_key": "1",
+              "logical_unit_id": "U100:2026-03-02",
+              "logical_unit_date": "2026-03-02",
+              "provenance": "unchanged",
+              "start": "2026-03-02T06:30:00.250",
+              "finish": "2026-03-03T00:00:00",
+              "original_start": "2026-03-02T06:30:00.250",
+              "original_finish": "2026-03-03T00:00:00",
+              "quantity_percentage": "30",
+              "locked_completed": false
+            },
+            {
+              "id": "U100:x1:1:1:2026-03-03T00:00:00:2026-03-04T00:00:00",
+              "native_bar_xml_key": "x1",
+              "native_bar_key": "1",
+              "logical_unit_id": "U100:2026-03-03",
+              "logical_unit_date": "2026-03-03",
+              "provenance": "unchanged",
+              "start": "2026-03-03T00:00:00",
+              "finish": "2026-03-04T00:00:00",
+              "original_start": "2026-03-03T00:00:00",
+              "original_finish": "2026-03-04T00:00:00",
+              "quantity_percentage": "45",
+              "locked_completed": false
+            },
+            {
+              "id": "U100:x1:1:2:2026-03-04T00:00:00:2026-03-04T18:15:00.500",
+              "native_bar_xml_key": "x1",
+              "native_bar_key": "1",
+              "logical_unit_id": "U100:2026-03-04",
+              "logical_unit_date": "2026-03-04",
+              "provenance": "direct",
+              "start": "2026-03-04T00:00:00",
+              "finish": "2026-03-04T18:15:00.5",
+              "original_start": "2026-03-04T00:00:00",
+              "original_finish": "2026-03-04T18:15:00.500",
+              "quantity_percentage": "25",
+              "locked_completed": false
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

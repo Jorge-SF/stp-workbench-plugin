@@ -1,0 +1,159 @@
+{
+  "case": "civil_range_moves",
+  "description": "Seeded horizon ending 9999-12-31: forward moves hit the civil range, backward moves work.",
+  "steps": [
+    {
+      "step": {
+        "op": "activityEligibility",
+        "activityId": "Z900"
+      },
+      "outcome": {
+        "showControls": true,
+        "backwardEnabled": true,
+        "forwardEnabled": false,
+        "guidance": "Movimiento no disponible: esta dirección excede el rango civil compatible (años 0001 a 9999)."
+      }
+    },
+    {
+      "step": {
+        "op": "moveActivity",
+        "activityId": "Z900",
+        "days": 1
+      },
+      "outcome": {
+        "ok": false,
+        "message": "fecha civil fuera del rango compatible (años 0001 a 9999)",
+        "code": "civil-range"
+      }
+    },
+    {
+      "step": {
+        "op": "deferDailyTail",
+        "activityId": "Z900",
+        "fragmentId": "Z900:x1:1:1:9999-12-30T00:00:00:9999-12-31T00:00:00"
+      },
+      "outcome": {
+        "ok": false,
+        "message": "fecha civil fuera del rango compatible (años 0001 a 9999)",
+        "code": "civil-range"
+      }
+    },
+    {
+      "step": {
+        "op": "editFinish",
+        "value": "9999-12-30"
+      },
+      "outcome": {
+        "ok": true,
+        "message": "Horizonte civil actualizado.",
+        "code": ""
+      }
+    },
+    {
+      "step": {
+        "op": "moveActivity",
+        "activityId": "Z900",
+        "days": -1
+      },
+      "outcome": {
+        "ok": true,
+        "message": "Movimiento validado.",
+        "code": ""
+      }
+    }
+  ],
+  "initial": {
+    "horizon": {
+      "horizonStart": "9999-12-02T00:00:00",
+      "horizonFinish": "9999-12-31T00:00:00",
+      "durationDays": 29
+    },
+    "displayHorizon": {
+      "start": "9999-12-02",
+      "finish": "9999-12-30",
+      "durationDays": 29
+    },
+    "hasPending": true,
+    "hasLocalMovements": false,
+    "canDownload": false,
+    "status": ""
+  },
+  "final": {
+    "horizon": {
+      "horizonStart": "9999-12-02T00:00:00",
+      "horizonFinish": "9999-12-31T00:00:00",
+      "durationDays": 29
+    },
+    "displayHorizon": {
+      "start": "9999-12-02",
+      "finish": "9999-12-30",
+      "durationDays": 29
+    },
+    "hasPending": true,
+    "hasLocalMovements": true,
+    "canDownload": true,
+    "status": ""
+  },
+  "fragments": [
+    {
+      "id": "Z900:x1:1:0:9999-12-29T00:00:00:9999-12-30T00:00:00",
+      "start": "9999-12-28T00:00:00",
+      "finish": "9999-12-29T00:00:00",
+      "provenance": "direct",
+      "lockedCompleted": false
+    },
+    {
+      "id": "Z900:x1:1:1:9999-12-30T00:00:00:9999-12-31T00:00:00",
+      "start": "9999-12-29T00:00:00",
+      "finish": "9999-12-30T00:00:00",
+      "provenance": "direct",
+      "lockedCompleted": false
+    }
+  ],
+  "storage": {},
+  "applyPackage": {
+    "sha256": "a41419fa07a98c0cb9557cafa59ced83b5ab42c49b2a7ef95bd692e973d2afc3",
+    "package": {
+      "schema": "vgs-stp-apply/1",
+      "project_fingerprint": "50395f998eb089bd5a7502bcd2a9ccbc99de941b562010b2c525f94d252fc15e",
+      "precedence_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "horizon_start": "9999-12-02T00:00:00",
+      "horizon_finish": "9999-12-31T00:00:00",
+      "activities": [
+        {
+          "activity_id": "Z900",
+          "fragments": [
+            {
+              "id": "Z900:x1:1:0:9999-12-29T00:00:00:9999-12-30T00:00:00",
+              "native_bar_xml_key": "x1",
+              "native_bar_key": "1",
+              "logical_unit_id": "Z900:9999-12-29",
+              "logical_unit_date": "9999-12-29",
+              "provenance": "direct",
+              "start": "9999-12-28T00:00:00",
+              "finish": "9999-12-29T00:00:00",
+              "original_start": "9999-12-29T00:00:00",
+              "original_finish": "9999-12-30T00:00:00",
+              "quantity_percentage": "50",
+              "locked_completed": false
+            },
+            {
+              "id": "Z900:x1:1:1:9999-12-30T00:00:00:9999-12-31T00:00:00",
+              "native_bar_xml_key": "x1",
+              "native_bar_key": "1",
+              "logical_unit_id": "Z900:9999-12-30",
+              "logical_unit_date": "9999-12-30",
+              "provenance": "direct",
+              "start": "9999-12-29T00:00:00",
+              "finish": "9999-12-30T00:00:00",
+              "original_start": "9999-12-30T00:00:00",
+              "original_finish": "9999-12-31T00:00:00",
+              "quantity_percentage": "50",
+              "locked_completed": false
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

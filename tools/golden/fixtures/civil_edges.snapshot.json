@@ -1,0 +1,64 @@
+{
+  "schema": "vgs-stp-snapshot/2",
+  "projectName": "civil_edges.vgantt",
+  "projectPath": "X:synthetic${name}.vgantt",
+  "projectKey": "87828b19d844ead997ad5a0118bf85baf072410cbbaef330c63de4d565e2665c",
+  "projectFingerprint": "50395f998eb089bd5a7502bcd2a9ccbc99de941b562010b2c525f94d252fc15e",
+  "precedenceFingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "exportedAt": "2026-03-01T06:00:00",
+  "dateFormat": "dd/MM/yyyy",
+  "activities": [
+    {
+      "id": "Z900",
+      "collectionKey": "c-Z900",
+      "overallPercentComplete": "0",
+      "grid": {
+        "ID": "Z900",
+        "Description": "Actividad al final del rango civil",
+        "Resource": "Equipo sintético",
+        "Type": "Desarrollo"
+      },
+      "nativeBars": [
+        {
+          "xmlKey": "x1",
+          "key": "1",
+          "start": "9999-12-29T00:00:00",
+          "finish": "9999-12-31T00:00:00",
+          "quantityPercentage": "100",
+          "percentComplete": "0",
+          "completeWorkedMinutes": "0"
+        }
+      ],
+      "fragments": [
+        {
+          "id": "Z900:x1:1:0:9999-12-29T00:00:00:9999-12-30T00:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "9999-12-29T00:00:00",
+          "finish": "9999-12-30T00:00:00",
+          "originalStart": "9999-12-29T00:00:00",
+          "originalFinish": "9999-12-30T00:00:00",
+          "logicalUnitDate": "9999-12-29",
+          "displaySuppressed": false,
+          "quantityPercentage": "50",
+          "lockedCompleted": false
+        },
+        {
+          "id": "Z900:x1:1:1:9999-12-30T00:00:00:9999-12-31T00:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "9999-12-30T00:00:00",
+          "finish": "9999-12-31T00:00:00",
+          "originalStart": "9999-12-30T00:00:00",
+          "originalFinish": "9999-12-31T00:00:00",
+          "logicalUnitDate": "9999-12-30",
+          "displaySuppressed": false,
+          "quantityPercentage": "50",
+          "lockedCompleted": false
+        }
+      ],
+      "nativeAnchors": []
+    }
+  ],
+  "precedences": []
+}

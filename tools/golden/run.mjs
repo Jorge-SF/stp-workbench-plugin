@@ -88,7 +88,7 @@ function stateSummary(state) {
   };
 }
 
-function runStep(planner, logic, step) {
+function runStep(planner, logic, step, snapshot) {
   const { api } = logic;
   switch (step.op) {
     case 'moveActivity': return planner.moveActivity(step.activityId, step.days);
@@ -107,6 +107,12 @@ function runStep(planner, logic, step) {
     case 'savePreference': return planner.savePreference();
     case 'reset': return planner.reset();
     case 'assessPrecedenceConflicts': return api.assessPrecedenceConflicts(planner.state().model, step.policy);
+    // Pure module functions on the current model; the controller state is not changed.
+    case 'moveFragment': return { fragments: fragmentRows(api.moveFragment(planner.state().model, step.fragmentId, step.newStart)) };
+    case 'buildScenario': return api.buildScenario(planner.state().model, {
+      projectFingerprint: snapshot.projectFingerprint,
+      precedenceFingerprint: snapshot.precedenceFingerprint,
+    }, planner.state().horizon);
     default: throw new Error(`unknown op ${step.op}`);
   }
 }
@@ -129,7 +135,7 @@ function runCase(logic, snapshotText, snapshot, testCase) {
   result.initial = stateSummary(planner.state());
   for (const step of testCase.steps || []) {
     let outcome;
-    try { outcome = plain(runStep(planner, logic, step)); } catch (error) { outcome = errorValue(error); }
+    try { outcome = plain(runStep(planner, logic, step, snapshot)); } catch (error) { outcome = errorValue(error); }
     result.steps.push({ step, outcome });
   }
   const state = planner.state();

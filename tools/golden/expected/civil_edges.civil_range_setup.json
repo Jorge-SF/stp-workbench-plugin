@@ -1,0 +1,9 @@
+{
+  "case": "civil_range_setup",
+  "description": "Deriving a 28-day horizon past 9999-12-31 fails at setup (CIVIL_RANGE).",
+  "steps": [],
+  "setupError": {
+    "error": "fecha civil fuera del rango compatible (años 0001 a 9999)",
+    "code": "CIVIL_RANGE"
+  }
+}

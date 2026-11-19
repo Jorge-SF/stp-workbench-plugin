@@ -1,0 +1,200 @@
+{
+  "schema": "vgs-stp-snapshot/2",
+  "projectName": "engine_edges.vgantt",
+  "projectPath": "X:synthetic${name}.vgantt",
+  "projectKey": "87828b19d844ead997ad5a0118bf85baf072410cbbaef330c63de4d565e2665c",
+  "projectFingerprint": "5de969893490156de852d4a65c9cc64b8e997a3599a84c8d27b4a7dd7e635ade",
+  "precedenceFingerprint": "67145e960626af90adb1266508527cf8033ce3207fb7f92bdad0d8e3163331da",
+  "exportedAt": "2026-03-01T06:00:00",
+  "dateFormat": "dd/MM/yyyy",
+  "activities": [
+    {
+      "id": "U100",
+      "collectionKey": "c-U100",
+      "overallPercentComplete": "0",
+      "grid": {
+        "ID": "U100",
+        "Description": "Desarrollo con fracciones de segundo",
+        "Resource": "Equipo sintético",
+        "Type": "Desarrollo"
+      },
+      "nativeBars": [
+        {
+          "xmlKey": "x1",
+          "key": "1",
+          "start": "2026-03-02T06:30:00.250",
+          "finish": "2026-03-04T18:15:00.500",
+          "quantityPercentage": "100",
+          "percentComplete": "0",
+          "completeWorkedMinutes": "0"
+        }
+      ],
+      "fragments": [
+        {
+          "id": "U100:x1:1:0:2026-03-02T06:30:00.250:2026-03-03T00:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-02T06:30:00.250",
+          "finish": "2026-03-03T00:00:00",
+          "originalStart": "2026-03-02T06:30:00.250",
+          "originalFinish": "2026-03-03T00:00:00",
+          "logicalUnitDate": "2026-03-02",
+          "displaySuppressed": false,
+          "quantityPercentage": "30",
+          "lockedCompleted": false
+        },
+        {
+          "id": "U100:x1:1:1:2026-03-03T00:00:00:2026-03-04T00:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-03T00:00:00",
+          "finish": "2026-03-04T00:00:00",
+          "originalStart": "2026-03-03T00:00:00",
+          "originalFinish": "2026-03-04T00:00:00",
+          "logicalUnitDate": "2026-03-03",
+          "displaySuppressed": false,
+          "quantityPercentage": "45",
+          "lockedCompleted": false
+        },
+        {
+          "id": "U100:x1:1:2:2026-03-04T00:00:00:2026-03-04T18:15:00.500",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-04T00:00:00",
+          "finish": "2026-03-04T18:15:00.500",
+          "originalStart": "2026-03-04T00:00:00",
+          "originalFinish": "2026-03-04T18:15:00.500",
+          "logicalUnitDate": "2026-03-04",
+          "displaySuppressed": false,
+          "quantityPercentage": "25",
+          "lockedCompleted": false
+        }
+      ],
+      "nativeAnchors": []
+    },
+    {
+      "id": "V200",
+      "collectionKey": "c-V200",
+      "overallPercentComplete": "0",
+      "grid": {
+        "ID": "V200",
+        "Description": "Fortificación con horas sin segundos",
+        "Resource": "Equipo sintético",
+        "Type": "Desarrollo"
+      },
+      "nativeBars": [
+        {
+          "xmlKey": "x1",
+          "key": "1",
+          "start": "2026-03-04T20:00",
+          "finish": "2026-03-05T12:00",
+          "quantityPercentage": "100",
+          "percentComplete": "0",
+          "completeWorkedMinutes": "0"
+        }
+      ],
+      "fragments": [
+        {
+          "id": "V200:x1:1:0:2026-03-04T20:00:2026-03-05T00:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-04T20:00",
+          "finish": "2026-03-05T00:00:00",
+          "originalStart": "2026-03-04T20:00",
+          "originalFinish": "2026-03-05T00:00:00",
+          "logicalUnitDate": "2026-03-04",
+          "displaySuppressed": false,
+          "quantityPercentage": "33.3333",
+          "lockedCompleted": false
+        },
+        {
+          "id": "V200:x1:1:1:2026-03-05T00:00:00:2026-03-05T12:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-05T00:00:00",
+          "finish": "2026-03-05T12:00",
+          "originalStart": "2026-03-05T00:00:00",
+          "originalFinish": "2026-03-05T12:00",
+          "logicalUnitDate": "2026-03-05",
+          "displaySuppressed": false,
+          "quantityPercentage": "66.6667",
+          "lockedCompleted": false
+        }
+      ],
+      "nativeAnchors": []
+    },
+    {
+      "id": "W300",
+      "collectionKey": "c-W300",
+      "overallPercentComplete": "0",
+      "grid": {
+        "ID": "W300",
+        "Description": "Servicio con precedencia inicio-fin",
+        "Resource": "Equipo sintético",
+        "Type": "Desarrollo"
+      },
+      "nativeBars": [
+        {
+          "xmlKey": "x1",
+          "key": "1",
+          "start": "2026-03-01T00:00:00",
+          "finish": "2026-03-03T00:00:00",
+          "quantityPercentage": "100",
+          "percentComplete": "0",
+          "completeWorkedMinutes": "0"
+        }
+      ],
+      "fragments": [
+        {
+          "id": "W300:x1:1:0:2026-03-01T00:00:00:2026-03-02T00:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-01T00:00:00",
+          "finish": "2026-03-02T00:00:00",
+          "originalStart": "2026-03-01T00:00:00",
+          "originalFinish": "2026-03-02T00:00:00",
+          "logicalUnitDate": "2026-03-01",
+          "displaySuppressed": false,
+          "quantityPercentage": "50",
+          "lockedCompleted": false
+        },
+        {
+          "id": "W300:x1:1:1:2026-03-02T00:00:00:2026-03-03T00:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-02T00:00:00",
+          "finish": "2026-03-03T00:00:00",
+          "originalStart": "2026-03-02T00:00:00",
+          "originalFinish": "2026-03-03T00:00:00",
+          "logicalUnitDate": "2026-03-02",
+          "displaySuppressed": false,
+          "quantityPercentage": "50",
+          "lockedCompleted": false
+        }
+      ],
+      "nativeAnchors": []
+    }
+  ],
+  "precedences": [
+    {
+      "key": "L40",
+      "predecessorId": "U100",
+      "successorId": "V200",
+      "predecessorBar": "1",
+      "successorBar": "1",
+      "type": "fs",
+      "lagSeconds": 3600,
+      "groupKey": ""
+    },
+    {
+      "key": "L41",
+      "predecessorId": "U100",
+      "successorId": "W300",
+      "predecessorBar": "1",
+      "successorBar": "1",
+      "type": "Start-Finish",
+      "lagMicroseconds": "0",
+      "groupKey": ""
+    }
+  ]
+}
