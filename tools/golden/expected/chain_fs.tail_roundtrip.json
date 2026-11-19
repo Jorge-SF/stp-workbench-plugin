@@ -1,0 +1,141 @@
+{
+  "case": "tail_roundtrip",
+  "description": "A daily tail moved away and back (whole-second times): instants and text both return to the original.",
+  "steps": [
+    {
+      "step": {
+        "op": "moveDailyTail",
+        "activityId": "A100",
+        "fragmentId": "A100:x1:1:1:2026-03-03T00:00:00:2026-03-04T00:00:00",
+        "targetDate": "2026-03-05"
+      },
+      "outcome": {
+        "ok": true,
+        "message": "Movimiento validado.",
+        "code": ""
+      }
+    },
+    {
+      "step": {
+        "op": "moveDailyTail",
+        "activityId": "A100",
+        "fragmentId": "A100:x1:1:1:2026-03-03T00:00:00:2026-03-04T00:00:00",
+        "targetDate": "2026-03-03"
+      },
+      "outcome": {
+        "ok": true,
+        "message": "Movimiento validado.",
+        "code": ""
+      }
+    }
+  ],
+  "initial": {
+    "horizon": {
+      "horizonStart": "2026-03-02T00:00:00",
+      "horizonFinish": "2026-03-30T00:00:00",
+      "durationDays": 28
+    },
+    "displayHorizon": {
+      "start": "2026-03-02",
+      "finish": "2026-03-29",
+      "durationDays": 28
+    },
+    "hasPending": true,
+    "hasLocalMovements": false,
+    "canDownload": false,
+    "status": ""
+  },
+  "final": {
+    "horizon": {
+      "horizonStart": "2026-03-02T00:00:00",
+      "horizonFinish": "2026-03-30T00:00:00",
+      "durationDays": 28
+    },
+    "displayHorizon": {
+      "start": "2026-03-02",
+      "finish": "2026-03-29",
+      "durationDays": 28
+    },
+    "hasPending": true,
+    "hasLocalMovements": false,
+    "canDownload": false,
+    "status": ""
+  },
+  "fragments": [
+    {
+      "id": "A100:x1:1:0:2026-03-02T08:00:00:2026-03-03T00:00:00",
+      "start": "2026-03-02T08:00:00",
+      "finish": "2026-03-03T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "A100:x1:1:1:2026-03-03T00:00:00:2026-03-04T00:00:00",
+      "start": "2026-03-03T00:00:00",
+      "finish": "2026-03-04T00:00:00",
+      "provenance": "direct",
+      "lockedCompleted": false
+    },
+    {
+      "id": "A100:x1:1:2:2026-03-04T00:00:00:2026-03-04T20:00:00",
+      "start": "2026-03-04T00:00:00",
+      "finish": "2026-03-04T20:00:00",
+      "provenance": "direct",
+      "lockedCompleted": false
+    },
+    {
+      "id": "B200:x1:1:0:2026-03-04T20:00:00:2026-03-05T00:00:00",
+      "start": "2026-03-04T20:00:00",
+      "finish": "2026-03-05T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "B200:x1:1:1:2026-03-05T00:00:00:2026-03-06T00:00:00",
+      "start": "2026-03-05T00:00:00",
+      "finish": "2026-03-06T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "B200:x1:1:2:2026-03-06T00:00:00:2026-03-06T20:00:00",
+      "start": "2026-03-06T00:00:00",
+      "finish": "2026-03-06T20:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "C300:x1:1:0:2026-03-07T08:00:00:2026-03-08T00:00:00",
+      "start": "2026-03-07T08:00:00",
+      "finish": "2026-03-08T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "C300:x1:1:1:2026-03-08T00:00:00:2026-03-08T20:00:00",
+      "start": "2026-03-08T00:00:00",
+      "finish": "2026-03-08T20:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "D400:x1:1:0:2026-03-03T00:00:00:2026-03-04T00:00:00",
+      "start": "2026-03-03T00:00:00",
+      "finish": "2026-03-04T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "D400:x1:1:1:2026-03-04T00:00:00:2026-03-05T00:00:00",
+      "start": "2026-03-04T00:00:00",
+      "finish": "2026-03-05T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    }
+  ],
+  "storage": {},
+  "applyPackage": {
+    "error": "vista previa no coincide: A100:x1:1:1:2026-03-03T00:00:00:2026-03-04T00:00:00",
+    "code": ""
+  }
+}

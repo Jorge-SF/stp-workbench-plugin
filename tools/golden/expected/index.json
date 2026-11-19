@@ -275,6 +275,16 @@
       "applyError": "el paquete de aplicación no contiene cambios directos o por cascada"
     },
     {
+      "fixture": "chain_fs",
+      "case": "tail_roundtrip",
+      "steps": [
+        "ok",
+        "ok"
+      ],
+      "applySha256": null,
+      "applyError": "vista previa no coincide: A100:x1:1:1:2026-03-03T00:00:00:2026-03-04T00:00:00"
+    },
+    {
       "fixture": "civil_edges",
       "case": "civil_range_setup",
       "steps": [],
