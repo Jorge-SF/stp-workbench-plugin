@@ -74,8 +74,9 @@ Readers should ignore unknown keys inside `bridge_config`, so the HTML config ca
    atomically with `stp_v2_windows_atomic.atomic_replace_bytes_windows`: a protected temporary sibling, a
    flush, and one rename. If the file exists, it is complete and belongs to the latest run.
 3. Temporary and backup siblings start with `.plugin_session.json.`. Readers must open only the exact name.
-4. The session is valid while that bridge is alive. A new run of script 2 takes the lease, and the old bridge
-   exits. If the endpoint stops answering, or `GET /snapshot` returns 409 (stale), run script 2 again.
+4. The session is valid while that bridge is alive. A new run of script 2 exports a new snapshot (new
+   `exportedAt`), so it starts a new bridge with a new token and takes the lease, and the old bridge exits
+   within about a second. The running bridge is reused (same token) only for an identical snapshot. If the endpoint stops answering, or `GET /snapshot` returns 409 (stale), run script 2 again.
 
 **Who deletes it:** the plugin should delete the file once it has read it and has checked
 `GET /health` with the token. Script 2 deletes and replaces it on the next plugin run anyway. Browser mode
