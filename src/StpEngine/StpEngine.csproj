@@ -14,4 +14,7 @@
     <!-- Framework only: BigInteger for precedence lags (JS BigInt). -->
     <Reference Include="System.Numerics" />
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="StpEngine.Tests" />
+  </ItemGroup>
 </Project>

@@ -121,6 +121,180 @@
       "applyError": "el paquete de aplicación no contiene cambios directos o por cascada"
     },
     {
+      "fixture": "chain_fs",
+      "case": "horizon_edit_start_finish_reset",
+      "steps": [
+        "ok",
+        "ok",
+        "fail:invalid-move",
+        "fail:invalid-move",
+        "fail:invalid-move",
+        "fail:invalid-move",
+        "fail:civil-range",
+        "ok",
+        "ok",
+        "ok",
+        "fail:local-changes",
+        "ok",
+        "ok"
+      ],
+      "applySha256": null,
+      "applyError": "el paquete de aplicación no contiene cambios directos o por cascada"
+    },
+    {
+      "fixture": "chain_fs",
+      "case": "tail_then_whole_moves",
+      "steps": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "applySha256": "e3dfa3be27ad5337abbf06400c5eff4d42a8919d38fa72cb2f7b24af1e2e66ae",
+      "applyError": null
+    },
+    {
+      "fixture": "chain_fs",
+      "case": "retail_cascaded_successor",
+      "steps": [
+        "ok",
+        "value",
+        "ok"
+      ],
+      "applySha256": "5254f668abb601fd828cb2b31e10bfe5f66048fd0e0498aa94414ede42ea5c3c",
+      "applyError": null
+    },
+    {
+      "fixture": "chain_fs",
+      "case": "direct_cascade_conflict",
+      "steps": [
+        "ok",
+        "fail:incoming-precedence",
+        "fail:invalid-move"
+      ],
+      "applySha256": "f430f1b185055c0086daa510a079abb150eda719f445b85da7c49a6c0e479757",
+      "applyError": null
+    },
+    {
+      "fixture": "chain_fs",
+      "case": "out_of_range_controls",
+      "steps": [
+        "ok",
+        "value",
+        "value",
+        "value",
+        "value",
+        "value",
+        "fail:invalid-move",
+        "fail:horizon-range"
+      ],
+      "applySha256": null,
+      "applyError": "el paquete de aplicación no contiene cambios directos o por cascada"
+    },
+    {
+      "fixture": "chain_fs",
+      "case": "stagger_horizon_range",
+      "steps": [
+        "ok",
+        "fail:horizon-range",
+        "fail:invalid-move",
+        "fail:invalid-move",
+        "ok"
+      ],
+      "applySha256": "ea0995e7ea92a6ba5c2dc68710cedbc4a24701bb54baf1179819d3b89da4e755",
+      "applyError": null
+    },
+    {
+      "fixture": "chain_fs",
+      "case": "invalid_requests",
+      "steps": [
+        "fail:invalid-move",
+        "fail:invalid-move",
+        "error",
+        "fail:invalid-move",
+        "fail:invalid-move",
+        "fail:invalid-move",
+        "fail:invalid-move"
+      ],
+      "applySha256": null,
+      "applyError": "el paquete de aplicación no contiene cambios directos o por cascada"
+    },
+    {
+      "fixture": "chain_fs",
+      "case": "scenario_and_fragment_move",
+      "steps": [
+        "value",
+        "error",
+        "error",
+        "ok",
+        "value"
+      ],
+      "applySha256": "ef14d16aef11e6f50810c276ea5601eaec186035d521ef876fcdf20f15d9f750",
+      "applyError": null
+    },
+    {
+      "fixture": "chain_fs",
+      "case": "preference_v3_start_outside",
+      "steps": [],
+      "applySha256": null,
+      "applyError": "el paquete de aplicación no contiene cambios directos o por cascada"
+    },
+    {
+      "fixture": "chain_fs",
+      "case": "preference_numeric_forms",
+      "steps": [],
+      "applySha256": null,
+      "applyError": "el paquete de aplicación no contiene cambios directos o por cascada"
+    },
+    {
+      "fixture": "chain_fs",
+      "case": "preference_duplicate_keys",
+      "steps": [],
+      "applySha256": null,
+      "applyError": "el paquete de aplicación no contiene cambios directos o por cascada"
+    },
+    {
+      "fixture": "chain_fs",
+      "case": "preference_oversized_utf8",
+      "steps": [],
+      "applySha256": null,
+      "applyError": "el paquete de aplicación no contiene cambios directos o por cascada"
+    },
+    {
+      "fixture": "chain_fs",
+      "case": "preference_bad_start_day",
+      "steps": [],
+      "applySha256": null,
+      "applyError": "el paquete de aplicación no contiene cambios directos o por cascada"
+    },
+    {
+      "fixture": "chain_fs",
+      "case": "preference_extra_key",
+      "steps": [],
+      "applySha256": null,
+      "applyError": "el paquete de aplicación no contiene cambios directos o por cascada"
+    },
+    {
+      "fixture": "civil_edges",
+      "case": "civil_range_setup",
+      "steps": [],
+      "applySha256": null,
+      "applyError": null
+    },
+    {
+      "fixture": "civil_edges",
+      "case": "civil_range_moves",
+      "steps": [
+        "value",
+        "fail:civil-range",
+        "fail:civil-range",
+        "ok",
+        "ok"
+      ],
+      "applySha256": "a41419fa07a98c0cb9557cafa59ced83b5ab42c49b2a7ef95bd692e973d2afc3",
+      "applyError": null
+    },
+    {
       "fixture": "completed_lock",
       "case": "move_pending_after_completed",
       "steps": [
@@ -171,6 +345,37 @@
       ],
       "applySha256": "0e81f9a87c87d5118643c335626f1b865fe3e2f3e34adb74806efe32a5b84e2a",
       "applyError": null
+    },
+    {
+      "fixture": "engine_edges",
+      "case": "fractional_cascade",
+      "steps": [
+        "value",
+        "ok",
+        "value"
+      ],
+      "applySha256": "92d963b79dc58516855ec7f5eae8e9cb085d33a4472218264f9eeeb0efa84b8a",
+      "applyError": null
+    },
+    {
+      "fixture": "engine_edges",
+      "case": "fraction_tail_roundtrip",
+      "steps": [
+        "ok",
+        "ok"
+      ],
+      "applySha256": "aa2e03bcbc4bf3cba415800b8de566f2d5cda59d4fdfd517f5fa088354473e00",
+      "applyError": null
+    },
+    {
+      "fixture": "engine_edges",
+      "case": "move_fragment_partial_bar",
+      "steps": [
+        "value",
+        "error"
+      ],
+      "applySha256": null,
+      "applyError": "el paquete de aplicación no contiene cambios directos o por cascada"
     },
     {
       "fixture": "native_splits",

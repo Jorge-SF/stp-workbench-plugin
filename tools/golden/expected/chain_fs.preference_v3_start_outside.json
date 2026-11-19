@@ -1,0 +1,116 @@
+{
+  "case": "preference_v3_start_outside",
+  "description": "Port coverage: a v3 preference whose start day has no pending work falls back to the derived start with the stored duration.",
+  "steps": [],
+  "initial": {
+    "horizon": {
+      "horizonStart": "2026-03-02T00:00:00",
+      "horizonFinish": "2026-03-12T00:00:00",
+      "durationDays": 10
+    },
+    "displayHorizon": {
+      "start": "2026-03-02",
+      "finish": "2026-03-11",
+      "durationDays": 10
+    },
+    "hasPending": true,
+    "hasLocalMovements": false,
+    "canDownload": false,
+    "status": ""
+  },
+  "final": {
+    "horizon": {
+      "horizonStart": "2026-03-02T00:00:00",
+      "horizonFinish": "2026-03-12T00:00:00",
+      "durationDays": 10
+    },
+    "displayHorizon": {
+      "start": "2026-03-02",
+      "finish": "2026-03-11",
+      "durationDays": 10
+    },
+    "hasPending": true,
+    "hasLocalMovements": false,
+    "canDownload": false,
+    "status": ""
+  },
+  "fragments": [
+    {
+      "id": "A100:x1:1:0:2026-03-02T08:00:00:2026-03-03T00:00:00",
+      "start": "2026-03-02T08:00:00",
+      "finish": "2026-03-03T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "A100:x1:1:1:2026-03-03T00:00:00:2026-03-04T00:00:00",
+      "start": "2026-03-03T00:00:00",
+      "finish": "2026-03-04T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "A100:x1:1:2:2026-03-04T00:00:00:2026-03-04T20:00:00",
+      "start": "2026-03-04T00:00:00",
+      "finish": "2026-03-04T20:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "B200:x1:1:0:2026-03-04T20:00:00:2026-03-05T00:00:00",
+      "start": "2026-03-04T20:00:00",
+      "finish": "2026-03-05T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "B200:x1:1:1:2026-03-05T00:00:00:2026-03-06T00:00:00",
+      "start": "2026-03-05T00:00:00",
+      "finish": "2026-03-06T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "B200:x1:1:2:2026-03-06T00:00:00:2026-03-06T20:00:00",
+      "start": "2026-03-06T00:00:00",
+      "finish": "2026-03-06T20:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "C300:x1:1:0:2026-03-07T08:00:00:2026-03-08T00:00:00",
+      "start": "2026-03-07T08:00:00",
+      "finish": "2026-03-08T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "C300:x1:1:1:2026-03-08T00:00:00:2026-03-08T20:00:00",
+      "start": "2026-03-08T00:00:00",
+      "finish": "2026-03-08T20:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "D400:x1:1:0:2026-03-03T00:00:00:2026-03-04T00:00:00",
+      "start": "2026-03-03T00:00:00",
+      "finish": "2026-03-04T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "D400:x1:1:1:2026-03-04T00:00:00:2026-03-05T00:00:00",
+      "start": "2026-03-04T00:00:00",
+      "finish": "2026-03-05T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    }
+  ],
+  "storage": {
+    "vgs-stp-v2:horizon:12d01fe86306a891e57df92e17112ccdca910574bbe30ad22704e15fd959e4fa": "{\"version\":3,\"start_day\":\"2027-01-01\",\"duration_days\":10}"
+  },
+  "applyPackage": {
+    "error": "el paquete de aplicación no contiene cambios directos o por cascada",
+    "code": ""
+  }
+}

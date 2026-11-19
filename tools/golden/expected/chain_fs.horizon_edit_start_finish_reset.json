@@ -1,0 +1,258 @@
+{
+  "case": "horizon_edit_start_finish_reset",
+  "description": "Port coverage: editStart/editFinish/editDuration rejections (range, no pending work, bad date, civil range), local-changes freeze, and reset reloading the saved v3 preference.",
+  "steps": [
+    {
+      "step": {
+        "op": "editStart",
+        "value": "2026-03-03"
+      },
+      "outcome": {
+        "ok": true,
+        "message": "Horizonte civil actualizado.",
+        "code": ""
+      }
+    },
+    {
+      "step": {
+        "op": "editFinish",
+        "value": "2026-03-19"
+      },
+      "outcome": {
+        "ok": true,
+        "message": "Horizonte civil actualizado.",
+        "code": ""
+      }
+    },
+    {
+      "step": {
+        "op": "editDuration",
+        "value": 0
+      },
+      "outcome": {
+        "ok": false,
+        "message": "horizonte civil inválido",
+        "code": "invalid-move"
+      }
+    },
+    {
+      "step": {
+        "op": "editDuration",
+        "value": 400
+      },
+      "outcome": {
+        "ok": false,
+        "message": "horizonte civil inválido",
+        "code": "invalid-move"
+      }
+    },
+    {
+      "step": {
+        "op": "editStart",
+        "value": "2027-01-01"
+      },
+      "outcome": {
+        "ok": false,
+        "message": "horizonte sin trabajo pendiente",
+        "code": "invalid-move"
+      }
+    },
+    {
+      "step": {
+        "op": "editStart",
+        "value": "bad"
+      },
+      "outcome": {
+        "ok": false,
+        "message": "fecha civil inválida: badT00:00:00",
+        "code": "invalid-move"
+      }
+    },
+    {
+      "step": {
+        "op": "editFinish",
+        "value": "9999-12-31"
+      },
+      "outcome": {
+        "ok": false,
+        "message": "fecha civil fuera del rango compatible (años 0001 a 9999)",
+        "code": "civil-range"
+      }
+    },
+    {
+      "step": {
+        "op": "savePreference"
+      },
+      "outcome": {
+        "ok": true,
+        "message": "Configuración de horizonte guardada.",
+        "code": ""
+      }
+    },
+    {
+      "step": {
+        "op": "editStart",
+        "value": "2026-03-02"
+      },
+      "outcome": {
+        "ok": true,
+        "message": "Horizonte civil actualizado.",
+        "code": ""
+      }
+    },
+    {
+      "step": {
+        "op": "moveActivity",
+        "activityId": "A100",
+        "days": 1
+      },
+      "outcome": {
+        "ok": true,
+        "message": "Movimiento validado.",
+        "code": ""
+      }
+    },
+    {
+      "step": {
+        "op": "editStart",
+        "value": "2026-03-03"
+      },
+      "outcome": {
+        "ok": false,
+        "message": "El rango no se puede cambiar mientras hay movimientos locales.",
+        "code": "local-changes"
+      }
+    },
+    {
+      "step": {
+        "op": "reset"
+      },
+      "outcome": {
+        "ok": true,
+        "message": "Se restableció la instantánea, sin cambios pendientes.",
+        "code": ""
+      }
+    },
+    {
+      "step": {
+        "op": "savePreference"
+      },
+      "outcome": {
+        "ok": true,
+        "message": "Configuración de horizonte guardada.",
+        "code": ""
+      }
+    }
+  ],
+  "initial": {
+    "horizon": {
+      "horizonStart": "2026-03-02T00:00:00",
+      "horizonFinish": "2026-03-30T00:00:00",
+      "durationDays": 28
+    },
+    "displayHorizon": {
+      "start": "2026-03-02",
+      "finish": "2026-03-29",
+      "durationDays": 28
+    },
+    "hasPending": true,
+    "hasLocalMovements": false,
+    "canDownload": false,
+    "status": ""
+  },
+  "final": {
+    "horizon": {
+      "horizonStart": "2026-03-03T00:00:00",
+      "horizonFinish": "2026-03-20T00:00:00",
+      "durationDays": 17
+    },
+    "displayHorizon": {
+      "start": "2026-03-03",
+      "finish": "2026-03-19",
+      "durationDays": 17
+    },
+    "hasPending": true,
+    "hasLocalMovements": false,
+    "canDownload": false,
+    "status": ""
+  },
+  "fragments": [
+    {
+      "id": "A100:x1:1:0:2026-03-02T08:00:00:2026-03-03T00:00:00",
+      "start": "2026-03-02T08:00:00",
+      "finish": "2026-03-03T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "A100:x1:1:1:2026-03-03T00:00:00:2026-03-04T00:00:00",
+      "start": "2026-03-03T00:00:00",
+      "finish": "2026-03-04T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "A100:x1:1:2:2026-03-04T00:00:00:2026-03-04T20:00:00",
+      "start": "2026-03-04T00:00:00",
+      "finish": "2026-03-04T20:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "B200:x1:1:0:2026-03-04T20:00:00:2026-03-05T00:00:00",
+      "start": "2026-03-04T20:00:00",
+      "finish": "2026-03-05T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "B200:x1:1:1:2026-03-05T00:00:00:2026-03-06T00:00:00",
+      "start": "2026-03-05T00:00:00",
+      "finish": "2026-03-06T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "B200:x1:1:2:2026-03-06T00:00:00:2026-03-06T20:00:00",
+      "start": "2026-03-06T00:00:00",
+      "finish": "2026-03-06T20:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "C300:x1:1:0:2026-03-07T08:00:00:2026-03-08T00:00:00",
+      "start": "2026-03-07T08:00:00",
+      "finish": "2026-03-08T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "C300:x1:1:1:2026-03-08T00:00:00:2026-03-08T20:00:00",
+      "start": "2026-03-08T00:00:00",
+      "finish": "2026-03-08T20:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "D400:x1:1:0:2026-03-03T00:00:00:2026-03-04T00:00:00",
+      "start": "2026-03-03T00:00:00",
+      "finish": "2026-03-04T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "D400:x1:1:1:2026-03-04T00:00:00:2026-03-05T00:00:00",
+      "start": "2026-03-04T00:00:00",
+      "finish": "2026-03-05T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    }
+  ],
+  "storage": {
+    "vgs-stp-v2:horizon:12d01fe86306a891e57df92e17112ccdca910574bbe30ad22704e15fd959e4fa": "{\"version\":3,\"start_day\":\"2026-03-03\",\"duration_days\":17}"
+  },
+  "applyPackage": {
+    "error": "el paquete de aplicación no contiene cambios directos o por cascada",
+    "code": ""
+  }
+}
