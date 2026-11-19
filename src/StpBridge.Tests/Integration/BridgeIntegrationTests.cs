@@ -15,7 +15,8 @@ namespace Maptek.Vulcan.Stp.Bridge.Tests.Integration
 {
     /// <summary>
     /// End to end against the real Python bridge. The synthetic project has A100 (2026-03-02 08:00 → 03-04 08:00)
-    /// --FinishStart--> B200 (03-04 08:00 → 03-05 08:00).
+    /// --FinishStart--> B200 (03-04 08:00 → 03-05 08:00), and an isolated C300 with sub-second bar times
+    /// (03-10 06:30:00.25 → 03-11 18:15:00.5).
     /// </summary>
     [Trait("Category", "Integration")]
     public class BridgeIntegrationTests : IClassFixture<BridgeServerFixture>
@@ -74,7 +75,7 @@ namespace Maptek.Vulcan.Stp.Bridge.Tests.Integration
             Assert.Equal((string)server.Info["projectPath"], snapshot.ProjectPath);
             Assert.Equal("Synthetic Ñandú.vgantt", snapshot.ProjectName);
             Assert.Equal(new DateTime(2026, 3, 1, 9, 30, 0), snapshot.ExportedAt);
-            Assert.Equal(new[] { "A100", "B200" }, snapshot.Activities.Select(a => a.Id));
+            Assert.Equal(new[] { "A100", "B200", "C300" }, snapshot.Activities.Select(a => a.Id));
             Assert.Equal("Rampa 𝄞 sur", snapshot.Activities[1].Grid["Nombre"]);
             Assert.Equal(3, snapshot.Activities[0].Fragments.Count); // 03-02 08:00 | 03-03 | 03-04 00:00-08:00
             var link = snapshot.Precedences.Single();
@@ -169,6 +170,57 @@ namespace Maptek.Vulcan.Stp.Bridge.Tests.Integration
             Assert.Equal(package.ToCanonicalBytes(), File.ReadAllBytes(Path.Combine(outputDirectory, "stp_apply_pending_v2.json")));
             var ready = ApplyReadyReceipt.FromJson(WireJson.Parse(File.ReadAllBytes(Path.Combine(outputDirectory, "stp_apply_pending_v2.ready.json"))));
             Assert.Equal(("stp_apply_pending_v2.json", receipt.PackageSha256, receipt.ProjectFingerprint), (ready.PackageFile, ready.PackageSha256, ready.ProjectFingerprint));
+        }
+
+        /// <summary>
+        /// docs/known_issues.md KI-1: a package spelled the way the browser planner spells sub-second times (".25") is
+        /// accepted, but the server stores and hashes Python's isoformat (".250000"). So the receipt hash differs from
+        /// the hash of the posted bytes, while the stored package and ready receipt agree with each other (script 3 passes).
+        /// </summary>
+        [PythonFact]
+        public async Task SubSecondTimesAreRenormalizedByTheServer()
+        {
+            var snapshot = await Snapshot();
+            var c300 = snapshot.Activities.Single(a => a.Id == "C300");
+            Assert.Equal("2026-03-10T06:30:00.25", (string)c300.NativeBars[0].ToJson()["start"]); // snapshot _iso
+            Assert.StartsWith("C300:bC:1:0:2026-03-10T06:30:00.250000:", c300.Fragments[0].Id);  // fragment id: isoformat
+
+            var typed = Package(snapshot, id => id == "C300" ? TimeSpan.FromDays(1) : TimeSpan.Zero);
+            var jsForm = typed.ToJson();
+            foreach (var fragment in jsForm["activities"].SelectMany(a => a["fragments"]))
+            {
+                foreach (var key in new[] { "start", "finish", "original_start", "original_finish" })
+                    fragment[key] = PyDateTime.SnapshotIso(PyDateTime.ParseDateTime((string)fragment[key], false, key)); // planner_logic.js civil text
+            }
+            var jsBytes = CanonicalJson.ToBytes(jsForm);
+            Assert.Contains("\"original_start\":\"2026-03-10T06:30:00.25\"", Encoding.UTF8.GetString(jsBytes));
+            Assert.NotEqual(typed.ToCanonicalBytes(), jsBytes);
+
+            using (var http = new HttpClient(StpBridgeClient.CreateDefaultHandler()))
+            {
+                var request = new HttpRequestMessage(HttpMethod.Post, server.Config.Endpoint + "/apply-package");
+                request.Headers.TryAddWithoutValidation(BridgeInfo.TokenHeader, server.Config.Token);
+                request.Headers.ExpectContinue = false;
+                request.Content = new ByteArrayContent(jsBytes);
+                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                using (var response = await http.SendAsync(request))
+                {
+                    Assert.Equal(201, (int)response.StatusCode);
+                    var receipt = ApplyPackageSaved.FromJson(WireJson.Parse(await response.Content.ReadAsByteArrayAsync()));
+                    Assert.NotEqual(CanonicalJson.Sha256Hex(jsBytes), receipt.PackageSha256); // the browser rejects this receipt
+                    Assert.Equal(typed.ComputeSha256(), receipt.PackageSha256);               // StpBridgeClient accepts it
+                }
+            }
+            var outputDirectory = Path.Combine(server.ProjectDirectory, "Respaldos_STPUG-VGS_v2");
+            var stored = File.ReadAllBytes(Path.Combine(outputDirectory, "stp_apply_pending_v2.json"));
+            Assert.Equal(typed.ToCanonicalBytes(), stored);
+            var ready = ApplyReadyReceipt.FromJson(WireJson.Parse(File.ReadAllBytes(Path.Combine(outputDirectory, "stp_apply_pending_v2.ready.json"))));
+            Assert.Equal(CanonicalJson.Sha256Hex(stored), ready.PackageSha256); // what script 3's find_latest_apply_package checks
+
+            using (var client = server.CreateClient())
+            {
+                Assert.Equal(typed.ComputeSha256(), (await client.SubmitApplyPackageAsync(typed)).PackageSha256);
+            }
         }
 
         [PythonFact(RequiresModule = "xlsxwriter")]

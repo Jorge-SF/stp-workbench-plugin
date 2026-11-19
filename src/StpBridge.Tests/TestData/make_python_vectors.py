@@ -169,6 +169,22 @@ def apply_package_vectors() -> list[dict]:
     return result
 
 
+def golden_normalized_vectors() -> list[dict]:
+    """What the Python server stores for each golden JS package (load_apply_package -> apply_package_to_json_value).
+
+    Equal to the JS bytes except where Python re-normalizes, e.g. fractional seconds ``.250`` -> ``.250000``.
+    """
+    result = []
+    for path in sorted((REPO / "tools" / "golden" / "expected").glob("*.apply.canonical.json")):
+        raw = path.read_bytes()
+        encoded = canonical(apply_package_to_json_value(load_apply_package(json.loads(raw))))
+        result.append({
+            "file": path.name, "canonical": encoded.decode("utf-8"),
+            "sha256": hashlib.sha256(encoded).hexdigest(), "sameAsJs": encoded == raw,
+        })
+    return result
+
+
 def main() -> int:
     vectors = {
         "python": sys.version.split()[0],
@@ -177,6 +193,7 @@ def main() -> int:
         "datetimes": datetime_vectors(),
         "canonical": canonical_vectors(),
         "applyPackages": apply_package_vectors(),
+        "goldenNormalized": golden_normalized_vectors(),
     }
     target = HERE / "python_vectors.json"
     target.write_text(json.dumps(vectors, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")

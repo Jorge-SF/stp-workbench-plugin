@@ -90,8 +90,31 @@ namespace Maptek.Vulcan.Stp.Bridge.Tests.Contracts
 
     public class SnapshotContractTests
     {
+        /// <summary>
+        /// Hand-written fixtures that deliberately are NOT Python wire output: they exercise the JS/C# engine's tolerance
+        /// (HH:MM times, millisecond fractions, a non-schema <c>lagSeconds</c>, precedence type aliases). Python's
+        /// <c>canonicalize_snapshot</c> rejects them, so the strict reader must too.
+        /// </summary>
+        internal static readonly string[] EngineToleranceFixtures = { "engine_edges.snapshot.json" };
+
         public static IEnumerable<object[]> Fixtures()
-            => Directory.GetFiles(TestPaths.GoldenFixtures, "*.snapshot.json").Select(f => new object[] { Path.GetFileName(f) });
+            => Directory.GetFiles(TestPaths.GoldenFixtures, "*.snapshot.json").Select(Path.GetFileName)
+                .Where(f => !EngineToleranceFixtures.Contains(f)).Select(f => new object[] { f });
+
+        [Fact]
+        public void EveryFixtureIsStrictWireDataUnlessDeclaredEngineOnly()
+        {
+            var all = Directory.GetFiles(TestPaths.GoldenFixtures, "*.snapshot.json").Select(Path.GetFileName).ToList();
+            Assert.Subset(new HashSet<string>(all), new HashSet<string>(EngineToleranceFixtures));
+            foreach (var file in all)
+            {
+                var raw = WireJson.Parse(File.ReadAllBytes(Path.Combine(TestPaths.GoldenFixtures, file)));
+                if (EngineToleranceFixtures.Contains(file))
+                    Assert.Throws<WireFormatException>(() => SnapshotV2.FromJson(raw)); // if it becomes canonical, drop it from the list
+                else
+                    SnapshotV2.FromJson(raw);
+            }
+        }
 
         [Theory]
         [MemberData(nameof(Fixtures))]
