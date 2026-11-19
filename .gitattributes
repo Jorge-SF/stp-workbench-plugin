@@ -1,0 +1,2 @@
+# Embedded-source fidelity: stp_core modules and entry scripts must stay LF.
+python/** text eol=lf
