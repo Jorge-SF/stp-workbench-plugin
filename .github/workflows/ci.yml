@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python-and-golden:
+    name: Python core + golden harness
+    runs-on: windows-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v5
+
+      # Vulcan 2026.1 ships Python 3.11 (bin/exe/python311.dll, 3.11.1), so test on 3.11.
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+
+      - name: Smoke test (stp_core imports, entry scripts, bridge launcher)
+        run: python -I python/tests/smoke_test.py
+
+      - name: Script 2 plugin mode / browser mode tests
+        run: python -I python/tests/test_plugin_mode.py
+
+      - name: Golden harness (JS planner rules) matches expected/
+        run: node tools/golden/run.mjs --check
+
+      - name: Golden apply packages match Python canonical JSON
+        run: python -I tools/golden/verify_canonical.py
+
+  # dotnet-tests:
+  #   # Disabled: StpEngine.Tests / StpBridge.Tests build against the Maptek Workbench SDK
+  #   # reference DLLs (and the Workbench's Newtonsoft.Json 12). Those are Maptek binaries and
+  #   # cannot be committed to this public repository or downloaded on a hosted runner.
+  #   # Enable on a self-hosted Windows runner with a Workbench runtime installed
+  #   # (tools/Setup-WorkbenchRuntime.ps1 or WorkbenchRuntimeOverride.props), or once the
+  #   # test projects no longer need SDK references.
+  #   name: .NET tests
+  #   runs-on: [self-hosted, windows, workbench-sdk]
+  #   timeout-minutes: 20
+  #   steps:
+  #     - uses: actions/checkout@v5
+  #     - uses: microsoft/setup-msbuild@v2
+  #     - name: Engine tests
+  #       run: dotnet test src/StpEngine.Tests
+  #     - name: Bridge tests
+  #       run: dotnet test src/StpBridge.Tests

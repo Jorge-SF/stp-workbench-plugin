@@ -9,7 +9,7 @@ Checks, without touching any VGS project:
 1. every ``stp_v2_*`` module imports by its flat name and via ``stp_core.``
    (and both spellings give the same module object);
 2. ``maptek``/``vulcan_gui`` are replaced by stub modules, so the thin entry
-   scripts 1, 3 and 4 import fully; script 2 is compiled only, because importing
+   scripts 1, 3 and 4 import fully; scripts 2 and 2p are compiled only, because importing
    it copies the web resources into ``.stp_ug_v2_runtime``;
 3. the generated bridge launcher really runs the bridge module as ``__main__``
    (``--help`` in a subprocess).
@@ -65,7 +65,7 @@ def main() -> int:
     _install_maptek_stub()
     for script in sorted((PYTHON_ROOT / "scripts").glob("*.py")):
         try:
-            if script.name.startswith("2."):
+            if script.name.startswith("2"):  # 2 and 2p copy web resources on import
                 compile(script.read_bytes(), str(script), "exec")
                 print(f"ok      compile {script.name}")
                 continue

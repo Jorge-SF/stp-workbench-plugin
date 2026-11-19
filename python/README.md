@@ -14,6 +14,7 @@ python/
     build_bundle.py    stp_core + scripts + web resources -> legacy single-file bundles
     bundle_format.py   the shared bundle layout
   tests/smoke_test.py  import test outside Vulcan (maptek is stubbed)
+  tests/test_plugin_mode.py  script 2 plugin mode + browser mode (maptek, VGS and bridge mocked)
 ```
 
 ## Importing
@@ -39,6 +40,19 @@ Script 2 also needs the planner web resources. `stp_core.runtime` copies them fr
 `STP_WEB_RESOURCES`, or by default from `<repo>/reference/web/`, and writes a small bridge
 launcher that runs `stp_live_refresh_server_v2` from this package.
 
+## Plugin mode (Workbench C# view)
+
+Script 2 can skip the HTML page and the browser, and write
+`.stp_ug_v2_runtime/plugin_session.json` = `{snapshot_path, bridge_config}` for the Workbench
+plugin instead. The bridge still starts as before. Select it in one of these ways:
+
+* run `scripts/2p. VGS_ShortTermPlanner_Plugin.py` (no arguments needed; use this from Vulcan);
+* pass `--plugin-session [path]`;
+* set `STP_PLUGIN_SESSION=<path>` or `STP_PLUGIN_MODE=1`.
+
+Without any of these, script 2 runs in browser mode, as before. The format, lifetime and
+security notes are in [`docs/plugin_session.md`](../docs/plugin_session.md).
+
 ## Single-file bundles
 
 The old self-contained scripts can still be produced:
@@ -51,10 +65,14 @@ In Phase 0a, `--compare` against the original scripts 1–4 reported **IDENTICAL
 four. The extraction is lossless. Keep `stp_core/*.py` and `scripts/*.py` with LF line
 endings (`.gitattributes` enforces this), because CRLF would change the embedded bytes.
 
-## Smoke test
+## Tests
 
 ```
 python -I python/tests/smoke_test.py
+python -I python/tests/test_plugin_mode.py
 ```
+
+CI (`.github/workflows/ci.yml`) runs both, plus the golden harness, on Windows with Python 3.11,
+the version Vulcan 2026.1 ships.
 
 The script-0 differences are in `docs/drift_script0.md`.
