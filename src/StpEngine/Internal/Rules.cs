@@ -134,13 +134,37 @@ namespace Maptek.Vulcan.Stp.Engine.Internal
             fragments.Select(f => new Proposed { Fragment = f, Start = CivilTime.AddDays(f.Start, days), Finish = CivilTime.AddDays(f.Finish, days) }).ToList();
 
         /// <summary>JS: <c>applyShift</c>, L502-504.</summary>
+        /// <remarks>
+        /// Deliberate deviation from JS: a shift that lands back on the original instant keeps the original
+        /// text. JS re-renders it (<c>addCivilDays</c> trims fractions, so Python's <c>06:30:00.250000</c> comes back
+        /// as <c>06:30:00.25</c>), and because "moved" is a text comparison, a fragment moved away and back stayed
+        /// <c>direct</c> with no real shift: the server rejects that package (<c>movement_provenance_without_shift</c>).
+        /// For whole-second times the re-rendered text already equals the original, so this matches JS exactly.
+        /// </remarks>
         private static void ApplyShift(List<Proposed> proposed, string provenance)
         {
             foreach (var item in proposed)
             {
-                item.Fragment.Start = item.Start;
-                item.Fragment.Finish = item.Finish;
+                item.Fragment.Start = SameInstantText(item.Start, item.Fragment.OriginalStart);
+                item.Fragment.Finish = SameInstantText(item.Finish, item.Fragment.OriginalFinish);
                 item.Fragment.Provenance = provenance;
+            }
+        }
+
+        private static string SameInstantText(string shifted, string original)
+        {
+            if (shifted == original || original == null)
+            {
+                return shifted;
+            }
+
+            try
+            {
+                return CivilTime.Scalar(shifted) == CivilTime.Scalar(original) ? original : shifted;
+            }
+            catch (EngineException)
+            {
+                return shifted;
             }
         }
 
