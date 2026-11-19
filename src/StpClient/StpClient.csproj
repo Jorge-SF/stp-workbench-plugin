@@ -18,8 +18,10 @@
     <StartAction>Program</StartAction>
     <StartProgram>$(WorkbenchExeOutputDirClient)WorkbenchClient.exe</StartProgram>
     <StartWorkingDirectory>$(WorkbenchExeOutputDirClient)</StartWorkingDirectory>
-    <!-- Folder with Vulcan's EnvisageInterfacesClient.dll; override in WorkbenchRuntimeOverride.props for another Vulcan -->
-    <VulcanClientPlugins Condition="'$(VulcanClientPlugins)' == ''">$(ProgramW6432)\Maptek\Vulcan 2026.1\bin\workbench\Client\Plugins</VulcanClientPlugins>
+    <!-- Folder with Vulcan's EnvisageInterfacesClient.dll. Must be the OLDEST Vulcan the plugin supports: Workbench
+         refuses the IEnvisageInterface import when the running Vulcan's interface version is lower than the one the
+         plugin was built against (e.g. built on 2026.1 = 19.1 -> not bound in Vulcan 2026 = 19.0). -->
+    <VulcanClientPlugins Condition="'$(VulcanClientPlugins)' == ''">$(ProgramW6432)\Maptek\Vulcan 2024.2\bin\workbench\Client\Plugins</VulcanClientPlugins>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -59,7 +61,8 @@
     <Reference Include="MaptekWPFSupport"><HintPath>$(WorkbenchRuntime)\SDK\Bin\Client\MaptekWPFSupport.dll</HintPath></Reference>
     <Reference Include="MaptekWPFControls"><HintPath>$(WorkbenchRuntime)\SDK\Bin\Client\MaptekWPFControls.dll</HintPath></Reference>
     <!-- Vulcan's Envisage interface (IEnvisageInterface) is not in the Workbench SDK: referenced from an installed
-         Vulcan and never copied (Vulcan loads its own). Not strong-named, so any Vulcan 2024.2+ binds to it. -->
+         Vulcan and never copied (Vulcan loads its own). Built against 2024.2 (17.2), it binds in any Vulcan 2024.2+;
+         Workbench only binds when the running interface version is >= the referenced one. -->
     <Reference Include="EnvisageInterfacesClient"><HintPath>$(VulcanClientPlugins)\EnvisageInterfacesClient.dll</HintPath><Private>False</Private></Reference>
   </ItemGroup>
   <ItemGroup>
