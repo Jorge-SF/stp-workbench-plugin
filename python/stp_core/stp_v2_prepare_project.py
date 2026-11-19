@@ -245,10 +245,26 @@ def _export_grid(project: Any, destination: Path) -> None:
         raise PreparationError("VGS no pudo exportar la Activity Grid.")
 
 
+def _fallback_work_dir() -> Path:
+    """Per-user folder for runs when the script folder is read-only (installed under Program Files)."""
+    base = os.environ.get("LOCALAPPDATA") or tempfile.gettempdir()
+    return Path(base) / "Maptek" / "StpUG"
+
+
 def _run_directory(work_dir: Path) -> Path:
-    root = Path(work_dir) / "stp_prepare_runs"
-    root.mkdir(parents=True, exist_ok=True)
-    return Path(tempfile.mkdtemp(prefix="prepare_", dir=root))
+    """A new ``prepare_*`` folder in ``<work_dir>/stp_prepare_runs``, or in the per-user folder
+    when ``work_dir`` cannot be written to."""
+    for base in (Path(work_dir), _fallback_work_dir()):
+        root = base / "stp_prepare_runs"
+        try:
+            root.mkdir(parents=True, exist_ok=True)
+            return Path(tempfile.mkdtemp(prefix="prepare_", dir=root))
+        except PermissionError:
+            continue
+    raise PermissionError(
+        f"cannot create a Prepare work folder in {Path(work_dir) / 'stp_prepare_runs'} "
+        f"or {_fallback_work_dir() / 'stp_prepare_runs'}"
+    )
 
 
 def inspect_active_project(project: Any, work_dir: Path) -> ProjectInspection:
