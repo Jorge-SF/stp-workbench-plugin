@@ -1,6 +1,6 @@
 namespace Maptek.Vulcan.Stp.Bridge
 {
-    /// <summary>Placeholder so the skeleton builds. Replaced by the bridge client and wire models.</summary>
+    /// <summary>Constants of the STP V2 bridge wire protocol.</summary>
     public static class BridgeInfo
     {
         /// <summary>Header carrying the per-session bridge token.</summary>
