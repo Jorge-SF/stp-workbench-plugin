@@ -39,6 +39,9 @@ jobs:
       - name: Script 2 plugin mode / browser mode tests
         run: python -I python/tests/test_plugin_mode.py
 
+      - name: Runtime folder (per-user) and web resources
+        run: python -I python/tests/test_runtime.py
+
       - name: Golden harness (JS planner rules) matches expected/
         run: node tools/golden/run.mjs --check
 

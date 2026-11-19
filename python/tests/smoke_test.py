@@ -10,7 +10,7 @@ Checks, without touching any VGS project:
    (and both spellings give the same module object);
 2. ``maptek``/``vulcan_gui`` are replaced by stub modules, so the thin entry
    scripts 1, 3 and 4 import fully; scripts 2 and 2p are compiled only, because importing
-   it copies the web resources into ``.stp_ug_v2_runtime``;
+   it copies the web resources into the runtime folder;
 3. the generated bridge launcher really runs the bridge module as ``__main__``
    (``--help`` in a subprocess).
 """

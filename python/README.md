@@ -33,17 +33,20 @@ import stp_v2_core                  # or: from stp_core import stp_v2_core
 Each script in `scripts/` is the public part of the original bundle. The only change is the
 marked `STP CORE BOOTSTRAP` block, which finds `stp_core` in the script's parent folder
 (override with `STP_CORE_PATH`) instead of activating the embedded importer. `SCRIPT_DIR` is
-still the script's own folder. Script 1 writes its work files there, and script 2 writes
-`.stp_ug_v2_runtime/` there, as before.
+still the script's own folder. Script 1 writes its work files there. Script 2 writes its
+runtime files to the per-user folder `%LOCALAPPDATA%\Maptek\StpUGuntime` (override with
+`STP_RUNTIME_ROOT`), not beside itself: an installed copy is read-only (docs/known_issues.md, KI-2).
 
 Script 2 also needs the planner web resources. `stp_core.runtime` copies them from
-`STP_WEB_RESOURCES`, or by default from `<repo>/reference/web/`, and writes a small bridge
-launcher that runs `stp_live_refresh_server_v2` from this package.
+`STP_WEB_RESOURCES`, else `python/web/` (the installed layout), else `<repo>/reference/web/`,
+accepting either file-name style, and writes a small bridge launcher that runs
+`stp_live_refresh_server_v2` from this package. The Maptek footer logo
+(`assets/Maptek_highres.jpg`) is optional: the public repository doesn't hold it.
 
 ## Plugin mode (Workbench C# view)
 
 Script 2 can skip the HTML page and the browser, and write
-`.stp_ug_v2_runtime/plugin_session.json` = `{snapshot_path, bridge_config}` for the Workbench
+`<runtime>/plugin_session.json` = `{snapshot_path, bridge_config}` for the Workbench
 plugin instead. The bridge still starts as before. Select it in one of these ways:
 
 * run `scripts/2p. VGS_ShortTermPlanner_Plugin.py` (no arguments needed; use this from Vulcan);

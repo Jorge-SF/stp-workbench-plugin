@@ -4,8 +4,8 @@ Run outside Vulcan (``maptek`` is stubbed, VGS and the bridge process are mocked
 
     python -I python/tests/test_plugin_mode.py
 
-Script 2 and 2p are copied into a temporary folder, so their ``.stp_ug_v2_runtime`` lands
-there.  The web resources are dummy files: the template only carries the placeholders.
+Script 2 and 2p are copied into a temporary folder, and ``STP_RUNTIME_ROOT`` points their
+runtime folder there too.  The web resources are dummy files: the template only carries the placeholders.
 """
 
 from __future__ import annotations
@@ -94,9 +94,11 @@ class PlannerModesTest(unittest.TestCase):
         (resources / "assets" / "Maptek_highres.jpg").write_bytes(b"not a real image")
         self.project_file = root / "Example.vgantt"
         self.project_file.write_bytes(b"")
+        self.runtime = root / "user-runtime"
         environment = {
             "STP_CORE_PATH": str(PYTHON_ROOT),
             "STP_WEB_RESOURCES": str(resources),
+            "STP_RUNTIME_ROOT": str(self.runtime),
         }
         self._environment = mock.patch.dict(os.environ, environment)
         self._environment.start()
@@ -107,7 +109,6 @@ class PlannerModesTest(unittest.TestCase):
         }
         _install_maptek_stub(self.project_file)
         self.planner = _load(self.script_dir / SCRIPT_2, "stp_test_script_2")
-        self.runtime = self.script_dir / ".stp_ug_v2_runtime"
         self.snapshot = {
             "schema": "vgs-stp-snapshot/2",
             "projectKey": PROJECT_KEY,

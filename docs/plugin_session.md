@@ -28,10 +28,15 @@ script. The argument and the variables are there for manual runs and tests.
 
 ## Location
 
+`<runtime>` is the **per-user** runtime folder: `STP_RUNTIME_ROOT` if set, else
+`%LOCALAPPDATA%\Maptek\StpUGuntime` (`stp_core.runtime.default_runtime_root`; the C# side is
+`PluginSession.DefaultRuntimeFolder` / `PluginSession.DefaultPath`). It is never next to the script, which may be
+installed read-only under Program Files (docs/known_issues.md, KI-2, fixed).
+
 ```
-<folder of script 2>/.stp_ug_v2_runtime/plugin_session.json                       (default)
-<folder of script 2>/.stp_ug_v2_runtime/short_term_planner_v2/snapshot_v2.json   (snapshot)
-<folder of script 2>/.stp_ug_v2_runtime/short_term_planner_v2/.bridge/...        (bridge runtime, lease, ready files)
+<runtime>/plugin_session.json                       (default)
+<runtime>/short_term_planner_v2/snapshot_v2.json   (snapshot)
+<runtime>/short_term_planner_v2/.bridge/...        (bridge runtime, lease, ready files)
 ```
 
 The script prints one line on stdout, `STP_PLUGIN_SESSION=<absolute path>`, and `run_planner` returns the
@@ -53,7 +58,7 @@ Spanish). The top level has exactly two keys:
     "projectKey": "3b1e…64 hex",
     "token": "…at least 32 URL-safe characters…"
   },
-  "snapshot_path": "C:\\…\\.stp_ug_v2_runtime\\short_term_planner_v2\\snapshot_v2.json"
+  "snapshot_path": "C:\\Users\\…\\AppData\\Local\\Maptek\\StpUG\\runtime\\short_term_planner_v2\\snapshot_v2.json"
 }
 ```
 
@@ -87,10 +92,10 @@ never reads, writes or deletes it.
 - **The file holds the bridge token.** Anyone who can read it can make the bridge validate and save apply
   packages for that project while the bridge runs. Treat it like the bridge's own `runtime-*.json`, which
   already holds the same token in `.bridge/`.
-- It must stay in the per-user runtime folder (`.stp_ug_v2_runtime`, next to the script). Script 2 refuses any
-  other location, symlinked session files and dot-names. Keep the scripts in a folder only the user can
-  write, not a shared network folder.
-- Do not log the file's contents, copy it elsewhere, or attach it to bug reports. `.stp_ug_v2_runtime/` is
-  gitignored, so it is never committed.
+- It must stay in the per-user runtime folder (`%LOCALAPPDATA%\Maptek\StpUGuntime`, see Location). Script 2
+  refuses any other location, symlinked session files and dot-names. Don't point `STP_RUNTIME_ROOT` at a shared
+  folder.
+- Do not log the file's contents, copy it elsewhere, or attach it to bug reports. The runtime folder is
+  outside the repository, so it is never committed.
 - The bridge binds `127.0.0.1` only and rejects browser `Origin`s (see design doc §4.4).
   `HttpClient` sends no `Origin`.

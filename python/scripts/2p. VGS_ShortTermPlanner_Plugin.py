@@ -1,7 +1,7 @@
 """STP V2 planner in plugin mode: for the Workbench C# view, no browser.
 
 Same as ``2. VGS_ShortTermPlanner.py --plugin-session``: builds the snapshot, starts the
-read bridge and writes ``.stp_ug_v2_runtime/plugin_session.json`` next to script 2, but
+read bridge and writes ``plugin_session.json`` in the per-user runtime folder, but
 renders and opens no HTML.  It exists because Vulcan's script runner cannot always pass
 command-line arguments or per-run environment variables.  See docs/plugin_session.md.
 

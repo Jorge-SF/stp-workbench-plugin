@@ -210,9 +210,23 @@ if (-not $NoMsi) {
         New-Item -ItemType Directory -Path (Split-Path $dest) -Force | Out-Null
         Copy-Item (Join-Path $root $f) $dest
     }
+    # The planner's web resources (script 2 copies them into the user's runtime folder; stp_core/runtime.py).
+    $web = Join-Path $client 'Python\web'
+    New-Item -ItemType Directory -Path $web -Force | Out-Null
+    $webFiles = & git -C $root ls-files -- 'reference/web/*.html' 'reference/web/*.js'
+    foreach ($f in $webFiles) { Copy-Item (Join-Path $root $f) $web }
+    # The Maptek footer logo is not in the public repository: include it only from a private local copy.
+    $logo = Join-Path $root 'installer\private\Maptek_highres.jpg'
+    if (Test-Path $logo) {
+        New-Item -ItemType Directory -Path (Join-Path $web 'assets') -Force | Out-Null
+        Copy-Item $logo (Join-Path $web 'assets\Maptek_highres.jpg')
+        Write-Host '  logo: included from installer\private'
+    } else {
+        Write-Host '  logo: none (put Maptek_highres.jpg in installer\private to include it)' -ForegroundColor Yellow
+    }
     Set-Content -Path (Join-Path $payload 'VERSION.txt') -Encoding ASCII -Value @("STP UG $ver", "commit $commit", "built $(Get-Date -Format 'yyyy-MM-dd HH:mm')")
     $dlls = (Get-ChildItem $client -Filter *.dll | Select-Object -ExpandProperty Name) -join ', '
-    Write-Host "  payload: $dlls; $($pyFiles.Count) Python files"
+    Write-Host "  payload: $dlls; $($pyFiles.Count) Python files; $($webFiles.Count) web files"
     foreach ($need in 'StpClient.dll', 'StpEngine.dll', 'StpBridge.dll') {
         if (-not (Test-Path (Join-Path $client $need))) { Fail "the Release build left no $need" }
     }

@@ -21,7 +21,12 @@ if str(_STP_PYTHON_ROOT) not in sys.path:
 import stp_core  # noqa: E402,F401  (exposes the flat stp_v2_* module names)
 from stp_core.runtime import materialize_runtime_resources
 # END STP CORE BOOTSTRAP
-RUNTIME_ROOT = SCRIPT_DIR / ".stp_ug_v2_runtime"
+# Per-user runtime folder (docs/known_issues.md, KI-2): never beside the script, which may be in Program Files.
+# Same rule as stp_core.runtime.default_runtime_root; computed inline so the single-file bundle works too.
+RUNTIME_ROOT = Path(
+    os.environ.get("STP_RUNTIME_ROOT")
+    or Path(os.environ.get("LOCALAPPDATA") or Path.home() / "AppData" / "Local") / "Maptek" / "StpUG" / "runtime"
+)
 RESOURCE_DIR = materialize_runtime_resources(RUNTIME_ROOT)
 
 from stp_v2_bridge_bootstrap import launch_read_bridge
@@ -99,13 +104,21 @@ def _safe_logic(value: str) -> str:
     return re.sub(r"</script", r"<\\/script", value, flags=re.IGNORECASE).replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
 
 
+# A transparent 1x1 GIF: the footer shows no logo when the approved image is not installed.
+_NO_LOGO_DATA_URL = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+
+
 def _maptek_logo_data_url(template_path: Path) -> str:
-    """Return the approved footer mark as an offline-safe JPEG data URL."""
+    """Return the approved footer mark as an offline-safe JPEG data URL.
+
+    The public repository does not hold the logo, so it is optional: without
+    ``assets/Maptek_highres.jpg`` beside the template the footer image is blank.
+    """
     logo_path = Path(template_path).parent / "assets" / "Maptek_highres.jpg"
     try:
         encoded = base64.b64encode(logo_path.read_bytes()).decode("ascii")
-    except OSError as error:
-        raise ValueError("missing approved Maptek footer logo") from error
+    except OSError:
+        return _NO_LOGO_DATA_URL
     return f"data:image/jpeg;base64,{encoded}"
 
 

@@ -65,16 +65,21 @@ differs from the posted bytes' hash, and checks that the stored package and read
 Have the bridge hash the received canonical bytes instead of the re-serialized ones, or have the browser compare its
 receipt against Python's normalization. Either is a behaviour change to the existing tool and needs a decision first.
 
-## KI-2: the installed runtime folder is shared by every user of the PC
+## KI-2 (fixed): the installed runtime folder was shared by every user of the PC
 
-Script 2 writes its runtime files beside itself, in `<scripts>\.stp_ug_v2_runtime\`: the rendered HTML, the snapshot
-and, in plugin mode, `plugin_session.json`, which holds the bridge token. The MSI installs the scripts under
-`C:\Program Files\Maptek\STP UG\Client\Python\scripts`, which normal users cannot write. So the MSI makes that one
-folder modifiable for the Users group, the same approach as the Pit Design installer's logs folder.
+**Fixed 2026-11-19.** Script 2 now writes its runtime files to the per-user folder
+`%LOCALAPPDATA%\Maptek\StpUGuntime` (override: `STP_RUNTIME_ROOT`), never beside itself. The rule lives in
+`stp_core.runtime.default_runtime_root`, inline in script 2 (single-file bundles can't import it), and in C#
+`PluginSession.DefaultRuntimeFolder`; tests on both sides check that they agree. The MSI no longer makes any folder
+writable for Users.
 
-Consequence: on a PC with several Windows users, each can read the others' runtime files, including a live bridge
-token. The bridge only listens on 127.0.0.1 and the token only lasts for its session, so the exposure is limited to
-other users logged in to that same PC at the same time.
+What it was: script 2 wrote `<scripts>\.stp_ug_v2_runtime\` (the rendered HTML, the snapshot and, in plugin mode,
+`plugin_session.json` with the bridge token). Under `C:\Program Files\Maptek\STP UG` normal users cannot write
+there, so the first MSI (1.0.25) made that folder modifiable for the Users group, and every Windows user of the PC
+could read the others' live bridge token.
 
-Possible fix (not done): let script 2 use a per-user folder such as `%LocalAppData%\Maptek\StpUG\runtime` when its
-own folder is not writable, or always. The plugin would then read `plugin_session.json` from there.
+Found with it and fixed in the same change: script 2 could not start from a checkout or an install at all.
+`stp_core.runtime` looked for the bundle's file names (`stp_v2_planner_logic.js`, ...) while `reference/web` has
+`planner_logic.js`, ..., required the Maptek logo that the public repository doesn't hold, and the MSI shipped no
+web files. It now accepts both name styles, treats the logo as optional (blank footer image without it), and the MSI
+ships `Client\Python\web\` (with the logo only when the builder has `installer\private\Maptek_highres.jpg`).

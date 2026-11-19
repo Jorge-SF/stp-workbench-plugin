@@ -19,6 +19,31 @@ namespace Maptek.Vulcan.Stp.Bridge
         /// <summary>Same cap as the server's request bodies.</summary>
         public const long MaxFileBytes = 20 * 1024 * 1024;
 
+        /// <summary>Environment variable that moves script 2's runtime folder (also honoured by script 2).</summary>
+        public const string RuntimeRootVariable = "STP_RUNTIME_ROOT";
+
+        /// <summary>
+        /// Script 2's per-user runtime folder, where it writes <see cref="FileName"/>: <c>STP_RUNTIME_ROOT</c> if set,
+        /// else <c>%LOCALAPPDATA%\Maptek\StpUG\runtime</c>. Same rule as <c>stp_core.runtime.default_runtime_root</c>
+        /// and script 2 (docs/known_issues.md, KI-2): keep the three in step.
+        /// </summary>
+        public static string DefaultRuntimeFolder => RuntimeFolderFrom(Environment.GetEnvironmentVariable);
+
+        /// <summary>The <see cref="DefaultRuntimeFolder"/> rule over a given environment (for tests).</summary>
+        public static string RuntimeFolderFrom(Func<string, string> environment)
+        {
+            if (environment == null) throw new ArgumentNullException(nameof(environment));
+            var configured = environment(RuntimeRootVariable);
+            if (!string.IsNullOrEmpty(configured)) return configured;
+            var local = environment("LOCALAPPDATA");
+            if (string.IsNullOrEmpty(local))
+                local = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local");
+            return Path.Combine(local, "Maptek", "StpUG", "runtime");
+        }
+
+        /// <summary>The default session file: <see cref="DefaultRuntimeFolder"/>\<see cref="FileName"/>.</summary>
+        public static string DefaultPath => Path.Combine(DefaultRuntimeFolder, FileName);
+
         public PluginSession(string snapshotPath, BridgeConfig bridgeConfig)
         {
             if (string.IsNullOrEmpty(snapshotPath) || !Path.IsPathRooted(snapshotPath)
