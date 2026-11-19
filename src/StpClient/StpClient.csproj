@@ -18,6 +18,8 @@
     <StartAction>Program</StartAction>
     <StartProgram>$(WorkbenchExeOutputDirClient)WorkbenchClient.exe</StartProgram>
     <StartWorkingDirectory>$(WorkbenchExeOutputDirClient)</StartWorkingDirectory>
+    <!-- Folder with Vulcan's EnvisageInterfacesClient.dll; override in WorkbenchRuntimeOverride.props for another Vulcan -->
+    <VulcanClientPlugins Condition="'$(VulcanClientPlugins)' == ''">$(ProgramW6432)\Maptek\Vulcan 2026.1\bin\workbench\Client\Plugins</VulcanClientPlugins>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -56,6 +58,9 @@
     <Reference Include="MessageInterfacesClient"><HintPath>$(WorkbenchRuntime)\SDK\Bin\Client\MessageInterfacesClient.dll</HintPath></Reference>
     <Reference Include="MaptekWPFSupport"><HintPath>$(WorkbenchRuntime)\SDK\Bin\Client\MaptekWPFSupport.dll</HintPath></Reference>
     <Reference Include="MaptekWPFControls"><HintPath>$(WorkbenchRuntime)\SDK\Bin\Client\MaptekWPFControls.dll</HintPath></Reference>
+    <!-- Vulcan's Envisage interface (IEnvisageInterface) is not in the Workbench SDK: referenced from an installed
+         Vulcan and never copied (Vulcan loads its own). Not strong-named, so any Vulcan 2024.2+ binds to it. -->
+    <Reference Include="EnvisageInterfacesClient"><HintPath>$(VulcanClientPlugins)\EnvisageInterfacesClient.dll</HintPath><Private>False</Private></Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\StpEngine\StpEngine.csproj" />
@@ -67,7 +72,11 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\AssemblyVersionInfo.g.cs" />
+    <Compile Include="Bridge\EnvisageRunner.cs" />
+    <Compile Include="Bridge\StpScripts.cs" />
+    <Compile Include="Bridge\StpSettings.cs" />
     <Compile Include="StpClientPlugin.cs" />
+    <Compile Include="Views\SettingsWindow.cs" />
   </ItemGroup>
   <ItemGroup>
     <!-- The generated Resources class is how Workbench finds "StpClient:Resources:<key>"; without it every label is blank -->
@@ -82,12 +91,18 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Icons\Stp.ico" />
+    <Resource Include="Resources\Icons\Step1.ico" />
+    <Resource Include="Resources\Icons\Step2.ico" />
+    <Resource Include="Resources\Icons\Step3.ico" />
+    <Resource Include="Resources\Icons\Step4.ico" />
   </ItemGroup>
 
   <!-- Friendly error instead of cryptic reference failures when the runtime folder is missing -->
   <Target Name="CheckWorkbenchRuntime" BeforeTargets="PrepareForBuild">
     <Error Condition="!Exists('$(WorkbenchRuntime)\Build\MSBuild\Maptek.Build.ExternalPlugin.targets')"
            Text="Workbench runtime not found at '$(WorkbenchRuntime)'. Run Tools\Setup-WorkbenchRuntime.ps1 or create WorkbenchRuntimeOverride.props (see README.md)." />
+    <Error Condition="!Exists('$(VulcanClientPlugins)\EnvisageInterfacesClient.dll')"
+           Text="EnvisageInterfacesClient.dll not found in '$(VulcanClientPlugins)'. Install Vulcan 2024.2 or later, or set VulcanClientPlugins in WorkbenchRuntimeOverride.props to '&lt;Vulcan&gt;\bin\workbench\Client\Plugins' (see README.md)." />
   </Target>
 
   <!-- Begin Workbench build script settings -->
