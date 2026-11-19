@@ -21,3 +21,5 @@ Deploy/
 WorkbenchRuntimeOverride.props
 Build/SolutionBuildNumberGenerated.props
 TestResults/
+# Installer output
+installer/dist/

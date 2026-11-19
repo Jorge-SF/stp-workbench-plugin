@@ -8,7 +8,7 @@
   powershell -ExecutionPolicy Bypass -File Tools\Register-PluginSearchPath.ps1 -Unregister
 #>
 param(
-    [string]$Name = 'StpUG',
+    [string]$Name = 'StpUG.Dev',   # the MSI registers 'StpUG'; never both at once
     [string]$ClientPath = (Join-Path $PSScriptRoot '..\Deploy\Client'),
     [switch]$Unregister
 )

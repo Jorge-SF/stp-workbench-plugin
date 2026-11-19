@@ -27,20 +27,46 @@ Requirements: Visual Studio 2026 (MSBuild 18) with .NET Framework 4.8 targeting,
    existing runtime folder. If that folder belongs to another project, also set
    `<CopyBinaryFilesToWorkbenchClientPlugins>false</CopyBinaryFilesToWorkbenchClientPlugins>` there so the build
    does not copy this plugin into it.
-2. Build: `MSBuild StpWorkbench.sln -restore -p:Configuration=Debug`
-   (the plugin's own files land in `Deploy\Client\`).
+2. Build: double-click **`Build-Plugin.cmd`** (no Visual Studio needed), or run
+   `powershell -ExecutionPolicy Bypass -File tools\Build-Plugin.ps1`. It:
+   - finds MSBuild, checks the Workbench runtime, and stops if Vulcan/Workbench still holds the plugin DLLs;
+   - builds the solution (Debug) and copies the plugin's own files to `Deploy\Client\`;
+   - builds the installer `installer\dist\STP-UG-<version>.msi` from a separate Release build (needs WiX 5, once:
+     `dotnet tool install --global wix --version 5.0.2`; keep version 5: WiX 6+ charges commercial users).
+
+   | Option | What it does |
+   |---|---|
+   | `-Test` | Also run the C# tests, the Python smoke test and the golden check |
+   | `-NoMsi` | Skip the installer (no WiX needed) |
+   | `-Configuration Release` | Release build in `Deploy\Client\` |
+   | `-Clean` | Rebuild from scratch |
+   | `-Register` | Register `Deploy\Client` with the Workbench afterwards (admin, once per PC) |
+   | `-Version x.y.z` | Installer/DLL version (default `<Major>.<Minor>.<commit count>`) |
+
+   Same thing by hand: `MSBuild StpWorkbench.sln -restore -p:Configuration=Debug`.
    `StpClient` also references Vulcan's `EnvisageInterfacesClient.dll` (not in the SDK, never copied). The default
    is `C:\Program Files\Maptek\Vulcan 2026.1\bin\workbench\Client\Plugins`; for another Vulcan (2024.2 or later) set
    `<VulcanClientPlugins>` in `WorkbenchRuntimeOverride.props`.
 3. Tests: `dotnet test src/StpEngine.Tests` and `dotnet test src/StpBridge.Tests`;
    `python -I python/tests/smoke_test.py`; `node tools/golden/run.mjs --check`.
-4. Load in Vulcan: `tools\Register-PluginSearchPath.ps1` registers `Deploy\Client` (value name `StpUG`), then
+4. Load in Vulcan: `tools\Register-PluginSearchPath.ps1` registers `Deploy\Client` (value name `StpUG.Dev`), then
    restart Vulcan. Close Vulcan before rebuilding: Workbench locks the DLLs.
    Vulcan then shows an **STP UG** menu (Preparar proyecto, Abrir planificador, Aplicar STP a VGS, Verificar
    guardado, Configuración y acerca de…). Each item runs `python/scripts/1..4` inside Vulcan
    (`docs/envisage_python.md`), one at a time. The scripts folder defaults to `<plugin>\Python\scripts`, else the
    repository's `python\scripts` found above `Deploy\Client`; change it in *Configuración y acerca de…*
    (stored in `%AppData%\Maptek\StpUG\settings.xml`). Run logs: `%LocalAppData%\Maptek\StpUG\run\`.
+
+## Installing for users (MSI)
+
+Hand out `installer\dist\STP-UG-<version>.msi`. Users close Vulcan, double-click it (admin prompt; the MSI is not
+signed, so it says "Unknown publisher"), and start Vulcan: the **STP UG** menu appears. It installs to
+`C:\Program Files\Maptek\STP UG` (plugin DLLs in `Client\`, the Python scripts in `Client\Python\`) and registers
+`Client\` under `HKLM\SOFTWARE\Maptek\Workbench\Client\PluginSearchPaths` as `StpUG`. A higher version replaces the
+installed one; uninstall from Apps & features (removes only its own registry value).
+
+On a development PC, don't have both the MSI (`StpUG`) and the dev registration (`StpUG.Dev`) at once: Vulcan would
+load the plugin twice. Remove the dev one with `tools\Register-PluginSearchPath.ps1 -Unregister`.
 
 `nuget.config` limits package restore to nuget.org (the test frameworks are the only packages).
 `StpBridge` references the Newtonsoft.Json 12 that the Workbench ships and does not copy it.

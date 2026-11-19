@@ -64,3 +64,17 @@ differs from the posted bytes' hash, and checks that the stored package and read
 
 Have the bridge hash the received canonical bytes instead of the re-serialized ones, or have the browser compare its
 receipt against Python's normalization. Either is a behaviour change to the existing tool and needs a decision first.
+
+## KI-2: the installed runtime folder is shared by every user of the PC
+
+Script 2 writes its runtime files beside itself, in `<scripts>\.stp_ug_v2_runtime\`: the rendered HTML, the snapshot
+and, in plugin mode, `plugin_session.json`, which holds the bridge token. The MSI installs the scripts under
+`C:\Program Files\Maptek\STP UG\Client\Python\scripts`, which normal users cannot write. So the MSI makes that one
+folder modifiable for the Users group, the same approach as the Pit Design installer's logs folder.
+
+Consequence: on a PC with several Windows users, each can read the others' runtime files, including a live bridge
+token. The bridge only listens on 127.0.0.1 and the token only lasts for its session, so the exposure is limited to
+other users logged in to that same PC at the same time.
+
+Possible fix (not done): let script 2 use a per-user folder such as `%LocalAppData%\Maptek\StpUG\runtime` when its
+own folder is not writable, or always. The plugin would then read `plugin_session.json` from there.

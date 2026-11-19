@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The STP UG MSI (WiX 5). Built by tools\Build-Plugin.ps1, which passes:
+    -d Version=x.y.z          -d PayloadDir=<staged payload folder>
+  Payload layout (what the plugin expects, see src\StpClient\Bridge\StpScripts.cs):
+    Client\StpClient.dll, StpEngine.dll, StpBridge.dll (+pdb)
+    Client\Python\scripts\*.py      the entry scripts the STP UG menu runs inside Vulcan
+    Client\Python\stp_core\*.py     the Python core they import
+    VERSION.txt
+  Installs to C:\Program Files\Maptek\STP UG and registers its Client folder under
+  HKLM\SOFTWARE\Maptek\Workbench\Client\PluginSearchPaths as 'StpUG'. Uninstall removes only that value,
+  never the key or other products' values. A newer version replaces an older one (MajorUpgrade).
+  NEVER change the UpgradeCode.
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="STP UG" Manufacturer="Maptek" Version="$(Version)"
+           UpgradeCode="76829F4F-71DC-466D-B95F-F157CC4C6035" Scope="perMachine" Compressed="yes">
+    <MajorUpgrade DowngradeErrorMessage="A newer version of STP UG is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Icon Id="Stp.ico" SourceFile="..\src\StpClient\Resources\Icons\Stp.ico" />
+    <Property Id="ARPPRODUCTICON" Value="Stp.ico" />
+    <Property Id="ARPCOMMENTS" Value="Short Term Planner for the Vulcan Gantt Scheduler (Workbench plugin)" />
+    <Property Id="ARPNOMODIFY" Value="1" />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="MaptekFolder" Name="Maptek">
+        <Directory Id="INSTALLFOLDER" Name="STP UG">
+          <Directory Id="ClientFolder" Name="Client">
+            <Directory Id="PythonFolder" Name="Python">
+              <Directory Id="ScriptsFolder" Name="scripts">
+                <Directory Id="RuntimeFolder" Name=".stp_ug_v2_runtime" />
+              </Directory>
+            </Directory>
+          </Directory>
+        </Directory>
+      </Directory>
+    </StandardDirectory>
+
+    <Feature Id="Main" Title="STP UG">
+      <!-- The payload holds only tracked files (Build-Plugin.ps1 copies them from git ls-files): no __pycache__. -->
+      <Files Directory="INSTALLFOLDER" Include="$(PayloadDir)\**" />
+
+      <Component Id="PluginSearchPath" Directory="INSTALLFOLDER">
+        <RegistryValue Root="HKLM" Key="SOFTWARE\Maptek\Workbench\Client\PluginSearchPaths"
+                       Name="StpUG" Type="string" Value="[ClientFolder]" KeyPath="yes" />
+      </Component>
+
+      <!-- Script 2 writes its runtime files (HTML, snapshot, plugin_session.json) beside itself, so Users may
+           modify this one folder. It is shared by the users of this PC (docs/known_issues.md, KI-2). -->
+      <Component Id="RuntimeFolder" Directory="RuntimeFolder" Guid="FAC9DDA3-3FBB-424E-B20A-5C26C30A4D72">
+        <CreateFolder>
+          <PermissionEx Sddl="D:(A;OICI;FA;;;BA)(A;OICI;FA;;;SY)(A;OICI;0x1301bf;;;BU)" />
+        </CreateFolder>
+        <RemoveFolder Id="RemoveRuntimeFolder" On="uninstall" />
+      </Component>
+    </Feature>
+  </Package>
+</Wix>
