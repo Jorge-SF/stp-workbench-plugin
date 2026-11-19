@@ -15,9 +15,10 @@ binaries but has not run on this machine yet; **[unverified]** a guess until som
 | Interface | `Maptek.Vulcan.Envisage.IEnvisageInterface` in `EnvisageInterfacesClient.dll` (`<Vulcan>\bin\workbench\Client\Plugins\`) | verified |
 | Export name | `Maptek.Vulcan.Envisage.ClientAPI.EnvisageInterfaceName` = `"Maptek.Vulcan.Envisage.Interfaces.Envisage"` | verified |
 | Exported by | `EnvisageClientPlugin.m_EnvisageInterface`, `[ExportInterface("Maptek.Vulcan.Envisage.Interfaces.Envisage", typeof(IEnvisageInterface))]`, **no API version** | verified |
-| Import | `[ImportInterface(ClientAPI.EnvisageInterfaceName, WeakImport = true)] public IEnvisageInterface Envisage { get; set; }` | inferred (attribute and `WeakImport` property verified in `DependencyInjection.dll`) |
-| Assembly identity | `EnvisageInterfacesClient, Version=19.1.0.215, PublicKeyToken=null` (Vulcan 2026.1). Not strong-named, so the CLR binds by simple name and a plugin built against 2026.1 loads the copy of any Vulcan version | verified (identity); inferred (binding) |
-| Not in the SDK | The Workbench SDK has no Vulcan assemblies. StpClient references the installed Vulcan's copy (`Private=false`, never shipped; property `VulcanClientPlugins`) | verified |
+| Import | `[ImportInterface("Maptek.Vulcan.Envisage.Interfaces.Envisage", WeakImport = true)] public object EnvisageObject { get; set; }`, used through `Bridge/EnvisageProxy.cs` (reflection on the running Vulcan's `IEnvisageInterface`) | to verify in Vulcan |
+| Why not typed | A property typed `IEnvisageInterface` binds only in the Vulcan it was compiled against. `PluginManagerServiceBase.BindInterfaces` (WorkbenchSharedComponents.dll) binds only if the property type `IsAssignableFrom` the export type; otherwise it logs "version issue ... Loaded version is X while the import in the plugin was built against version Y". Seen in Vulcan 2026 (19.0.0.673) with builds against 2026.1 (19.1.0.215) and 2024.2 (17.2.0.790) | verified |
+| Members used | `bool EnvisageFullyLoaded { get; }`, `int ExecutePythonScript(string, string)`: same signatures in 2024.2, 2026 and 2026.1 | verified |
+| Not in the SDK | The Workbench SDK has no Vulcan assemblies, and StpClient references none | verified |
 
 `WeakImport = true` lets the plugin load in a Workbench without Vulcan; the property then stays `null` and
 the commands say Vulcan is not available.

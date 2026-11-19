@@ -1,13 +1,12 @@
 // STP UG - Workbench client plugin.
 // Adds an "STP UG" menu to the Vulcan (Envisage) menu bar and an STP UG toolbar. Its items run the STP entry
 // scripts (python/scripts/1..4) inside Vulcan through IEnvisageInterface.ExecutePythonScript (Bridge/EnvisageRunner,
-// docs/envisage_python.md), one at a time, and open the settings/about window.
+// Bridge/EnvisageProxy, docs/envisage_python.md), one at a time, and open the settings/about window.
 
 using System;
 using System.IO;
 using System.Windows;
 using Maptek.Libraries.DependencyInjection;
-using Maptek.Vulcan.Envisage;
 using Maptek.Vulcan.Stp.Bridge;
 using Maptek.Vulcan.Stp.Views;
 using Maptek.Workbench;
@@ -27,10 +26,33 @@ namespace Maptek.Vulcan.Stp
         #region Services and interfaces
 
 #pragma warning disable 0649, 0169   // Assigned by the Workbench via dependency injection
-        /// <summary>Vulcan's Envisage. Weak: the plugin also loads in a Workbench without Vulcan (then null).</summary>
-        [ImportInterface(ClientAPI.EnvisageInterfaceName, WeakImport = true)]
-        public IEnvisageInterface Envisage { get; set; }
+        /// <summary>
+        /// Vulcan's IEnvisageInterface, imported as object so it binds in every Vulcan version (see EnvisageProxy).
+        /// Weak: the plugin also loads in a Workbench without Vulcan (then null).
+        /// </summary>
+        [ImportInterface(EnvisageProxy.InterfaceName, WeakImport = true)]
+        public object EnvisageObject { get; set; }
 #pragma warning restore 0649, 0169
+
+        private EnvisageProxy _envisage;
+        private object _envisageWrapped;
+
+        /// <summary>The imported Envisage wrapped for use; null (and logged) when missing or unusable.</summary>
+        private EnvisageProxy Envisage
+        {
+            get
+            {
+                var obj = EnvisageObject;
+                if (!ReferenceEquals(obj, _envisageWrapped))
+                {
+                    _envisageWrapped = obj;
+                    _envisage = EnvisageProxy.From(obj, out string problem);
+                    if (_envisage == null) Log.Warning("STP: Envisage not usable: {0}", problem);
+                    else Log.Info("STP: bound to Envisage {0}", _envisage.Description);
+                }
+                return _envisage;
+            }
+        }
 
         #endregion
 

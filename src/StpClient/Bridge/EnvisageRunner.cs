@@ -1,4 +1,5 @@
-// Runs an STP entry script inside Vulcan (Envisage's Python) through IEnvisageInterface.ExecutePythonScript.
+// Runs an STP entry script inside Vulcan (Envisage's Python) through IEnvisageInterface.ExecutePythonScript,
+// reached through EnvisageProxy so one build works in every Vulcan version.
 // See docs/envisage_python.md for what is verified about that call.
 //
 // Vulcan connection rules (Pit Design CLAUDE.md 5b):
@@ -14,7 +15,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Maptek.Vulcan.Envisage;
 
 namespace Maptek.Vulcan.Stp.Bridge
 {
@@ -68,7 +68,7 @@ namespace Maptek.Vulcan.Stp.Bridge
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Maptek", "StpUG", "run");
 
         /// <summary>True when Envisage is there and has finished loading; any failure reading it counts as no.</summary>
-        public static bool IsAvailable(IEnvisageInterface envisage)
+        public static bool IsAvailable(EnvisageProxy envisage)
         {
             if (envisage == null) return false;
             try
@@ -85,7 +85,7 @@ namespace Maptek.Vulcan.Stp.Bridge
         /// Runs the script in Envisage on a worker thread. The caller must hold the slot (TryBegin) and releases it
         /// (End) when the task completes. The task never faults: failures come back in RunOutcome.Error.
         /// </summary>
-        public static Task<RunOutcome> RunAsync(IEnvisageInterface envisage, StpScript script, string scriptsFolder)
+        public static Task<RunOutcome> RunAsync(EnvisageProxy envisage, StpScript script, string scriptsFolder)
         {
             string scriptPath = Path.Combine(scriptsFolder, script.FileName);
             string logPath = Path.Combine(RunFolder, script.Id + "_last_run.log");

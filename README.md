@@ -44,9 +44,8 @@ Requirements: Visual Studio 2026 (MSBuild 18) with .NET Framework 4.8 targeting,
    | `-Version x.y.z` | Installer/DLL version (default `<Major>.<Minor>.<commit count>`) |
 
    Same thing by hand: `MSBuild StpWorkbench.sln -restore -p:Configuration=Debug`.
-   `StpClient` also references Vulcan's `EnvisageInterfacesClient.dll` (not in the SDK, never copied). The default
-   is `C:\Program Files\Maptek\Vulcan 2026.1\bin\workbench\Client\Plugins`; for another Vulcan (2024.2 or later) set
-   `<VulcanClientPlugins>` in `WorkbenchRuntimeOverride.props`.
+   No Vulcan assembly is referenced: `StpClient` reaches Vulcan's `IEnvisageInterface` by name
+   (`src/StpClient/Bridge/EnvisageProxy.cs`), so one build runs in every Vulcan 2024.2 or later.
 3. Tests: `dotnet test src/StpEngine.Tests` and `dotnet test src/StpBridge.Tests`;
    `python -I python/tests/smoke_test.py`; `node tools/golden/run.mjs --check`.
 4. Load in Vulcan: `tools\Register-PluginSearchPath.ps1` registers `Deploy\Client` (value name `StpUG.Dev`), then

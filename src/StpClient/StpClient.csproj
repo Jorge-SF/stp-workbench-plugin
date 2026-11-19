@@ -18,10 +18,6 @@
     <StartAction>Program</StartAction>
     <StartProgram>$(WorkbenchExeOutputDirClient)WorkbenchClient.exe</StartProgram>
     <StartWorkingDirectory>$(WorkbenchExeOutputDirClient)</StartWorkingDirectory>
-    <!-- Folder with Vulcan's EnvisageInterfacesClient.dll. Must be the OLDEST Vulcan the plugin supports: Workbench
-         refuses the IEnvisageInterface import when the running Vulcan's interface version is lower than the one the
-         plugin was built against (e.g. built on 2026.1 = 19.1 -> not bound in Vulcan 2026 = 19.0). -->
-    <VulcanClientPlugins Condition="'$(VulcanClientPlugins)' == ''">$(ProgramW6432)\Maptek\Vulcan 2024.2\bin\workbench\Client\Plugins</VulcanClientPlugins>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -60,10 +56,8 @@
     <Reference Include="MessageInterfacesClient"><HintPath>$(WorkbenchRuntime)\SDK\Bin\Client\MessageInterfacesClient.dll</HintPath></Reference>
     <Reference Include="MaptekWPFSupport"><HintPath>$(WorkbenchRuntime)\SDK\Bin\Client\MaptekWPFSupport.dll</HintPath></Reference>
     <Reference Include="MaptekWPFControls"><HintPath>$(WorkbenchRuntime)\SDK\Bin\Client\MaptekWPFControls.dll</HintPath></Reference>
-    <!-- Vulcan's Envisage interface (IEnvisageInterface) is not in the Workbench SDK: referenced from an installed
-         Vulcan and never copied (Vulcan loads its own). Built against 2024.2 (17.2), it binds in any Vulcan 2024.2+;
-         Workbench only binds when the running interface version is >= the referenced one. -->
-    <Reference Include="EnvisageInterfacesClient"><HintPath>$(VulcanClientPlugins)\EnvisageInterfacesClient.dll</HintPath><Private>False</Private></Reference>
+    <!-- No Vulcan assembly is referenced on purpose: a typed IEnvisageInterface import only binds in the Vulcan it was
+         compiled against. Bridge\EnvisageProxy.cs reaches it by name, so one build runs in every Vulcan. -->
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\StpEngine\StpEngine.csproj" />
@@ -75,6 +69,7 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\AssemblyVersionInfo.g.cs" />
+    <Compile Include="Bridge\EnvisageProxy.cs" />
     <Compile Include="Bridge\EnvisageRunner.cs" />
     <Compile Include="Bridge\StpScripts.cs" />
     <Compile Include="Bridge\StpSettings.cs" />
@@ -103,10 +98,7 @@
   <!-- Friendly error instead of cryptic reference failures when the runtime folder is missing -->
   <Target Name="CheckWorkbenchRuntime" BeforeTargets="PrepareForBuild">
     <Error Condition="!Exists('$(WorkbenchRuntime)\Build\MSBuild\Maptek.Build.ExternalPlugin.targets')"
-           Text="Workbench runtime not found at '$(WorkbenchRuntime)'. Run Tools\Setup-WorkbenchRuntime.ps1 or create WorkbenchRuntimeOverride.props (see README.md)." />
-    <Error Condition="!Exists('$(VulcanClientPlugins)\EnvisageInterfacesClient.dll')"
-           Text="EnvisageInterfacesClient.dll not found in '$(VulcanClientPlugins)'. Install Vulcan 2024.2 or later, or set VulcanClientPlugins in WorkbenchRuntimeOverride.props to '&lt;Vulcan&gt;\bin\workbench\Client\Plugins' (see README.md)." />
-  </Target>
+           Text="Workbench runtime not found at '$(WorkbenchRuntime)'. Run Tools\Setup-WorkbenchRuntime.ps1 or create WorkbenchRuntimeOverride.props (see README.md)." />  </Target>
 
   <!-- Begin Workbench build script settings -->
   <Import Project="$(WorkbenchRuntime)\Build\MSBuild\Maptek.Build.ExternalPlugin.PreProject.CSharp.targets" Condition="Exists('$(WorkbenchRuntime)\Build\MSBuild\Maptek.Build.ExternalPlugin.PreProject.CSharp.targets')" />
