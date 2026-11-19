@@ -1,0 +1,44 @@
+{
+  "cases": [
+    {
+      "name": "assess_policies",
+      "description": "J100 -> K200 is violated in the native schedule; block-inherited blocks operations, allow-inherited does not.",
+      "steps": [
+        { "op": "assessPrecedenceConflicts", "policy": "block-inherited" },
+        { "op": "assessPrecedenceConflicts", "policy": "allow-inherited" }
+      ]
+    },
+    {
+      "name": "push_beyond_inherited_deficit",
+      "description": "J100 +1 (twice) pushes K200 only by the amount beyond the inherited 1-day deficit.",
+      "steps": [
+        { "op": "moveActivity", "activityId": "J100", "days": 1 },
+        { "op": "moveActivity", "activityId": "J100", "days": 1 }
+      ]
+    },
+    {
+      "name": "aggravate_inherited_blocked",
+      "description": "Moving K200 earlier would worsen the inherited conflict: rejected. Moving it later is allowed.",
+      "steps": [
+        { "op": "moveActivity", "activityId": "K200", "days": -1 },
+        { "op": "moveActivity", "activityId": "K200", "days": 1 }
+      ]
+    },
+    {
+      "name": "start_start_lag_push",
+      "description": "StartStart with +24 h lag: M300 +2 pushes N400 +2.",
+      "steps": [
+        { "op": "moveActivity", "activityId": "M300", "days": 2 }
+      ]
+    },
+    {
+      "name": "finish_finish_push",
+      "description": "FinishFinish: P500 +1 pushes Q600 +1; Q600 then cannot be pulled back but can move later.",
+      "steps": [
+        { "op": "moveActivity", "activityId": "P500", "days": 1 },
+        { "op": "moveActivity", "activityId": "Q600", "days": -1 },
+        { "op": "moveActivity", "activityId": "Q600", "days": 1 }
+      ]
+    }
+  ]
+}

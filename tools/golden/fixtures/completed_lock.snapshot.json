@@ -1,0 +1,420 @@
+{
+  "schema": "vgs-stp-snapshot/2",
+  "projectName": "completed_lock.vgantt",
+  "projectPath": "X:\\synthetic\\completed_lock.vgantt",
+  "projectKey": "397b77197ba87c0dd9d8c348543a2460af5e899679c80faa30c43ae6bf7834fa",
+  "projectFingerprint": "6bd095b7e57d647ec53b76856e52e5b0b1c40fb8442e4cd7b185fb886aadaa9d",
+  "precedenceFingerprint": "d6673f22b47c3b8e1e255f1c11d37967dd0f893985062268f2ede9db6cba9741",
+  "exportedAt": "2026-03-01T06:00:00",
+  "dateFormat": "dd/MM/yyyy",
+  "activities": [
+    {
+      "id": "E500",
+      "collectionKey": "c-E500",
+      "overallPercentComplete": "40",
+      "grid": {
+        "ID": "E500",
+        "Description": "Producción TJ-5 (avance parcial)",
+        "Resource": "LHD 01",
+        "Type": "Producción"
+      },
+      "nativeBars": [
+        {
+          "xmlKey": "x1",
+          "key": "1",
+          "start": "2026-03-01T08:00:00",
+          "finish": "2026-03-03T00:00:00",
+          "quantityPercentage": "40",
+          "percentComplete": "100",
+          "completeWorkedMinutes": "2400"
+        },
+        {
+          "xmlKey": "x2",
+          "key": "2",
+          "start": "2026-03-03T00:00:00",
+          "finish": "2026-03-06T08:00:00",
+          "quantityPercentage": "60",
+          "percentComplete": "0",
+          "completeWorkedMinutes": "0"
+        }
+      ],
+      "fragments": [
+        {
+          "id": "E500:x1:1:0:2026-03-01T08:00:00:2026-03-02T00:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-01T08:00:00",
+          "finish": "2026-03-02T00:00:00",
+          "originalStart": "2026-03-01T08:00:00",
+          "originalFinish": "2026-03-02T00:00:00",
+          "logicalUnitDate": "2026-03-01",
+          "displaySuppressed": false,
+          "quantityPercentage": "16",
+          "lockedCompleted": true
+        },
+        {
+          "id": "E500:x1:1:1:2026-03-02T00:00:00:2026-03-03T00:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-02T00:00:00",
+          "finish": "2026-03-03T00:00:00",
+          "originalStart": "2026-03-02T00:00:00",
+          "originalFinish": "2026-03-03T00:00:00",
+          "logicalUnitDate": "2026-03-02",
+          "displaySuppressed": false,
+          "quantityPercentage": "24",
+          "lockedCompleted": true
+        },
+        {
+          "id": "E500:x2:2:0:2026-03-03T00:00:00:2026-03-04T00:00:00",
+          "nativeBarXmlKey": "x2",
+          "nativeBarKey": "2",
+          "start": "2026-03-03T00:00:00",
+          "finish": "2026-03-04T00:00:00",
+          "originalStart": "2026-03-03T00:00:00",
+          "originalFinish": "2026-03-04T00:00:00",
+          "logicalUnitDate": "2026-03-03",
+          "displaySuppressed": false,
+          "quantityPercentage": "18",
+          "lockedCompleted": false
+        },
+        {
+          "id": "E500:x2:2:1:2026-03-04T00:00:00:2026-03-05T00:00:00",
+          "nativeBarXmlKey": "x2",
+          "nativeBarKey": "2",
+          "start": "2026-03-04T00:00:00",
+          "finish": "2026-03-05T00:00:00",
+          "originalStart": "2026-03-04T00:00:00",
+          "originalFinish": "2026-03-05T00:00:00",
+          "logicalUnitDate": "2026-03-04",
+          "displaySuppressed": false,
+          "quantityPercentage": "18",
+          "lockedCompleted": false
+        },
+        {
+          "id": "E500:x2:2:2:2026-03-05T00:00:00:2026-03-06T00:00:00",
+          "nativeBarXmlKey": "x2",
+          "nativeBarKey": "2",
+          "start": "2026-03-05T00:00:00",
+          "finish": "2026-03-06T00:00:00",
+          "originalStart": "2026-03-05T00:00:00",
+          "originalFinish": "2026-03-06T00:00:00",
+          "logicalUnitDate": "2026-03-05",
+          "displaySuppressed": false,
+          "quantityPercentage": "18",
+          "lockedCompleted": false
+        },
+        {
+          "id": "E500:x2:2:3:2026-03-06T00:00:00:2026-03-06T08:00:00",
+          "nativeBarXmlKey": "x2",
+          "nativeBarKey": "2",
+          "start": "2026-03-06T00:00:00",
+          "finish": "2026-03-06T08:00:00",
+          "originalStart": "2026-03-06T00:00:00",
+          "originalFinish": "2026-03-06T08:00:00",
+          "logicalUnitDate": "2026-03-06",
+          "displaySuppressed": false,
+          "quantityPercentage": "6",
+          "lockedCompleted": false
+        }
+      ],
+      "nativeAnchors": [
+        {
+          "leftBarXmlKey": "x1",
+          "leftBarKey": "1",
+          "rightBarXmlKey": "x2",
+          "rightBarKey": "2",
+          "at": "2026-03-03T00:00:00",
+          "rightAt": "2026-03-03T00:00:00",
+          "contiguous": true,
+          "cumulativeQuantityPercentage": "40",
+          "links": [
+            {
+              "key": "L11",
+              "role": "predecessor",
+              "endpointBar": "2",
+              "otherActivityId": "H800",
+              "otherBar": "1",
+              "type": "FinishStart",
+              "lagMicroseconds": "0",
+              "groupKey": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E510",
+      "collectionKey": "c-E510",
+      "overallPercentComplete": "50",
+      "grid": {
+        "ID": "E510",
+        "Description": "Producción TJ-6 (corte a media jornada)",
+        "Resource": "LHD 02",
+        "Type": "Producción"
+      },
+      "nativeBars": [
+        {
+          "xmlKey": "x1",
+          "key": "1",
+          "start": "2026-03-09T08:00:00",
+          "finish": "2026-03-10T12:00:00",
+          "quantityPercentage": "50",
+          "percentComplete": "100",
+          "completeWorkedMinutes": "1680"
+        },
+        {
+          "xmlKey": "x2",
+          "key": "2",
+          "start": "2026-03-10T12:00:00",
+          "finish": "2026-03-11T20:00:00",
+          "quantityPercentage": "50",
+          "percentComplete": "0",
+          "completeWorkedMinutes": "0"
+        }
+      ],
+      "fragments": [
+        {
+          "id": "E510:x1:1:0:2026-03-09T08:00:00:2026-03-10T00:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-09T08:00:00",
+          "finish": "2026-03-10T00:00:00",
+          "originalStart": "2026-03-09T08:00:00",
+          "originalFinish": "2026-03-10T00:00:00",
+          "logicalUnitDate": "2026-03-09",
+          "displaySuppressed": false,
+          "quantityPercentage": "28.5714",
+          "lockedCompleted": true
+        },
+        {
+          "id": "E510:x1:1:1:2026-03-10T00:00:00:2026-03-10T12:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-10T00:00:00",
+          "finish": "2026-03-10T12:00:00",
+          "originalStart": "2026-03-10T00:00:00",
+          "originalFinish": "2026-03-10T12:00:00",
+          "logicalUnitDate": "2026-03-10",
+          "displaySuppressed": false,
+          "quantityPercentage": "21.4286",
+          "lockedCompleted": true
+        },
+        {
+          "id": "E510:x2:2:0:2026-03-10T12:00:00:2026-03-11T00:00:00",
+          "nativeBarXmlKey": "x2",
+          "nativeBarKey": "2",
+          "start": "2026-03-10T12:00:00",
+          "finish": "2026-03-11T00:00:00",
+          "originalStart": "2026-03-10T12:00:00",
+          "originalFinish": "2026-03-11T00:00:00",
+          "logicalUnitDate": "2026-03-10",
+          "displaySuppressed": false,
+          "quantityPercentage": "18.75",
+          "lockedCompleted": false
+        },
+        {
+          "id": "E510:x2:2:1:2026-03-11T00:00:00:2026-03-11T20:00:00",
+          "nativeBarXmlKey": "x2",
+          "nativeBarKey": "2",
+          "start": "2026-03-11T00:00:00",
+          "finish": "2026-03-11T20:00:00",
+          "originalStart": "2026-03-11T00:00:00",
+          "originalFinish": "2026-03-11T20:00:00",
+          "logicalUnitDate": "2026-03-11",
+          "displaySuppressed": false,
+          "quantityPercentage": "31.25",
+          "lockedCompleted": false
+        }
+      ],
+      "nativeAnchors": [
+        {
+          "leftBarXmlKey": "x1",
+          "leftBarKey": "1",
+          "rightBarXmlKey": "x2",
+          "rightBarKey": "2",
+          "at": "2026-03-10T12:00:00",
+          "rightAt": "2026-03-10T12:00:00",
+          "contiguous": true,
+          "cumulativeQuantityPercentage": "50",
+          "links": []
+        }
+      ]
+    },
+    {
+      "id": "F600",
+      "collectionKey": "c-F600",
+      "overallPercentComplete": "100",
+      "grid": {
+        "ID": "F600",
+        "Description": "Relleno TJ-4 (completado)",
+        "Resource": "Planta relleno",
+        "Type": "Relleno"
+      },
+      "nativeBars": [
+        {
+          "xmlKey": "x1",
+          "key": "1",
+          "start": "2026-03-02T00:00:00",
+          "finish": "2026-03-04T00:00:00",
+          "quantityPercentage": "100",
+          "percentComplete": "100",
+          "completeWorkedMinutes": "2880"
+        }
+      ],
+      "fragments": [
+        {
+          "id": "F600:x1:1:0:2026-03-02T00:00:00:2026-03-03T00:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-02T00:00:00",
+          "finish": "2026-03-03T00:00:00",
+          "originalStart": "2026-03-02T00:00:00",
+          "originalFinish": "2026-03-03T00:00:00",
+          "logicalUnitDate": "2026-03-02",
+          "displaySuppressed": false,
+          "quantityPercentage": "50",
+          "lockedCompleted": true
+        },
+        {
+          "id": "F600:x1:1:1:2026-03-03T00:00:00:2026-03-04T00:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-03T00:00:00",
+          "finish": "2026-03-04T00:00:00",
+          "originalStart": "2026-03-03T00:00:00",
+          "originalFinish": "2026-03-04T00:00:00",
+          "logicalUnitDate": "2026-03-03",
+          "displaySuppressed": false,
+          "quantityPercentage": "50",
+          "lockedCompleted": true
+        }
+      ],
+      "nativeAnchors": []
+    },
+    {
+      "id": "G700",
+      "collectionKey": "c-G700",
+      "overallPercentComplete": "0",
+      "grid": {
+        "ID": "G700",
+        "Description": "Perforación TJ-4",
+        "Resource": "Simba 01",
+        "Type": "Perforación"
+      },
+      "nativeBars": [
+        {
+          "xmlKey": "x1",
+          "key": "1",
+          "start": "2026-03-03T00:00:00",
+          "finish": "2026-03-04T00:00:00",
+          "quantityPercentage": "100",
+          "percentComplete": "0",
+          "completeWorkedMinutes": "0"
+        }
+      ],
+      "fragments": [
+        {
+          "id": "G700:x1:1:0:2026-03-03T00:00:00:2026-03-04T00:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-03T00:00:00",
+          "finish": "2026-03-04T00:00:00",
+          "originalStart": "2026-03-03T00:00:00",
+          "originalFinish": "2026-03-04T00:00:00",
+          "logicalUnitDate": "2026-03-03",
+          "displaySuppressed": false,
+          "quantityPercentage": "100",
+          "lockedCompleted": false
+        }
+      ],
+      "nativeAnchors": []
+    },
+    {
+      "id": "H800",
+      "collectionKey": "c-H800",
+      "overallPercentComplete": "0",
+      "grid": {
+        "ID": "H800",
+        "Description": "Carguío TJ-5",
+        "Resource": "Camión 01",
+        "Type": "Producción"
+      },
+      "nativeBars": [
+        {
+          "xmlKey": "x1",
+          "key": "1",
+          "start": "2026-03-06T08:00:00",
+          "finish": "2026-03-08T08:00:00",
+          "quantityPercentage": "100",
+          "percentComplete": "0",
+          "completeWorkedMinutes": "0"
+        }
+      ],
+      "fragments": [
+        {
+          "id": "H800:x1:1:0:2026-03-06T08:00:00:2026-03-07T00:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-06T08:00:00",
+          "finish": "2026-03-07T00:00:00",
+          "originalStart": "2026-03-06T08:00:00",
+          "originalFinish": "2026-03-07T00:00:00",
+          "logicalUnitDate": "2026-03-06",
+          "displaySuppressed": false,
+          "quantityPercentage": "33.3333",
+          "lockedCompleted": false
+        },
+        {
+          "id": "H800:x1:1:1:2026-03-07T00:00:00:2026-03-08T00:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-07T00:00:00",
+          "finish": "2026-03-08T00:00:00",
+          "originalStart": "2026-03-07T00:00:00",
+          "originalFinish": "2026-03-08T00:00:00",
+          "logicalUnitDate": "2026-03-07",
+          "displaySuppressed": false,
+          "quantityPercentage": "50",
+          "lockedCompleted": false
+        },
+        {
+          "id": "H800:x1:1:2:2026-03-08T00:00:00:2026-03-08T08:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-08T00:00:00",
+          "finish": "2026-03-08T08:00:00",
+          "originalStart": "2026-03-08T00:00:00",
+          "originalFinish": "2026-03-08T08:00:00",
+          "logicalUnitDate": "2026-03-08",
+          "displaySuppressed": false,
+          "quantityPercentage": "16.6667",
+          "lockedCompleted": false
+        }
+      ],
+      "nativeAnchors": []
+    }
+  ],
+  "precedences": [
+    {
+      "key": "L10",
+      "predecessorId": "G700",
+      "successorId": "F600",
+      "predecessorBar": "1",
+      "successorBar": "1",
+      "type": "StartStart",
+      "lagMicroseconds": "-86400000000",
+      "groupKey": ""
+    },
+    {
+      "key": "L11",
+      "predecessorId": "E500",
+      "successorId": "H800",
+      "predecessorBar": "2",
+      "successorBar": "1",
+      "type": "FinishStart",
+      "lagMicroseconds": "0",
+      "groupKey": ""
+    }
+  ]
+}

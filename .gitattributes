@@ -1,0 +1,5 @@
+# Reference sources and golden files are compared byte-for-byte: never
+# convert line endings, whatever core.autocrlf says.
+reference/web/** -text
+tools/golden/fixtures/** -text
+tools/golden/expected/** -text

@@ -1,0 +1,46 @@
+{
+  "cases": [
+    {
+      "name": "move_pending_after_completed",
+      "description": "Completed-work lock: only the pending bar of E500 moves; its successor H800 is pushed; locked fragments stay put.",
+      "steps": [
+        { "op": "fragmentEligibility", "fragmentId": "E500:x1:1:1:2026-03-02T00:00:00:2026-03-03T00:00:00" },
+        { "op": "fragmentState", "fragmentId": "E500:x1:1:1:2026-03-02T00:00:00:2026-03-03T00:00:00" },
+        { "op": "moveActivity", "activityId": "E500", "days": 1 },
+        { "op": "fragmentEligibility", "fragmentId": "E500:x2:2:0:2026-03-03T00:00:00:2026-03-04T00:00:00" }
+      ]
+    },
+    {
+      "name": "completed_activity_immovable",
+      "description": "A fully completed activity cannot be moved.",
+      "steps": [
+        { "op": "activityEligibility", "activityId": "F600" },
+        { "op": "moveActivity", "activityId": "F600", "days": 1 }
+      ]
+    },
+    {
+      "name": "cascade_blocked_by_completed_successor",
+      "description": "G700 +1 would need to push completed F600 (StartStart, lag -24 h): rejected. Moving G700 before the horizon start is rejected too (horizon-range).",
+      "steps": [
+        { "op": "moveActivity", "activityId": "G700", "days": 1 },
+        { "op": "moveActivity", "activityId": "G700", "days": -1 }
+      ]
+    },
+    {
+      "name": "tail_move_on_locked_unit",
+      "description": "Daily-tail moves on a completed day are rejected.",
+      "steps": [
+        { "op": "moveDailyTail", "activityId": "E500", "fragmentId": "E500:x1:1:1:2026-03-02T00:00:00:2026-03-03T00:00:00", "targetDate": "2026-03-05" }
+      ]
+    },
+    {
+      "name": "mixed_day_completion_boundary",
+      "description": "The E510 completion boundary is mid-day: the whole-activity move is rejected, a tail move after the mixed day is allowed.",
+      "steps": [
+        { "op": "fragmentEligibility", "fragmentId": "E510:x2:2:0:2026-03-10T12:00:00:2026-03-11T00:00:00" },
+        { "op": "moveActivity", "activityId": "E510", "days": 1 },
+        { "op": "moveDailyTail", "activityId": "E510", "fragmentId": "E510:x2:2:1:2026-03-11T00:00:00:2026-03-11T20:00:00", "targetDate": "2026-03-12" }
+      ]
+    }
+  ]
+}

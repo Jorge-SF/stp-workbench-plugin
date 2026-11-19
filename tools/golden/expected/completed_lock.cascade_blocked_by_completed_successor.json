@@ -1,0 +1,181 @@
+{
+  "case": "cascade_blocked_by_completed_successor",
+  "description": "G700 +1 would need to push completed F600 (StartStart, lag -24 h): rejected. Moving G700 before the horizon start is rejected too (horizon-range).",
+  "steps": [
+    {
+      "step": {
+        "op": "moveActivity",
+        "activityId": "G700",
+        "days": 1
+      },
+      "outcome": {
+        "ok": false,
+        "message": "prefijo completado impide la cascada para F600",
+        "code": "completed-work"
+      }
+    },
+    {
+      "step": {
+        "op": "moveActivity",
+        "activityId": "G700",
+        "days": -1
+      },
+      "outcome": {
+        "ok": false,
+        "message": "movimiento directo fuera del horizonte: G700:x1:1:0:2026-03-03T00:00:00:2026-03-04T00:00:00",
+        "code": "horizon-range"
+      }
+    }
+  ],
+  "initial": {
+    "horizon": {
+      "horizonStart": "2026-03-03T00:00:00",
+      "horizonFinish": "2026-03-31T00:00:00",
+      "durationDays": 28
+    },
+    "displayHorizon": {
+      "start": "2026-03-03",
+      "finish": "2026-03-30",
+      "durationDays": 28
+    },
+    "hasPending": true,
+    "hasLocalMovements": false,
+    "canDownload": false,
+    "status": ""
+  },
+  "final": {
+    "horizon": {
+      "horizonStart": "2026-03-03T00:00:00",
+      "horizonFinish": "2026-03-31T00:00:00",
+      "durationDays": 28
+    },
+    "displayHorizon": {
+      "start": "2026-03-03",
+      "finish": "2026-03-30",
+      "durationDays": 28
+    },
+    "hasPending": true,
+    "hasLocalMovements": false,
+    "canDownload": false,
+    "status": ""
+  },
+  "fragments": [
+    {
+      "id": "E500:x1:1:0:2026-03-01T08:00:00:2026-03-02T00:00:00",
+      "start": "2026-03-01T08:00:00",
+      "finish": "2026-03-02T00:00:00",
+      "provenance": "",
+      "lockedCompleted": true
+    },
+    {
+      "id": "E500:x1:1:1:2026-03-02T00:00:00:2026-03-03T00:00:00",
+      "start": "2026-03-02T00:00:00",
+      "finish": "2026-03-03T00:00:00",
+      "provenance": "",
+      "lockedCompleted": true
+    },
+    {
+      "id": "E500:x2:2:0:2026-03-03T00:00:00:2026-03-04T00:00:00",
+      "start": "2026-03-03T00:00:00",
+      "finish": "2026-03-04T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "E500:x2:2:1:2026-03-04T00:00:00:2026-03-05T00:00:00",
+      "start": "2026-03-04T00:00:00",
+      "finish": "2026-03-05T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "E500:x2:2:2:2026-03-05T00:00:00:2026-03-06T00:00:00",
+      "start": "2026-03-05T00:00:00",
+      "finish": "2026-03-06T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "E500:x2:2:3:2026-03-06T00:00:00:2026-03-06T08:00:00",
+      "start": "2026-03-06T00:00:00",
+      "finish": "2026-03-06T08:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "E510:x1:1:0:2026-03-09T08:00:00:2026-03-10T00:00:00",
+      "start": "2026-03-09T08:00:00",
+      "finish": "2026-03-10T00:00:00",
+      "provenance": "",
+      "lockedCompleted": true
+    },
+    {
+      "id": "E510:x1:1:1:2026-03-10T00:00:00:2026-03-10T12:00:00",
+      "start": "2026-03-10T00:00:00",
+      "finish": "2026-03-10T12:00:00",
+      "provenance": "",
+      "lockedCompleted": true
+    },
+    {
+      "id": "E510:x2:2:0:2026-03-10T12:00:00:2026-03-11T00:00:00",
+      "start": "2026-03-10T12:00:00",
+      "finish": "2026-03-11T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "E510:x2:2:1:2026-03-11T00:00:00:2026-03-11T20:00:00",
+      "start": "2026-03-11T00:00:00",
+      "finish": "2026-03-11T20:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "F600:x1:1:0:2026-03-02T00:00:00:2026-03-03T00:00:00",
+      "start": "2026-03-02T00:00:00",
+      "finish": "2026-03-03T00:00:00",
+      "provenance": "",
+      "lockedCompleted": true
+    },
+    {
+      "id": "F600:x1:1:1:2026-03-03T00:00:00:2026-03-04T00:00:00",
+      "start": "2026-03-03T00:00:00",
+      "finish": "2026-03-04T00:00:00",
+      "provenance": "",
+      "lockedCompleted": true
+    },
+    {
+      "id": "G700:x1:1:0:2026-03-03T00:00:00:2026-03-04T00:00:00",
+      "start": "2026-03-03T00:00:00",
+      "finish": "2026-03-04T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "H800:x1:1:0:2026-03-06T08:00:00:2026-03-07T00:00:00",
+      "start": "2026-03-06T08:00:00",
+      "finish": "2026-03-07T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "H800:x1:1:1:2026-03-07T00:00:00:2026-03-08T00:00:00",
+      "start": "2026-03-07T00:00:00",
+      "finish": "2026-03-08T00:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    },
+    {
+      "id": "H800:x1:1:2:2026-03-08T00:00:00:2026-03-08T08:00:00",
+      "start": "2026-03-08T00:00:00",
+      "finish": "2026-03-08T08:00:00",
+      "provenance": "",
+      "lockedCompleted": false
+    }
+  ],
+  "storage": {},
+  "applyPackage": {
+    "error": "el paquete de aplicación no contiene cambios directos o por cascada",
+    "code": ""
+  }
+}

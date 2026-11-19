@@ -1,0 +1,264 @@
+{
+  "schema": "vgs-stp-snapshot/2",
+  "projectName": "chain_fs.vgantt",
+  "projectPath": "X:\\synthetic\\chain_fs.vgantt",
+  "projectKey": "12d01fe86306a891e57df92e17112ccdca910574bbe30ad22704e15fd959e4fa",
+  "projectFingerprint": "382320931d5756b758121bfc248364643b4715a821f39ec7c530b593cae0f28d",
+  "precedenceFingerprint": "a2124d7755622afc1c5f07c4f7237c071d3087e7f99ea15fd3bd58c72c111514",
+  "exportedAt": "2026-03-01T06:00:00",
+  "dateFormat": "dd/MM/yyyy",
+  "activities": [
+    {
+      "id": "A100",
+      "collectionKey": "c-A100",
+      "overallPercentComplete": "0",
+      "grid": {
+        "ID": "A100",
+        "Description": "Desarrollo rampa N1",
+        "Resource": "Jumbo 01",
+        "Type": "Desarrollo"
+      },
+      "nativeBars": [
+        {
+          "xmlKey": "x1",
+          "key": "1",
+          "start": "2026-03-02T08:00:00",
+          "finish": "2026-03-04T20:00:00",
+          "quantityPercentage": "100",
+          "percentComplete": "0",
+          "completeWorkedMinutes": "0"
+        }
+      ],
+      "fragments": [
+        {
+          "id": "A100:x1:1:0:2026-03-02T08:00:00:2026-03-03T00:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-02T08:00:00",
+          "finish": "2026-03-03T00:00:00",
+          "originalStart": "2026-03-02T08:00:00",
+          "originalFinish": "2026-03-03T00:00:00",
+          "logicalUnitDate": "2026-03-02",
+          "displaySuppressed": false,
+          "quantityPercentage": "26.6666",
+          "lockedCompleted": false
+        },
+        {
+          "id": "A100:x1:1:1:2026-03-03T00:00:00:2026-03-04T00:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-03T00:00:00",
+          "finish": "2026-03-04T00:00:00",
+          "originalStart": "2026-03-03T00:00:00",
+          "originalFinish": "2026-03-04T00:00:00",
+          "logicalUnitDate": "2026-03-03",
+          "displaySuppressed": false,
+          "quantityPercentage": "40",
+          "lockedCompleted": false
+        },
+        {
+          "id": "A100:x1:1:2:2026-03-04T00:00:00:2026-03-04T20:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-04T00:00:00",
+          "finish": "2026-03-04T20:00:00",
+          "originalStart": "2026-03-04T00:00:00",
+          "originalFinish": "2026-03-04T20:00:00",
+          "logicalUnitDate": "2026-03-04",
+          "displaySuppressed": false,
+          "quantityPercentage": "33.3334",
+          "lockedCompleted": false
+        }
+      ],
+      "nativeAnchors": []
+    },
+    {
+      "id": "B200",
+      "collectionKey": "c-B200",
+      "overallPercentComplete": "0",
+      "grid": {
+        "ID": "B200",
+        "Description": "Fortificación rampa N1",
+        "Resource": "Empernador 01",
+        "Type": "Fortificación"
+      },
+      "nativeBars": [
+        {
+          "xmlKey": "x1",
+          "key": "1",
+          "start": "2026-03-04T20:00:00",
+          "finish": "2026-03-06T20:00:00",
+          "quantityPercentage": "100",
+          "percentComplete": "0",
+          "completeWorkedMinutes": "0"
+        }
+      ],
+      "fragments": [
+        {
+          "id": "B200:x1:1:0:2026-03-04T20:00:00:2026-03-05T00:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-04T20:00:00",
+          "finish": "2026-03-05T00:00:00",
+          "originalStart": "2026-03-04T20:00:00",
+          "originalFinish": "2026-03-05T00:00:00",
+          "logicalUnitDate": "2026-03-04",
+          "displaySuppressed": false,
+          "quantityPercentage": "8.3333",
+          "lockedCompleted": false
+        },
+        {
+          "id": "B200:x1:1:1:2026-03-05T00:00:00:2026-03-06T00:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-05T00:00:00",
+          "finish": "2026-03-06T00:00:00",
+          "originalStart": "2026-03-05T00:00:00",
+          "originalFinish": "2026-03-06T00:00:00",
+          "logicalUnitDate": "2026-03-05",
+          "displaySuppressed": false,
+          "quantityPercentage": "50",
+          "lockedCompleted": false
+        },
+        {
+          "id": "B200:x1:1:2:2026-03-06T00:00:00:2026-03-06T20:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-06T00:00:00",
+          "finish": "2026-03-06T20:00:00",
+          "originalStart": "2026-03-06T00:00:00",
+          "originalFinish": "2026-03-06T20:00:00",
+          "logicalUnitDate": "2026-03-06",
+          "displaySuppressed": false,
+          "quantityPercentage": "41.6667",
+          "lockedCompleted": false
+        }
+      ],
+      "nativeAnchors": []
+    },
+    {
+      "id": "C300",
+      "collectionKey": "c-C300",
+      "overallPercentComplete": "0",
+      "grid": {
+        "ID": "C300",
+        "Description": "Shotcrete rampa N1",
+        "Resource": "Robot 01",
+        "Type": "Shotcrete"
+      },
+      "nativeBars": [
+        {
+          "xmlKey": "x1",
+          "key": "1",
+          "start": "2026-03-07T08:00:00",
+          "finish": "2026-03-08T20:00:00",
+          "quantityPercentage": "100",
+          "percentComplete": "0",
+          "completeWorkedMinutes": "0"
+        }
+      ],
+      "fragments": [
+        {
+          "id": "C300:x1:1:0:2026-03-07T08:00:00:2026-03-08T00:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-07T08:00:00",
+          "finish": "2026-03-08T00:00:00",
+          "originalStart": "2026-03-07T08:00:00",
+          "originalFinish": "2026-03-08T00:00:00",
+          "logicalUnitDate": "2026-03-07",
+          "displaySuppressed": false,
+          "quantityPercentage": "44.4444",
+          "lockedCompleted": false
+        },
+        {
+          "id": "C300:x1:1:1:2026-03-08T00:00:00:2026-03-08T20:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-08T00:00:00",
+          "finish": "2026-03-08T20:00:00",
+          "originalStart": "2026-03-08T00:00:00",
+          "originalFinish": "2026-03-08T20:00:00",
+          "logicalUnitDate": "2026-03-08",
+          "displaySuppressed": false,
+          "quantityPercentage": "55.5556",
+          "lockedCompleted": false
+        }
+      ],
+      "nativeAnchors": []
+    },
+    {
+      "id": "D400",
+      "collectionKey": "c-D400",
+      "overallPercentComplete": "0",
+      "grid": {
+        "ID": "D400",
+        "Description": "Desarrollo XC-2",
+        "Resource": "Jumbo 02",
+        "Type": "Desarrollo"
+      },
+      "nativeBars": [
+        {
+          "xmlKey": "x1",
+          "key": "1",
+          "start": "2026-03-03T00:00:00",
+          "finish": "2026-03-05T00:00:00",
+          "quantityPercentage": "100",
+          "percentComplete": "0",
+          "completeWorkedMinutes": "0"
+        }
+      ],
+      "fragments": [
+        {
+          "id": "D400:x1:1:0:2026-03-03T00:00:00:2026-03-04T00:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-03T00:00:00",
+          "finish": "2026-03-04T00:00:00",
+          "originalStart": "2026-03-03T00:00:00",
+          "originalFinish": "2026-03-04T00:00:00",
+          "logicalUnitDate": "2026-03-03",
+          "displaySuppressed": false,
+          "quantityPercentage": "50",
+          "lockedCompleted": false
+        },
+        {
+          "id": "D400:x1:1:1:2026-03-04T00:00:00:2026-03-05T00:00:00",
+          "nativeBarXmlKey": "x1",
+          "nativeBarKey": "1",
+          "start": "2026-03-04T00:00:00",
+          "finish": "2026-03-05T00:00:00",
+          "originalStart": "2026-03-04T00:00:00",
+          "originalFinish": "2026-03-05T00:00:00",
+          "logicalUnitDate": "2026-03-04",
+          "displaySuppressed": false,
+          "quantityPercentage": "50",
+          "lockedCompleted": false
+        }
+      ],
+      "nativeAnchors": []
+    }
+  ],
+  "precedences": [
+    {
+      "key": "L1",
+      "predecessorId": "A100",
+      "successorId": "B200",
+      "predecessorBar": "1",
+      "successorBar": "1",
+      "type": "FinishStart",
+      "lagMicroseconds": "0",
+      "groupKey": ""
+    },
+    {
+      "key": "L2",
+      "predecessorId": "B200",
+      "successorId": "C300",
+      "predecessorBar": "1",
+      "successorBar": "1",
+      "type": "FinishStart",
+      "lagMicroseconds": "0",
+      "groupKey": ""
+    }
+  ]
+}
