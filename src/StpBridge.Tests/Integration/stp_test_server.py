@@ -52,7 +52,7 @@ def _instances(items: list[tuple[str, list[tuple[str, str]], list[str] | None]])
 
 
 def write_synthetic_project(path: Path) -> None:
-    """A100 (2 days) --FinishStart--> B200 (1 day, right after A100)."""
+    """A100 (2 days) --FinishStart--> B200 (1 day, right after A100); C300 isolated, sub-second bar times."""
     bars = [
         ("bA", [("m_Key", "1"), ("m_StartTime", _ticks(datetime(2026, 3, 2, 8))),
                 ("m_FinishTime", _ticks(datetime(2026, 3, 4, 8))), ("m_QuantityPercentage", "100"),
@@ -60,14 +60,19 @@ def write_synthetic_project(path: Path) -> None:
         ("bB", [("m_Key", "1"), ("m_StartTime", _ticks(datetime(2026, 3, 4, 8))),
                 ("m_FinishTime", _ticks(datetime(2026, 3, 5, 8))), ("m_QuantityPercentage", "100"),
                 ("m_PercentComplete", "0"), ("m_CompleteWorkedMinutes", "0")], None),
+        ("bC", [("m_Key", "1"), ("m_StartTime", _ticks(datetime(2026, 3, 10, 6, 30, 0, 250_000))),
+                ("m_FinishTime", _ticks(datetime(2026, 3, 11, 18, 15, 0, 500_000))), ("m_QuantityPercentage", "100"),
+                ("m_PercentComplete", "0"), ("m_CompleteWorkedMinutes", "0")], None),
     ]
     collections = [
         ("cA", [("m_Bars", ""), ("m_PercentComplete", "0")], ["bA"]),
         ("cB", [("m_Bars", ""), ("m_PercentComplete", "0")], ["bB"]),
+        ("cC", [("m_Bars", ""), ("m_PercentComplete", "0")], ["bC"]),
     ]
     activities = [
         ("aA", [("m_Id", "A100"), ("m_Bars", "cA")], None),
         ("aB", [("m_Id", "B200"), ("m_Bars", "cB")], None),
+        ("aC", [("m_Id", "C300"), ("m_Bars", "cC")], None),
     ]
     links = [
         ("l1", [("m_Key", "L1"), ("m_Predecessor", "aA"), ("m_Successor", "aB"),
@@ -101,6 +106,7 @@ def main(argv: list[str] | None = None) -> int:
     grid = {
         "A100": {"ID": "A100", "Nombre": "Galería norte ✓", "Tipo": "Desarrollo"},
         "B200": {"ID": "B200", "Nombre": "Rampa 𝄞 sur", "Tipo": "Producción"},
+        "C300": {"ID": "C300", "Nombre": "Ventilación con fracciones de segundo", "Tipo": "Servicio"},
     }
     snapshot = build_canonical_snapshot(state, project, grid, exported_at=datetime(2026, 3, 1, 9, 30))
     snapshot_path = workdir / "snapshot_v2.json"
