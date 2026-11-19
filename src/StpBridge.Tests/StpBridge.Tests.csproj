@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Bridge tests: canonical JSON/SHA-256 parity with Python (tools/golden/expected/*.apply.canonical.json)
+       and wire-model round trips. -->
+  <Import Project="..\..\WorkbenchRuntime.props" />
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>Maptek.Vulcan.Stp.Bridge.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\StpBridge\StpBridge.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- StpBridge does not copy Newtonsoft (the Workbench provides it); the test host needs a copy. -->
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(WorkbenchRuntime)\SDK\Third\Newtonsoft.Json\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

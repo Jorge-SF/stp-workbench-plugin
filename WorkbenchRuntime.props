@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Defines where the Workbench SDK / build system / debug runtime lives.
+  Default: the "WorkbenchRuntime" folder inside this solution, created by Tools\Setup-WorkbenchRuntime.ps1.
+  To use a different location, copy WorkbenchRuntimeOverride_Template.props to WorkbenchRuntimeOverride.props and edit it.
+
+  Expected layout:
+    WorkbenchRuntime\SDK\Bin\Client|Shared|Server\   reference assemblies
+    WorkbenchRuntime\SDK\Third\, SDK\Schema\
+    WorkbenchRuntime\Build\                          Maptek MSBuild targets + IL weaving tools
+    WorkbenchRuntime\Runtime\Client|Server\...       runnable debug Workbench (WorkbenchClient.exe)
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="WorkbenchRuntimeOverride.props" Condition="Exists('$(MSBuildThisFileDirectory)WorkbenchRuntimeOverride.props')" />
+  <PropertyGroup>
+    <WorkbenchRuntime Condition="'$(WorkbenchRuntime)' == ''">$(MSBuildThisFileDirectory)WorkbenchRuntime</WorkbenchRuntime>
+    <!-- Built plugins are copied into the debug Workbench's Plugins folders, so F5 runs them immediately. -->
+    <WorkbenchExeOutputDirClient Condition="'$(WorkbenchExeOutputDirClient)' == ''">$(WorkbenchRuntime)\Runtime\Client\</WorkbenchExeOutputDirClient>
+    <WorkbenchExeOutputDirServer Condition="'$(WorkbenchExeOutputDirServer)' == ''">$(WorkbenchRuntime)\Runtime\Server\</WorkbenchExeOutputDirServer>
+    <!-- Clean copy of just your plugin files (what you point Vulcan at, and what you ship). -->
+    <PluginDeployDir Condition="'$(PluginDeployDir)' == ''">$(MSBuildThisFileDirectory)Deploy\</PluginDeployDir>
+  </PropertyGroup>
+</Project>

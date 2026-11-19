@@ -14,3 +14,10 @@ obj/
 .vs/
 *.user
 node_modules/
+# Workbench build
+*.suo
+WorkbenchRuntime/
+Deploy/
+WorkbenchRuntimeOverride.props
+Build/SolutionBuildNumberGenerated.props
+TestResults/

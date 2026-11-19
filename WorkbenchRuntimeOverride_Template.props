@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copy to WorkbenchRuntimeOverride.props (not committed) to point at a different Workbench runtime/SDK folder. -->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <WorkbenchRuntime Condition="'$(WorkbenchRuntime)' == ''">C:\SomeDir\WorkbenchRuntime</WorkbenchRuntime>
+  </PropertyGroup>
+</Project>

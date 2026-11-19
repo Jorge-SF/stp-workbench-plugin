@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Phase 1 fills this in. Not loaded yet: StpClientPlugin does not call MenuManager.AddFromMarkup. -->
+<Segments xmlns="http://www.maptek.com/workbench/MenuSchema.xsd">
+  <Alias Name="NS"  FullText="Maptek.Vulcan.Stp"/>
+  <Alias Name="BIN" FullText="StpClient"/>
+  <Alias Name="RES" FullText="Resources"/>
+</Segments>

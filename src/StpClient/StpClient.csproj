@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\WorkbenchRuntime.props" />
+  <Import Project="..\..\Build\SolutionVersionNumber.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{BABAC4CF-F5C3-47C5-974A-F63B38789064}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Maptek.Vulcan.Stp</RootNamespace>
+    <AssemblyName>StpClient</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <LangVersion>7.3</LangVersion>
+    <NoWarn>$(NoWarn);SA1009;SA1107;SA1117;SA1118;SA1122;SA1128;SA1132;SA1312;SA1401;SA1402;SA1403;SA1407;SA1500;SA1503;SA1520</NoWarn>
+    <!-- F5 launches the debug Workbench (with the debugger attached) -->
+    <StartAction>Program</StartAction>
+    <StartProgram>$(WorkbenchExeOutputDirClient)WorkbenchClient.exe</StartProgram>
+    <StartWorkingDirectory>$(WorkbenchExeOutputDirClient)</StartWorkingDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="WindowsBase" />
+    <!-- Workbench SDK reference assemblies (add more from $(WorkbenchRuntime)\SDK\Bin as needed) -->
+    <Reference Include="MaptekBindingSupport"><HintPath>$(WorkbenchRuntime)\SDK\Bin\Shared\MaptekBindingSupport.dll</HintPath></Reference>
+    <Reference Include="WorkbenchInterfaces"><HintPath>$(WorkbenchRuntime)\SDK\Bin\Shared\WorkbenchInterfaces.dll</HintPath></Reference>
+    <Reference Include="LoggingInterface"><HintPath>$(WorkbenchRuntime)\SDK\Bin\Shared\LoggingInterface.dll</HintPath></Reference>
+    <Reference Include="DependencyInjection"><HintPath>$(WorkbenchRuntime)\SDK\Bin\Shared\DependencyInjection.dll</HintPath></Reference>
+    <Reference Include="MessageInterfaces"><HintPath>$(WorkbenchRuntime)\SDK\Bin\Shared\MessageInterfaces.dll</HintPath></Reference>
+    <Reference Include="WorkbenchInterfacesClient"><HintPath>$(WorkbenchRuntime)\SDK\Bin\Client\WorkbenchInterfacesClient.dll</HintPath></Reference>
+    <Reference Include="MessageInterfacesClient"><HintPath>$(WorkbenchRuntime)\SDK\Bin\Client\MessageInterfacesClient.dll</HintPath></Reference>
+    <Reference Include="MaptekWPFSupport"><HintPath>$(WorkbenchRuntime)\SDK\Bin\Client\MaptekWPFSupport.dll</HintPath></Reference>
+    <Reference Include="MaptekWPFControls"><HintPath>$(WorkbenchRuntime)\SDK\Bin\Client\MaptekWPFControls.dll</HintPath></Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\StpEngine\StpEngine.csproj" />
+    <ProjectReference Include="..\StpBridge\StpBridge.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Build\SolutionVersionInfo.cs">
+      <Link>Properties\SolutionVersionInfo.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\AssemblyVersionInfo.g.cs" />
+    <Compile Include="StpClientPlugin.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- The generated Resources class is how Workbench finds "StpClient:Resources:<key>"; without it every label is blank -->
+    <EmbeddedResource Include="Resources\Resources.resx">
+      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+      <StronglyTypedNamespace>$(RootNamespace).Resources</StronglyTypedNamespace>
+      <StronglyTypedClassName>Resources</StronglyTypedClassName>
+      <StronglyTypedFileName>$(IntermediateOutputPath)Resources.Designer.g.cs</StronglyTypedFileName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Menus\Commands.xml" />
+    <EmbeddedResource Include="Menus\Menus.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Icons\Stp.ico" />
+  </ItemGroup>
+
+  <!-- Friendly error instead of cryptic reference failures when the runtime folder is missing -->
+  <Target Name="CheckWorkbenchRuntime" BeforeTargets="PrepareForBuild">
+    <Error Condition="!Exists('$(WorkbenchRuntime)\Build\MSBuild\Maptek.Build.ExternalPlugin.targets')"
+           Text="Workbench runtime not found at '$(WorkbenchRuntime)'. Run Tools\Setup-WorkbenchRuntime.ps1 or create WorkbenchRuntimeOverride.props (see README.md)." />
+  </Target>
+
+  <!-- Begin Workbench build script settings -->
+  <Import Project="$(WorkbenchRuntime)\Build\MSBuild\Maptek.Build.ExternalPlugin.PreProject.CSharp.targets" Condition="Exists('$(WorkbenchRuntime)\Build\MSBuild\Maptek.Build.ExternalPlugin.PreProject.CSharp.targets')" />
+  <!-- End Workbench build script settings -->
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- Begin Workbench build script settings -->
+  <PropertyGroup>
+    <!-- Copies the plugin into $(WorkbenchExeOutputDirClient)Plugins (the debug Workbench) after build -->
+    <!-- Set to false in WorkbenchRuntimeOverride.props when the runtime folder is shared with another project. -->
+    <CopyBinaryFilesToWorkbenchClientPlugins Condition="'$(CopyBinaryFilesToWorkbenchClientPlugins)' == ''">true</CopyBinaryFilesToWorkbenchClientPlugins>
+  </PropertyGroup>
+  <Import Project="$(WorkbenchRuntime)\Build\MSBuild\Maptek.Build.ExternalPlugin.targets" Condition="Exists('$(WorkbenchRuntime)\Build\MSBuild\Maptek.Build.ExternalPlugin.targets')" />
+  <!-- End Workbench build script settings -->
+
+  <!-- Copy only this plugin's own files (plugin + StpEngine + StpBridge, PDBs, satellites) to Deploy\Client -->
+  <Target Name="CopyToPluginDeployDir" AfterTargets="Build">
+    <ItemGroup>
+      <PluginDeployCandidates Include="$(TargetPath);$(TargetDir)$(TargetName).pdb;$(TargetDir)StpEngine.dll;$(TargetDir)StpEngine.pdb;$(TargetDir)StpBridge.dll;$(TargetDir)StpBridge.pdb" />
+      <PluginDeployFiles Include="@(PluginDeployCandidates)" Condition="Exists('%(FullPath)')" />
+      <PluginDeploySatellites Include="$(TargetDir)**\$(TargetName).resources.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(PluginDeployFiles)" DestinationFolder="$(PluginDeployDir)Client\" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(PluginDeploySatellites)" DestinationFolder="$(PluginDeployDir)Client\%(RecursiveDir)" SkipUnchangedFiles="true" />
+    <Message Importance="high" Text="STP plugin deployed to $(PluginDeployDir)Client\" />
+  </Target>
+</Project>

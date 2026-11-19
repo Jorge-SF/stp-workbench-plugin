@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Bridge client: wire-format models (vgs-stp-snapshot/2, vgs-stp-apply/1, ...), canonical JSON + SHA-256,
+       and the HTTP client for the Python loopback server (python/stp_core/stp_live_refresh_server_v2.py). -->
+  <Import Project="..\..\WorkbenchRuntime.props" />
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>Maptek.Vulcan.Stp.Bridge</RootNamespace>
+    <AssemblyName>StpBridge</AssemblyName>
+    <Version>1.0.0</Version>
+    <Company>Maptek</Company>
+    <Product>STP UG</Product>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.Net.Http" />
+    <!-- Use the Newtonsoft.Json the Workbench ships (12.0.0.0) and do not copy it: the Workbench loads its own. -->
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(WorkbenchRuntime)\SDK\Third\Newtonsoft.Json\Newtonsoft.Json.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

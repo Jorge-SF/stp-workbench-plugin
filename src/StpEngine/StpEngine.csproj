@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Planning-rules engine: C# port of reference/web/planner_logic.js.
+       Pure library: no Workbench, WPF or JSON dependencies, so it is fully testable outside Vulcan. -->
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>Maptek.Vulcan.Stp.Engine</RootNamespace>
+    <AssemblyName>StpEngine</AssemblyName>
+    <Version>1.0.0</Version>
+    <Company>Maptek</Company>
+    <Product>STP UG</Product>
+  </PropertyGroup>
+</Project>
