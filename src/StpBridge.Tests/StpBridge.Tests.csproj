@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <!-- Bridge tests: canonical JSON/SHA-256 parity with Python (tools/golden/expected/*.apply.canonical.json)
-       and wire-model round trips. -->
+  <!-- Bridge tests: canonical JSON/SHA-256 parity with Python (tools/golden/expected/*.apply.canonical.json and
+       TestData/python_vectors.json), wire-model strictness, client behaviour against a fake handler, and integration
+       tests against the real Python bridge (skipped when no Python 3.8+ is found; see Integration/PythonEnvironment.cs). -->
   <Import Project="..\..\WorkbenchRuntime.props" />
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
@@ -12,6 +13,11 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
     <PackageReference Include="xunit" Version="2.9.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Net.Http" />
+    <None Include="Integration\stp_test_server.py" />
+    <None Include="TestData\*" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\StpBridge\StpBridge.csproj" />
