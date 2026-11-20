@@ -65,3 +65,5 @@ jobs:
   #       run: dotnet test src/StpEngine.Tests
   #     - name: Bridge tests
   #       run: dotnet test src/StpBridge.Tests
+  #     - name: Planner view-model tests
+  #       run: dotnet test src/StpPlanner.Tests

@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Planner view model: the state the planner screen (docs/mockups/planner_layout.html) binds to.
+       Snapshot -> engine mapping, rows/filters/counters/capacity, commands with undo/redo, apply package + bridge.
+       No WPF or Workbench references: INotifyPropertyChanged only, fully testable outside Vulcan. -->
+  <Import Project="..\..\WorkbenchRuntime.props" />
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>Maptek.Vulcan.Stp.Planner</RootNamespace>
+    <AssemblyName>StpPlanner</AssemblyName>
+    <Version>1.0.0</Version>
+    <Company>Maptek</Company>
+    <Product>STP UG</Product>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.Net.Http" />
+    <!-- Same Newtonsoft.Json the Workbench ships; not copied (the Workbench loads its own). -->
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(WorkbenchRuntime)\SDK\Third\Newtonsoft.Json\Newtonsoft.Json.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\StpEngine\StpEngine.csproj" />
+    <ProjectReference Include="..\StpBridge\StpBridge.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="StpPlanner.Tests" />
+  </ItemGroup>
+</Project>
