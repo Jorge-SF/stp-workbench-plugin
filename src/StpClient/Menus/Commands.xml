@@ -4,6 +4,7 @@
 
   <!-- ExecuteCallback binds to a method on StpClientPlugin by name -->
   <Command Name="[NS].Commands.Prepare"     ExecuteCallback="{MethodBinding RunPrepare}"   Public="true"/>
+  <Command Name="[NS].Commands.PlannerView" ExecuteCallback="{MethodBinding OpenPlannerView}" Public="true"/>
   <Command Name="[NS].Commands.OpenPlanner" ExecuteCallback="{MethodBinding RunPlanner}"   Public="true"/>
   <Command Name="[NS].Commands.ApplyToVgs"  ExecuteCallback="{MethodBinding RunApply}"     Public="true"/>
   <Command Name="[NS].Commands.VerifySave"  ExecuteCallback="{MethodBinding RunVerify}"    Public="true"/>

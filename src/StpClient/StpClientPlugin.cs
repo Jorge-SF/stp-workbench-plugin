@@ -1,7 +1,8 @@
 // STP UG - Workbench client plugin.
 // Adds an "STP UG" menu to the Vulcan (Envisage) menu bar and an STP UG toolbar. Its items run the STP entry
 // scripts (python/scripts/1..4) inside Vulcan through IEnvisageInterface.ExecutePythonScript (Bridge/EnvisageRunner,
-// Bridge/EnvisageProxy, docs/envisage_python.md), one at a time, and open the settings/about window.
+// Bridge/EnvisageProxy, docs/envisage_python.md), one at a time, open the settings/about window, and open the
+// planner as a Workbench document (Views/Planner; for now on DesignPlannerViewModel until StpPlanner lands).
 
 using System;
 using System.IO;
@@ -9,6 +10,7 @@ using System.Windows;
 using Maptek.Libraries.DependencyInjection;
 using Maptek.Vulcan.Stp.Bridge;
 using Maptek.Vulcan.Stp.Views;
+using Maptek.Vulcan.Stp.Views.Planner;
 using Maptek.Workbench;
 using Maptek.Workbench.Client;
 using Res = Maptek.Vulcan.Stp.Resources.Resources;
@@ -34,6 +36,7 @@ namespace Maptek.Vulcan.Stp
         public object EnvisageObject { get; set; }
 #pragma warning restore 0649, 0169
 
+        private PlannerDocumentViewModel _planner;
         private EnvisageProxy _envisage;
         private object _envisageWrapped;
 
@@ -79,6 +82,27 @@ namespace Maptek.Vulcan.Stp
 
         public void RunPrepare() => RunScript(StpScript.Prepare, Res.Menu_Prepare);
 
+        /// <summary>STP UG > Abrir planificador: one planner document; a repeat activates the open one.</summary>
+        public void OpenPlannerView()
+        {
+            try
+            {
+                if (_planner != null && _planner.IsViewOpen())
+                {
+                    ViewManager.ActivateViewModel(_planner);
+                    return;
+                }
+                _planner = new PlannerDocumentViewModel(new DesignPlannerViewModel());
+                ViewManager.OpenViewModel(this, _planner, false);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "STP: could not open the planner view");
+                Show(string.Format(Res.Msg_PlannerFailed, ex.Message), MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>STP UG > Planificador HTML (script 2): the browser planner, unchanged.</summary>
         public void RunPlanner() => RunScript(StpScript.Planner, Res.Menu_Planner);
 
         public void RunApply() => RunScript(StpScript.Apply, Res.Menu_Apply);
