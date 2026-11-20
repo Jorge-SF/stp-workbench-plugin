@@ -11,14 +11,12 @@ namespace Maptek.Vulcan.Stp.Bridge
     internal sealed class StpScript
     {
         public static readonly StpScript Prepare = new StpScript("prepare", "1. VGS_PrepareProjectForSTP.py", true);
-        public static readonly StpScript Planner = new StpScript("planner", "2. VGS_ShortTermPlanner.py", false);
-
-        /// <summary>Script 2 in plugin mode: no browser; writes plugin_session.json for the planner document.</summary>
+        /// <summary>Script 2p (loads script 2): writes plugin_session.json for the planner document.</summary>
         public static readonly StpScript PluginPlanner = new StpScript("planner_plugin", "2p. VGS_ShortTermPlanner_Plugin.py", false);
         public static readonly StpScript Apply = new StpScript("apply", "3. VGS_ApplySTPToVGS.py", true);
         public static readonly StpScript Verify = new StpScript("verify", "4. VGS_VerifySTPSave.py", false);
 
-        public static readonly IReadOnlyList<StpScript> All = new[] { Prepare, PluginPlanner, Planner, Apply, Verify };
+        public static readonly IReadOnlyList<StpScript> All = new[] { Prepare, PluginPlanner, Apply, Verify };
 
         private StpScript(string id, string fileName, bool writesVgs)
         {

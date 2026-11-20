@@ -1,23 +1,22 @@
 # `plugin_session.json`: hand-over from script 2 to the Workbench plugin
 
-In **plugin mode**, script 2 (`python/scripts/2. VGS_ShortTermPlanner.py`) does what it always did up to the
-bridge: it exports the snapshot, writes `snapshot_v2.json` and starts the read-only loopback bridge. Then it
-does **not** render `index.html` and does **not** open a browser. It writes `plugin_session.json` instead, and
-the C# planner view reads it to find the snapshot and talk to the bridge.
+Script 2 (`python/scripts/2. VGS_ShortTermPlanner.py`) exports the snapshot, writes `snapshot_v2.json` and
+starts the read-only loopback bridge. Then it writes `plugin_session.json`, and the C# planner view reads it to
+find the snapshot and talk to the bridge.
 
-Browser mode (the default) is unchanged.
+The old browser mode (rendering `index.html` and opening it in the default browser) has been removed; the
+Workbench plugin is the only planner UI. `STP_PLUGIN_MODE` is no longer read.
 
-## Selecting plugin mode
+## Choosing the session file
 
-The first of these that applies wins:
+The first of these that applies wins (otherwise the default `<runtime>/plugin_session.json`):
 
 | How | Example | Notes |
 |---|---|---|
 | Entry script `2p` | run `python/scripts/2p. VGS_ShortTermPlanner_Plugin.py` | **Recommended for the plugin.** Needs no arguments or environment, so it works with Vulcan's script runner whatever it passes. |
 | Command-line argument | `"2. VGS_ShortTermPlanner.py" --plugin-session` | Optional value: `--plugin-session <path>` or `--plugin-session=<path>`. |
 | Environment, explicit path | `STP_PLUGIN_SESSION=plugin_session.json` | Also honoured by `2p`. |
-| Environment, flag | `STP_PLUGIN_MODE=1` (`true`, `yes`, `on`) | Default path. |
-| Python call | `run_planner(plugin_session=True)` or `run_planner(plugin_session=<path>)` | `None` (the default) is browser mode. |
+| Python call | `run_planner(plugin_session=True)` or `run_planner(plugin_session=<path>)` | `True` (the default) is the default path. |
 
 Vulcan's embedded Python may not give a usable `sys.argv`, and environment variables have to be set before
 Vulcan starts, because the Envisage process inherits its environment then. So the plugin should run the `2p`

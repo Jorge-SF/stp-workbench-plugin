@@ -1,8 +1,14 @@
-"""Read-only VGS adapter that exports a self-contained STP V2 planner page."""
+"""Read-only VGS adapter that prepares an STP V2 planner session for the Workbench plugin.
+
+It exports the snapshot, starts the read bridge and writes ``plugin_session.json`` in the
+per-user runtime folder; the C# planner view opens that session.  The old browser page
+(``index.html`` opened with the default browser) is gone: the plugin is the only UI.
+The web resources are still copied into the runtime folder because the plugin's
+"STP suelto" export builds its standalone HTML from them.
+"""
 from __future__ import annotations  # bundles: supplied by the header
 
 
-import base64
 from datetime import datetime
 import json
 import os
@@ -38,28 +44,10 @@ from stp_v2_snapshot_contract import build_canonical_snapshot, parse_activity_gr
 import stp_v2_windows_atomic
 
 
-SNAPSHOT_PLACEHOLDER = "__VGS_STP_V2_SNAPSHOT__"
-BRIDGE_PLACEHOLDER = "__VGS_STP_V2_BRIDGE__"
-LOGIC_PLACEHOLDER = "__VGS_STP_V2_LOGIC__"
-TIMELINE_LOGIC_PLACEHOLDER = "__VGS_STP_V2_TIMELINE_LOGIC__"
-REFRESH_CLIENT_PLACEHOLDER = "__VGS_STP_V2_REFRESH_CLIENT__"
-COMPAT_LOGIC_PLACEHOLDER = "__VGS_STP_V2_COMPAT_LOGIC__"
-MAPTEK_LOGO_MARKER = "__MAPTEK_LOGO_DATA_URL__"
-_PLACEHOLDERS = (
-    SNAPSHOT_PLACEHOLDER,
-    BRIDGE_PLACEHOLDER,
-    LOGIC_PLACEHOLDER,
-    TIMELINE_LOGIC_PLACEHOLDER,
-    REFRESH_CLIENT_PLACEHOLDER,
-    COMPAT_LOGIC_PLACEHOLDER,
-)
-
-# Plugin mode (Workbench C# view): see docs/plugin_session.md.
+# Workbench plugin session: see docs/plugin_session.md.
 PLUGIN_SESSION_FILE_NAME = "plugin_session.json"
 PLUGIN_SESSION_ARGUMENT = "--plugin-session"
-PLUGIN_MODE_ENV = "STP_PLUGIN_MODE"
 PLUGIN_SESSION_ENV = "STP_PLUGIN_SESSION"
-_TRUE_VALUES = {"1", "true", "yes", "on"}
 
 
 def build_snapshot(project: Any, project_file: Path, csv_path: Path) -> dict[str, Any]:
@@ -88,41 +76,6 @@ def build_snapshot(project: Any, project_file: Path, csv_path: Path) -> dict[str
         grid,
         exported_at=datetime.now().replace(microsecond=0),
     )
-
-
-def _safe_json(value: Mapping[str, Any]) -> str:
-    return (
-        json.dumps(value, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
-        .replace("<", "\\u003c")
-        .replace(">", "\\u003e")
-        .replace("&", "\\u0026")
-        .replace("\u2028", "\\u2028")
-        .replace("\u2029", "\\u2029")
-    )
-
-
-def _safe_logic(value: str) -> str:
-    # Only an HTML end-tag is dangerous in executable source.  Escaping every
-    # less-than sign would corrupt JavaScript comparison operators.
-    return re.sub(r"</script", r"<\\/script", value, flags=re.IGNORECASE).replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
-
-
-# A transparent 1x1 GIF: the footer shows no logo when the approved image is not installed.
-_NO_LOGO_DATA_URL = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-
-
-def _maptek_logo_data_url(template_path: Path) -> str:
-    """Return the approved footer mark as an offline-safe JPEG data URL.
-
-    The public repository does not hold the logo, so it is optional: without
-    ``assets/Maptek_highres.jpg`` beside the template the footer image is blank.
-    """
-    logo_path = Path(template_path).parent / "assets" / "Maptek_highres.jpg"
-    try:
-        encoded = base64.b64encode(logo_path.read_bytes()).decode("ascii")
-    except OSError:
-        return _NO_LOGO_DATA_URL
-    return f"data:image/jpeg;base64,{encoded}"
 
 
 def _atomic_write_json(path: Path, value: Mapping[str, Any]) -> Path:
@@ -159,7 +112,7 @@ def planner_bridge_config(
     *,
     precedence_conflict_policy: str,
 ) -> dict[str, Any]:
-    """The exact bridge config the planner gets (``__VGS_STP_V2_BRIDGE__`` or the plugin session)."""
+    """The exact bridge config the plugin session carries."""
     if precedence_conflict_policy not in {"block-inherited", "allow-inherited"}:
         raise ValueError("unsupported precedence conflict policy")
     return {
@@ -208,12 +161,12 @@ def resolve_plugin_session_path(requested: Any) -> Path:
 def plugin_session_request(
     argv: Any = None,
     environ: Mapping[str, str] | None = None,
-) -> Path | None:
-    """Return the plugin session path asked for, or ``None`` for browser mode.
+) -> Path:
+    """Return the plugin session path to write.
 
-    Plugin mode is selected by ``--plugin-session [path]`` / ``--plugin-session=<path>`` on
-    the command line, or by ``STP_PLUGIN_SESSION=<path>`` / ``STP_PLUGIN_MODE=1`` in the
-    environment.  Vulcan's runner may give no usable ``sys.argv``; that means browser mode.
+    ``--plugin-session <path>`` / ``--plugin-session=<path>`` on the command line, else
+    ``STP_PLUGIN_SESSION=<path>`` in the environment, else the default
+    ``<runtime>/plugin_session.json``.  Vulcan's runner may give no usable ``sys.argv``.
     """
     if argv is None:
         argv = getattr(sys, "argv", None) or []
@@ -229,11 +182,7 @@ def plugin_session_request(
         if argument.startswith(PLUGIN_SESSION_ARGUMENT + "="):
             return resolve_plugin_session_path(argument.split("=", 1)[1])
     configured = environ.get(PLUGIN_SESSION_ENV, "").strip()
-    if configured:
-        return resolve_plugin_session_path(configured)
-    if environ.get(PLUGIN_MODE_ENV, "").strip().casefold() in _TRUE_VALUES:
-        return resolve_plugin_session_path(True)
-    return None
+    return resolve_plugin_session_path(configured or True)
 
 
 def write_plugin_session(
@@ -270,109 +219,17 @@ def remove_plugin_session(session_path: Path) -> None:
         pass
 
 
-def render_planner(
-    snapshot: Mapping[str, Any],
-    bridge_config: Mapping[str, Any],
-    template_path: Path,
-    planner_logic_path: Path,
-    timeline_logic_path: Path,
-    refresh_client_path: Path,
-    compatibility_logic_path: Path,
-    output_path: Path,
-    *,
-    precedence_conflict_policy: str = "block-inherited",
-) -> Path:
-    """Embed all planner inputs only after exact placeholder validation."""
-    if precedence_conflict_policy not in {"block-inherited", "allow-inherited"}:
-        raise ValueError("unsupported precedence conflict policy")
-    template = Path(template_path).read_text(encoding="utf-8")
-    if any(template.count(placeholder) != 1 for placeholder in _PLACEHOLDERS):
-        raise ValueError("template must contain every V2 placeholder exactly once")
-    discovered = set(re.findall(r"__VGS_STP_V2_[A-Z_]+__", template))
-    if discovered != set(_PLACEHOLDERS):
-        raise ValueError("template contains an unknown or malformed V2 placeholder")
-    rendered_bridge_config = planner_bridge_config(
-        bridge_config, precedence_conflict_policy=precedence_conflict_policy
-    )
-    rendered = template
-    if MAPTEK_LOGO_MARKER in rendered:
-        if rendered.count(MAPTEK_LOGO_MARKER) != 1:
-            raise ValueError("template must contain one Maptek footer logo marker")
-        rendered = rendered.replace(MAPTEK_LOGO_MARKER, _maptek_logo_data_url(Path(template_path)))
-    replacements = (
-        (SNAPSHOT_PLACEHOLDER, _safe_json(snapshot)),
-        (BRIDGE_PLACEHOLDER, _safe_json(rendered_bridge_config)),
-        (
-            LOGIC_PLACEHOLDER,
-            _safe_logic(Path(planner_logic_path).read_text(encoding="utf-8")),
-        ),
-        (
-            TIMELINE_LOGIC_PLACEHOLDER,
-            _safe_logic(Path(timeline_logic_path).read_text(encoding="utf-8")),
-        ),
-        (
-            REFRESH_CLIENT_PLACEHOLDER,
-            _safe_logic(Path(refresh_client_path).read_text(encoding="utf-8")),
-        ),
-        (
-            COMPAT_LOGIC_PLACEHOLDER,
-            _safe_logic(Path(compatibility_logic_path).read_text(encoding="utf-8")),
-        ),
-    )
-    for placeholder, replacement in replacements:
-        rendered = rendered.replace(placeholder, replacement)
-    if "__VGS_STP_V2_" in rendered:
-        raise ValueError("unreplaced V2 placeholder")
-    destination = Path(output_path)
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    temporary_path: Path | None = None
-    try:
-        descriptor, name = tempfile.mkstemp(
-            prefix=f".{destination.name}.", suffix=".tmp", dir=destination.parent
-        )
-        temporary_path = Path(name)
-        with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as stream:
-            stream.write(rendered)
-            stream.flush()
-            os.fsync(stream.fileno())
-        os.replace(temporary_path, destination)
-        temporary_path = None
-    finally:
-        if temporary_path is not None:
-            temporary_path.unlink(missing_ok=True)
-    return destination
-
-
-def open_planner(path: Path) -> tuple[bool, str]:
-    target = Path(path).resolve(strict=True)
-    try:
-        os.startfile(str(target))
-        return True, f"STP V2 abierto: {target}"
-    except OSError:
-        return False, f"No se pudo abrir automáticamente. Abra este archivo: {target}"
-
-
-def _report(message: str) -> None:
-    try:
-        import vulcan_gui  # type: ignore[import-not-found]
-
-        vulcan_gui.message(message)
-    except (ImportError, AttributeError, OSError, RuntimeError, TypeError):
-        print(message)
-
-
 def run_planner(
     *,
     precedence_conflict_policy: str = "allow-inherited",
     output_directory_name: str = "short_term_planner_v2",
-    plugin_session: Any = None,
-) -> Path | None:
-    """Run the V2 exporter with an explicit UI policy and isolated output directory.
+    plugin_session: Any = True,
+) -> Path:
+    """Export the snapshot, start the read bridge and publish the plugin session.
 
-    ``plugin_session=None`` is browser mode: render ``index.html`` and open it (returns None).
-    Otherwise (``True`` or a path, see ``resolve_plugin_session_path``) nothing is rendered or
-    opened: the snapshot and the plugin session file are written, the bridge is left running
-    as in browser mode, and the session path is printed and returned.
+    ``plugin_session`` is ``True`` (default ``<runtime>/plugin_session.json``) or a path, see
+    ``resolve_plugin_session_path``.  The session path is printed and returned; the bridge is
+    left running for the plugin.
     """
     if precedence_conflict_policy not in {"block-inherited", "allow-inherited"}:
         raise ValueError("unsupported precedence conflict policy")
@@ -381,69 +238,38 @@ def run_planner(
         or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]*", output_directory_name)
     ):
         raise ValueError("invalid planner output directory name")
-    session_path = (
-        None if plugin_session is None else resolve_plugin_session_path(plugin_session)
-    )
-    if session_path is not None:
-        remove_plugin_session(session_path)
+    session_path = resolve_plugin_session_path(plugin_session)
+    remove_plugin_session(session_path)
     from maptek.gantt import Gantt  # type: ignore[import-not-found]
 
     project = Gantt()
     project_file = Path(project.project_filename(True))
-    resource_root = RESOURCE_DIR
     output_dir = RUNTIME_ROOT / output_directory_name
     output_dir.mkdir(parents=True, exist_ok=True)
     snapshot = build_snapshot(project, project_file, output_dir / "activity_grid.csv")
     snapshot_path = _atomic_write_json(output_dir / "snapshot_v2.json", snapshot)
-    bridge_runtime_dir = output_dir / ".bridge"
     bridge = launch_read_bridge(
         project_path=project_file,
         snapshot_path=snapshot_path,
         snapshot=snapshot,
-        server_path=resource_root / "stp_live_refresh_server_v2.py",
-        runtime_dir=bridge_runtime_dir,
+        server_path=RESOURCE_DIR / "stp_live_refresh_server_v2.py",
+        runtime_dir=output_dir / ".bridge",
     )
-    if session_path is not None:
-        written = write_plugin_session(
-            session_path,
-            snapshot_path,
-            planner_bridge_config(
-                bridge.page_config(),
-                precedence_conflict_policy=precedence_conflict_policy,
-            ),
-        )
-        print(f"STP_PLUGIN_SESSION={written}")
-        return written
-    output = render_planner(
-        snapshot,
-        bridge.page_config(),
-        resource_root / "short_term_planner_template_v2.html",
-        resource_root / "stp_v2_planner_logic.js",
-        resource_root / "stp_v2_timeline_logic.js",
-        resource_root / "stp_v2_refresh_client.js",
-        resource_root / "stp_v2_v1_compat_logic.js",
-        output_dir / "index.html",
-        precedence_conflict_policy=precedence_conflict_policy,
+    written = write_plugin_session(
+        session_path,
+        snapshot_path,
+        planner_bridge_config(
+            bridge.page_config(),
+            precedence_conflict_policy=precedence_conflict_policy,
+        ),
     )
-    _, open_message = open_planner(output)
-    bridge_message = (
-        "Actualización en vivo disponible."
-        if bridge.mode == "live"
-        else "No se pudo iniciar la actualización en vivo; se usará el modo estático."
-    )
-    policy_message = (
-        "STP V2 — conflictos heredados permitidos. "
-        if precedence_conflict_policy == "allow-inherited"
-        else ""
-    )
-    _report(f"{policy_message}{bridge_message} {open_message}")
-    return None
+    print(f"STP_PLUGIN_SESSION={written}")
+    return written
 
 
-def main() -> None:
-    """Run the standard safe V2 planner inside VGS (plugin mode when asked for)."""
-    run_planner(plugin_session=plugin_session_request())
-
+def main() -> Path:
+    """Run the standard safe V2 planner inside VGS for the Workbench plugin."""
+    return run_planner(plugin_session=plugin_session_request())
 
 if __name__ == "__main__":
     main()

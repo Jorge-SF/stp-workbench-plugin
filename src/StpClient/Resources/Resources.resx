@@ -11,12 +11,10 @@
   <!-- Menu and toolbar -->
   <data name="Menu_Stp" xml:space="preserve"><value>STP UG</value></data>
   <data name="Menu_Prepare" xml:space="preserve"><value>Preparar proyecto</value></data>
-  <data name="Menu_Planner" xml:space="preserve"><value>Abrir planificador (navegador)</value></data>
   <data name="Menu_Apply" xml:space="preserve"><value>Aplicar STP a VGS</value></data>
   <data name="Menu_Verify" xml:space="preserve"><value>Verificar guardado</value></data>
   <data name="Menu_Settings" xml:space="preserve"><value>Configuración y acerca de…</value></data>
   <data name="Tip_Prepare" xml:space="preserve"><value>Script 1: prepara el proyecto VGS abierto para STP.</value></data>
-  <data name="Tip_Planner" xml:space="preserve"><value>Script 2: abre el planificador de corto plazo en el navegador.</value></data>
   <data name="Tip_Apply" xml:space="preserve"><value>Script 3: aplica el paquete STP al proyecto VGS abierto.</value></data>
   <data name="Tip_Verify" xml:space="preserve"><value>Script 4: verifica que el proyecto se guardó con el STP aplicado.</value></data>
   <data name="Tip_Settings" xml:space="preserve"><value>Carpeta de scripts, versión y diagnóstico.</value></data>
