@@ -147,7 +147,9 @@
   <!-- Copy only this plugin's own files (plugin + StpEngine + StpBridge, PDBs, satellites) to Deploy\Client -->
   <Target Name="CopyToPluginDeployDir" AfterTargets="Build">
     <ItemGroup>
-      <PluginDeployCandidates Include="$(TargetPath);$(TargetDir)$(TargetName).pdb;$(TargetDir)StpEngine.dll;$(TargetDir)StpEngine.pdb;$(TargetDir)StpBridge.dll;$(TargetDir)StpBridge.pdb" />
+      <!-- The plugin and every Stp* library it references (StpEngine, StpBridge, later StpPlanner, StpTimeline):
+           a new referenced project is deployed and packaged without editing this list. -->
+      <PluginDeployCandidates Include="$(TargetPath);$(TargetDir)$(TargetName).pdb;$(TargetDir)Stp*.dll;$(TargetDir)Stp*.pdb" />
       <PluginDeployFiles Include="@(PluginDeployCandidates)" Condition="Exists('%(FullPath)')" />
       <PluginDeploySatellites Include="$(TargetDir)**\$(TargetName).resources.dll" />
     </ItemGroup>

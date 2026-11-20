@@ -28,6 +28,9 @@ RUNTIME_ROOT = Path(
     or Path(os.environ.get("LOCALAPPDATA") or Path.home() / "AppData" / "Local") / "Maptek" / "StpUG" / "runtime"
 )
 RESOURCE_DIR = materialize_runtime_resources(RUNTIME_ROOT)
+# Now that it exists, use its full long path (an 8.3 short TEMP/LOCALAPPDATA such as RUNNER~1 is expanded), so the
+# paths script 2 hands out match resolve_plugin_session_path and the plugin's view of the folder.
+RUNTIME_ROOT = RESOURCE_DIR = Path(RESOURCE_DIR).resolve()
 
 from stp_v2_bridge_bootstrap import launch_read_bridge
 from stp_v2_core import read_vgantt

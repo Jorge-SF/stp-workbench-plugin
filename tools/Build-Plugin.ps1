@@ -23,7 +23,7 @@
   so every commit gives a higher version and a new MSI replaces the old one.
 
 .PARAMETER Test
-  Also run the C# tests (StpEngine.Tests, StpBridge.Tests, StpTimeline.Tests), the Python smoke test and the golden check.
+  Also run every C# test project (src\*.Tests), the Python tests (python	ests\*.py) and the golden check.
 
 .PARAMETER Register
   After a successful build, register Deploy\Client as a Workbench plugin search path
@@ -125,9 +125,12 @@ if ($Test) {
     Step 'Running tests'
     $dotnet = Get-Command dotnet -ErrorAction SilentlyContinue
     if ($dotnet) {
-        foreach ($project in 'src\StpEngine.Tests', 'src\StpBridge.Tests', 'src\StpTimeline.Tests') {
+        # Every test project, so a new one is never skipped.
+        $testProjects = Get-ChildItem (Join-Path $root 'src') -Directory -Filter '*.Tests' | Sort-Object Name
+        foreach ($dir in $testProjects) {
+            $project = "src\$($dir.Name)"
             Write-Host "  $project"
-            & dotnet test (Join-Path $root $project) --no-build -c $Configuration --nologo -v q
+            & dotnet test $dir.FullName --no-build -c $Configuration --nologo -v q
             if ($LASTEXITCODE -ne 0) { $testFailures += $project }
         }
     } else {
@@ -135,9 +138,11 @@ if ($Test) {
     }
     $python = Get-Command python -ErrorAction SilentlyContinue
     if ($python) {
-        Write-Host '  python smoke test'
-        & python -I (Join-Path $root 'python\tests\smoke_test.py')
-        if ($LASTEXITCODE -ne 0) { $testFailures += 'python smoke test' }
+        foreach ($file in Get-ChildItem (Join-Path $root 'python\tests') -Filter '*.py' | Sort-Object Name) {
+            Write-Host "  python\tests\$($file.Name)"
+            & python -I $file.FullName
+            if ($LASTEXITCODE -ne 0) { $testFailures += "python\tests\$($file.Name)" }
+        }
     } else {
         Write-Host '  python not found: Python tests skipped' -ForegroundColor Yellow
     }
