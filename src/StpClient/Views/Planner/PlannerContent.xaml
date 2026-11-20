@@ -285,8 +285,10 @@
           <DockPanel>
             <TextBlock DockPanel.Dock="Bottom" Style="{StaticResource GroupLabel}" Text="{x:Static res:Resources.Planner_GroupView}"/>
             <Grid VerticalAlignment="Center">
-              <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+              <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
               <Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+              <CheckBox Grid.Row="0" Grid.Column="2" Margin="10,2,4,2" IsChecked="{Binding ShowActualProgress}" Content="{x:Static res:Resources.Planner_ViewActualProgress}"
+                        ToolTip="{x:Static res:Resources.Planner_ViewActualProgressTip}"/>
               <CheckBox Grid.Row="0" Grid.Column="0" Margin="4,2,10,2" IsChecked="{Binding ShowPrecedences}" Content="{x:Static res:Resources.Planner_ViewPrecedences}"/>
               <CheckBox Grid.Row="0" Grid.Column="1" Margin="4,2" IsChecked="{Binding ShowCompleted}" Content="{x:Static res:Resources.Planner_ViewCompleted}"/>
               <CheckBox Grid.Row="1" Grid.Column="0" Margin="4,2,10,2" IsChecked="{Binding ShowResources}" Content="{x:Static res:Resources.Planner_ViewResources}"
@@ -385,6 +387,7 @@
             <!-- Edit requests (drag, Ctrl+arrows, Ctrl+Z/Y, block menu) go to Editor in PlannerContent.xaml.cs -->
             <t:TimelineView x:Name="Timeline" Model="{Binding Timeline}" SelectedKey="{Binding SelectedKey, Mode=TwoWay}"
                             ShowLinks="{Binding ShowPrecedences}" ShowCompleted="{Binding ShowCompleted}"
+                            ShowActualProgress="{Binding ShowActualProgress}"
                             IsEditable="{Binding Editor.IsEditable}"/>
             <Border BorderBrush="{StaticResource Line}" BorderThickness="1" Margin="12" CornerRadius="4"
                     Background="{StaticResource Strip}"
@@ -499,11 +502,180 @@
           <TabItem Header="{x:Static res:Resources.Planner_TabReports}">
             <TextBlock Text="{x:Static res:Resources.Planner_ComingSoon}" Foreground="{StaticResource Muted}" Margin="12"/>
           </TabItem>
+          <!-- Gráficos: template renderProgressCharts (daily compliance, then the per-equipment rings) -->
           <TabItem Header="{x:Static res:Resources.Planner_TabCharts}">
-            <TextBlock Text="{x:Static res:Resources.Planner_ComingSoon}" Foreground="{StaticResource Muted}" Margin="12"/>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+              <StackPanel Margin="8,4">
+                <TextBlock Text="{x:Static res:Resources.Planner_ChartsEmpty}" Foreground="{StaticResource Muted}" Margin="4">
+                  <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                      <Setter Property="Visibility" Value="Collapsed"/>
+                      <Style.Triggers>
+                        <DataTrigger Binding="{Binding ProgressCharts.Count}" Value="0">
+                          <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                      </Style.Triggers>
+                    </Style>
+                  </TextBlock.Style>
+                </TextBlock>
+                <Expander Header="{x:Static res:Resources.Planner_ChartsDaily}" IsExpanded="True">
+                  <ItemsControl ItemsSource="{Binding ProgressCharts}">
+                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <Border BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="4" Margin="4" Padding="6,4" Background="{StaticResource Panel}">
+                          <StackPanel>
+                            <TextBlock Text="{Binding Type}" FontWeight="SemiBold"/>
+                            <p:DailyProgressChart Chart="{Binding}"/>
+                            <ItemsControl ItemsSource="{Binding DailyLegend}">
+                              <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel MaxWidth="410"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                              <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                  <StackPanel Orientation="Horizontal" Margin="0,0,10,2">
+                                    <Border Width="10" Height="10" CornerRadius="2" Background="{Binding Swatch}" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Text}" Foreground="{StaticResource Muted}"/>
+                                  </StackPanel>
+                                </DataTemplate>
+                              </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                          </StackPanel>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </Expander>
+                <Expander Header="{x:Static res:Resources.Planner_ChartsGeneral}" IsExpanded="False" Margin="0,4,0,0">
+                  <ItemsControl ItemsSource="{Binding ProgressCharts}">
+                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <Border BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="4" Margin="4" Padding="6,4" Width="330" Background="{StaticResource Panel}">
+                          <DockPanel>
+                            <p:TotalProgressChart DockPanel.Dock="Left" Chart="{Binding}"/>
+                            <StackPanel Margin="6,4,0,0">
+                              <TextBlock Text="{Binding TotalsText}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                              <TextBlock Text="{Binding RingsText}" Foreground="{StaticResource Muted}" TextWrapping="Wrap"
+                                         Visibility="{Binding HasRingsText, Converter={StaticResource BoolToVisible}}"/>
+                              <ItemsControl ItemsSource="{Binding TotalLegend}" Margin="0,4,0,0">
+                                <ItemsControl.ItemTemplate>
+                                  <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
+                                      <Border Width="10" Height="10" CornerRadius="2" Background="{Binding Swatch}" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                                      <TextBlock Text="{Binding Text}" Foreground="{StaticResource Muted}" TextWrapping="Wrap" MaxWidth="140"/>
+                                    </StackPanel>
+                                  </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                              </ItemsControl>
+                            </StackPanel>
+                          </DockPanel>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </Expander>
+              </StackPanel>
+            </ScrollViewer>
           </TabItem>
+          <!-- Avance real: template aggregate rows "Avance real · tipo" (real/plan per day, red under plan, green met) -->
           <TabItem Header="{x:Static res:Resources.Planner_TabActuals}">
-            <TextBlock Text="{x:Static res:Resources.Planner_ComingSoon}" Foreground="{StaticResource Muted}" Margin="12"/>
+            <Grid>
+              <TextBlock Text="{x:Static res:Resources.Planner_ActualsEmpty}" Foreground="{StaticResource Muted}" Margin="12">
+                <TextBlock.Style>
+                  <Style TargetType="TextBlock">
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding ShowActualProgress}" Value="True">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </TextBlock.Style>
+              </TextBlock>
+              <DockPanel Visibility="{Binding ShowActualProgress, Converter={StaticResource BoolToVisible}}">
+                <TextBlock DockPanel.Dock="Bottom" Text="{x:Static res:Resources.Planner_ActualsHint}" Foreground="{StaticResource Muted}" Margin="8,4" TextWrapping="Wrap"/>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                  <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="260"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" BorderBrush="{StaticResource Line}" BorderThickness="0,0,2,0">
+                      <StackPanel>
+                        <Border Height="26" BorderBrush="{StaticResource LineSoft}" BorderThickness="0,0,0,1" Padding="8,0">
+                          <DockPanel VerticalAlignment="Center">
+                            <TextBlock DockPanel.Dock="Right" Text="{x:Static res:Resources.Planner_ActualsPeriod}" Foreground="{StaticResource Muted}" FontWeight="SemiBold"/>
+                            <TextBlock Text="{x:Static res:Resources.Planner_TabActuals}" Foreground="{StaticResource Muted}" FontWeight="SemiBold"/>
+                          </DockPanel>
+                        </Border>
+                        <ItemsControl ItemsSource="{Binding ActualProgressRows}">
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                              <Border Height="26" BorderBrush="{StaticResource LineSoft}" BorderThickness="0,0,0,1" Padding="8,0">
+                                <DockPanel VerticalAlignment="Center">
+                                  <TextBlock DockPanel.Dock="Right" Text="{Binding TotalText}" Foreground="{StaticResource Muted}" Margin="6,0,0,0"/>
+                                  <Border Width="10" Height="10" CornerRadius="2" Background="{Binding Color}" Margin="0,0,6,0"/>
+                                  <TextBlock Text="{Binding Type}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Label}"/>
+                                </DockPanel>
+                              </Border>
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                      </StackPanel>
+                    </Border>
+                    <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                      <StackPanel>
+                        <ItemsControl ItemsSource="{Binding CapacityDays}">
+                          <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                              <Border x:Name="C" Width="56" Height="26" BorderBrush="{StaticResource LineSoft}" BorderThickness="0,0,1,1">
+                                <TextBlock Text="{Binding DayOfMonth}" Foreground="{StaticResource Muted}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                              </Border>
+                              <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding IsWeekend}" Value="True">
+                                  <Setter TargetName="C" Property="Background" Value="{StaticResource Weekend}"/>
+                                </DataTrigger>
+                              </DataTemplate.Triggers>
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <ItemsControl ItemsSource="{Binding ActualProgressRows}">
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                              <ItemsControl ItemsSource="{Binding Cells}">
+                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                  <DataTemplate>
+                                    <Border x:Name="C" Width="56" Height="26" BorderBrush="{StaticResource LineSoft}" BorderThickness="0,0,1,1" ToolTip="{Binding ToolTip}">
+                                      <TextBlock x:Name="T" Text="{Binding Text}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <DataTemplate.Triggers>
+                                      <DataTrigger Binding="{Binding IsWeekend}" Value="True">
+                                        <Setter TargetName="C" Property="Background" Value="{StaticResource Weekend}"/>
+                                      </DataTrigger>
+                                      <DataTrigger Binding="{Binding IsEmpty}" Value="True">
+                                        <Setter TargetName="T" Property="Foreground" Value="{StaticResource Muted}"/>
+                                      </DataTrigger>
+                                      <DataTrigger Binding="{Binding IsUnder}" Value="True">
+                                        <Setter TargetName="C" Property="Background" Value="#FDECEA"/>
+                                        <Setter TargetName="T" Property="Foreground" Value="#B42318"/>
+                                        <Setter TargetName="T" Property="FontWeight" Value="SemiBold"/>
+                                      </DataTrigger>
+                                      <DataTrigger Binding="{Binding IsMet}" Value="True">
+                                        <Setter TargetName="C" Property="Background" Value="#EAF5E6"/>
+                                        <Setter TargetName="T" Property="Foreground" Value="#2F6F1F"/>
+                                        <Setter TargetName="T" Property="FontWeight" Value="SemiBold"/>
+                                      </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                  </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                              </ItemsControl>
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                      </StackPanel>
+                    </ScrollViewer>
+                  </Grid>
+                </ScrollViewer>
+              </DockPanel>
+            </Grid>
           </TabItem>
         </TabControl>
       </Grid>

@@ -32,6 +32,7 @@ namespace Maptek.Vulcan.Stp.Planner
             nameof(CanApply), nameof(ApplyBlockedReason), nameof(IsPackageReady), nameof(CanRefresh), nameof(IsBusy),
             nameof(IsSnapshotOutOfDate), nameof(ConflictAssessment), nameof(ConflictNotice), nameof(Snapshot), nameof(SnapshotText),
             nameof(ProjectName), nameof(HasPending),
+            nameof(ActualProgressBoxes), nameof(ActualProgressRows), nameof(ActualProgressSummary), nameof(HasActualProgress),
         };
 
         private readonly IHorizonStorage storage;
@@ -414,7 +415,8 @@ namespace Maptek.Vulcan.Stp.Planner
         {
             if (busy) return Report(PlannerOutcome.Failure(PlannerMessages.Busy));
             var result = controller.Reset();
-            history.Push(new PlanState(controller.State().Horizon, Array.Empty<PlanOperation>(), "Descartar cambios", history.Current.Resources));
+            // Like the browser's reset, the local actual progress is kept.
+            history.Push(new PlanState(controller.State().Horizon, Array.Empty<PlanOperation>(), "Descartar cambios", history.Current.Resources, history.Current.Progress));
             appliedSeed = history.Current.Seed;
             appliedOperations = history.Current.Operations;
             RefreshAll();
@@ -872,7 +874,8 @@ namespace Maptek.Vulcan.Stp.Planner
             Attributes = snapshot.Activities.SelectMany(a => a.GridColumns.Select(c => c.Key)).Distinct(StringComparer.Ordinal).ToList();
             controller = next;
             ConflictAssessment = PlannerLogic.AssessPrecedenceConflicts(model, PrecedencePolicy);
-            history = new PlanHistory(new PlanState(next.State().Horizon, Array.Empty<PlanOperation>(), string.Empty, overrides.ResourceState), options.UndoLimit);
+            var progress = LoadActualProgress(snapshot.ProjectKey);
+            history = new PlanHistory(new PlanState(next.State().Horizon, Array.Empty<PlanOperation>(), string.Empty, overrides.ResourceState, progress), options.UndoLimit);
             appliedSeed = history.Current.Seed;
             appliedOperations = history.Current.Operations;
             readyDigest = null;
@@ -880,6 +883,7 @@ namespace Maptek.Vulcan.Stp.Planner
             if (selectedActivityId != null && !catalog.ContainsKey(selectedActivityId)) selectedActivityId = null;
             UpdateResourceOptions();
             RefreshAll();
+            MigrateActualProgress();
             OnPropertyChanged(nameof(Attributes));
             OnPropertyChanged(nameof(SelectedActivityId));
         }
@@ -921,6 +925,7 @@ namespace Maptek.Vulcan.Stp.Planner
             controller = next;
             appliedSeed = state.Seed;
             appliedOperations = state.Operations;
+            SaveActualProgress(state.Progress);
             RefreshAll();
         }
 
@@ -987,6 +992,7 @@ namespace Maptek.Vulcan.Stp.Planner
         {
             ClearDragPreview();
             view = PlannerProjection.Build(Snapshot, catalog, State, controller.FragmentEligibility, controller.ActivityEligibility, Filter(selectedActivityId));
+            BuildActualProgressView();
             RaiseView();
         }
 
@@ -1003,6 +1009,8 @@ namespace Maptek.Vulcan.Stp.Planner
             Objectives = objectives,
             TypeColors = typeColors,
             Overrides = overrides,
+            ExtraActivityIds = history == null ? Array.Empty<string>()
+                : ActualProgress.VisibleSlotActivityIds(history.Current.Progress, PlannerProjection.Days(State.Horizon).Select(d => d.Date)),
         };
 
         private void RaiseView()

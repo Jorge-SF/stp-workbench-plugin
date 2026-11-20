@@ -44,6 +44,16 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
         public static readonly Brush BadgeBack = Solid(0x1F, 0x29, 0x33);
         public static readonly Brush BadgeText = Solid(0xFF, 0xFF, 0xFF);
         public static readonly Pen FocusPen = MakePen(Solid(0x0B, 0x66, 0xC3), 2);
+
+        // "Avance real" boxes (reference .actual-progress-control / -drag-grip / #timeline-links .actual-progress-continuity)
+        public static readonly Brush ProgressBack = Solid(0xFF, 0xFF, 0xFF);
+        public static readonly Pen ProgressBorder = MakePen(Solid(0x6B, 0x9D, 0xD0), 1);
+        public static readonly Brush ProgressText = Solid(0x17, 0x20, 0x33);
+        public static readonly Brush ProgressGrip = Solid(0x23, 0x67, 0x9F);
+        public static readonly Brush ProgressFocus = Solid(0x0B, 0x66, 0xC3);
+        public static readonly Brush ProgressContinuityBrush = Solid(0x0B, 0x66, 0xC3);
+        public static readonly Pen ProgressContinuity = MakePen(Solid(0x0B, 0x66, 0xC3), 1.5, 4, 3);
+        public static readonly Brush ProgressDropBack = Solid(0xE5, 0xF2, 0xFF);
         public static readonly Color BlockedColor = Color.FromRgb(0xB4, 0x23, 0x18);  // reference .drag-preview-warning
         public static readonly Brush BlockedBack = Solid(0xFF, 0xE2, 0xDF);
         public static readonly Brush BlockedText = Solid(0x8A, 0x1C, 0x14);

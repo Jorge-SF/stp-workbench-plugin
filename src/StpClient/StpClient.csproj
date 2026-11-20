@@ -86,6 +86,8 @@
     <Compile Include="Views\Planner\PlannerScreenViewModel.cs" />
     <Compile Include="Views\Planner\PlannerTimelineModel.cs" />
     <Compile Include="Views\Planner\PlannerEditRouter.cs" />
+    <Compile Include="Views\Planner\ActualProgressRouter.cs" />
+    <Compile Include="Views\Planner\ProgressCharts.cs" />
     <Compile Include="Views\Planner\ResourcePickerWindow.cs" />
     <Compile Include="Views\Planner\PlannerDocumentViewModel.cs" />
     <Compile Include="Views\Planner\PlannerContent.xaml.cs">

@@ -76,6 +76,9 @@ namespace Maptek.Vulcan.Stp.Planner
 
         /// <summary>Gets the local equipment assignments and capacity exemptions, or <c>null</c> for none.</summary>
         public LocalOverrides Overrides { get; init; }
+
+        /// <summary>Gets activities shown even without a visible day (an "Avance real" box in the range).</summary>
+        public IReadOnlyCollection<string> ExtraActivityIds { get; init; } = Array.Empty<string>();
     }
 
     /// <summary>Pure projection of the engine state to rows, groups, counters, capacity and details.</summary>
@@ -106,6 +109,7 @@ namespace Maptek.Vulcan.Stp.Planner
             var days = Days(state.Horizon);
             var dayIndex = days.ToDictionary(d => d.Date, d => d.Index, StringComparer.Ordinal);
 
+            var extra = new HashSet<string>(filter.ExtraActivityIds ?? Array.Empty<string>(), StringComparer.Ordinal);
             var visible = new List<PlannerRow>();
             foreach (var info in catalog.Values.OrderBy(i => i.SourceIndex))
             {
@@ -121,7 +125,8 @@ namespace Maptek.Vulcan.Stp.Planner
                     }
                 }
 
-                if (segments.Count == 0) continue;
+                // A row needs a visible day, or a visible "Avance real" box (template additionalVisibleActivityIds).
+                if (segments.Count == 0 && !extra.Contains(info.Id)) continue;
                 var dayResources = segments.Where(s => s.Status != SegmentStatus.Completed).Select(s => s.Resource).Distinct(StringComparer.Ordinal).ToList();
                 segments.Sort((a, b) => a.DayIndex != b.DayIndex ? a.DayIndex.CompareTo(b.DayIndex) : CivilTime.Scalar(a.Start).CompareTo(CivilTime.Scalar(b.Start)));
                 double? plan = info.Rate.HasValue ? segments.Where(s => s.Status != SegmentStatus.Completed).Sum(s => s.Amount ?? 0) : (double?)null;
@@ -138,7 +143,9 @@ namespace Maptek.Vulcan.Stp.Planner
                     Unit = info.Unit,
                     Start = fragments.Count == 0 ? string.Empty : fragments.OrderBy(f => CivilTime.Scalar(f.Start)).First().Start,
                     Finish = fragments.Count == 0 ? string.Empty : fragments.OrderByDescending(f => CivilTime.Scalar(f.Finish)).First().Finish,
-                    VisibleStart = segments.OrderBy(s => CivilTime.Scalar(s.Start)).First().Start,
+                    VisibleStart = segments.Count > 0 ? segments.OrderBy(s => CivilTime.Scalar(s.Start)).First().Start
+                        : fragments.Count > 0 ? fragments.OrderBy(f => CivilTime.Scalar(f.Start)).First().Start
+                        : state.Horizon?.HorizonStart ?? "0001-01-01T00:00:00",
                     Status = RowStatus(fragments, moved, info.Id),
                     IsLocked = fragments.Count > 0 && fragments.All(f => f.LockedCompleted),
                     HasPending = fragments.Any(f => !f.LockedCompleted),

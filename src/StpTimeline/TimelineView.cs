@@ -67,6 +67,7 @@ namespace Maptek.Vulcan.Stp.Timeline
             Add(root, divider, 0, 1);
             Grid.SetRowSpan(divider, 2);
             Add(root, _chart, 0, 2);
+            InitActualProgress(root, 0, 2);
             Add(root, _vbar, 0, 3);
             Add(root, _hbar, 1, 2);
             Add(root, new Border { Background = TimelineTheme.HeaderBack }, 1, 0);
@@ -273,7 +274,7 @@ namespace Maptek.Vulcan.Stp.Timeline
                     _lastDay[i] = 0; // empty span
                 }
             }
-            Layout = model == null ? null : new TimelineLayout(kinds, DayWidth);
+            Layout = model == null ? null : new TimelineLayout(kinds, DayWidth, ActivityRowHeight);
             SelectedRowIndex = LookUpSelected();
             RemapFlashes();
             ClampOffsets();
@@ -468,6 +469,7 @@ namespace Maptek.Vulcan.Stp.Timeline
             var watch = Stopwatch.StartNew();
             if ((dirty & TimelineLayers.Grid) != 0) _grid.Redraw();
             _chart.Redraw(dirty);
+            PositionProgressEditor();
             LastRenderMilliseconds = watch.Elapsed.TotalMilliseconds;
             Rendered?.Invoke(this, EventArgs.Empty);
         }

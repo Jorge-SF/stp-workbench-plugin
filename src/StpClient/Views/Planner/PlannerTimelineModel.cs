@@ -70,7 +70,7 @@ namespace Maptek.Vulcan.Stp.Views.Planner
                     model.Rows.Add(TimelineRow.Group(GroupKeyPrefix + group.Key, title, ToColor(color), group.Count));
                 }
 
-                foreach (var row in group.Rows) model.Rows.Add(ToRow(row, session.TypeColor(row.Type)));
+                foreach (var row in group.Rows) model.Rows.Add(ToRow(row, session.TypeColor(row.Type), session.ActualProgressBoxes));
             }
 
             model.Links.Clear();
@@ -85,7 +85,7 @@ namespace Maptek.Vulcan.Stp.Views.Planner
         }
 
         /// <summary>One activity row: one block per day, labelled with the day's quantity.</summary>
-        public static TimelineRow ToRow(PlannerRow row, string color)
+        public static TimelineRow ToRow(PlannerRow row, string color, IReadOnlyDictionary<string, IReadOnlyList<ActualProgressBox>> progress = null)
         {
             var result = new TimelineRow
             {
@@ -113,6 +113,12 @@ namespace Maptek.Vulcan.Stp.Views.Planner
                 // "Exentar Límite" is per day (logical unit): green when every pending segment of the day is exempt.
                 bool exempt = !completed && segments.Where(s => s.Status != SegmentStatus.Completed).All(s => s.IsCapacityExempt);
                 result.Blocks.Add(new TimelineBlock(day.Key, label, completed, tag, BlockDetail(tag, PlannerProjection.QuantityText(amount, row.Unit)), exempt));
+            }
+
+            // "Avance real" boxes (only while the mode is on; the session leaves the map empty otherwise).
+            if (progress != null && row.ActivityId != null && progress.TryGetValue(row.ActivityId, out var boxes))
+            {
+                foreach (var box in boxes) result.ProgressBoxes.Add(new TimelineProgressBox(box.DayIndex, box.Value, box.Text, box));
             }
 
             return result;
