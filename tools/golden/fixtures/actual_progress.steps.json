@@ -1,0 +1,3629 @@
+{
+ "cases": [
+  {
+   "name": "slots_basic",
+   "description": "Explicit and hidden slots: set, hide, clear, restore, visibility queries.",
+   "steps": [
+    {
+     "op": "hasAny"
+    },
+    {
+     "op": "setSlot",
+     "activityId": "A-1",
+     "date": "2026-11-19",
+     "present": true
+    },
+    {
+     "op": "hasSlot",
+     "activityId": "A-1",
+     "date": "2026-11-19"
+    },
+    {
+     "op": "hasAny"
+    },
+    {
+     "op": "setSlot",
+     "activityId": "B-2",
+     "date": "2026-11-20",
+     "present": true
+    },
+    {
+     "op": "setHidden",
+     "activityId": "B-2",
+     "date": "2026-11-20",
+     "hidden": true
+    },
+    {
+     "op": "hasHidden",
+     "activityId": "B-2",
+     "date": "2026-11-20"
+    },
+    {
+     "op": "hasVisibleSlotInDays",
+     "activityId": "B-2",
+     "dates": [
+      "2026-11-16",
+      "2026-11-17",
+      "2026-11-18",
+      "2026-11-19",
+      "2026-11-20",
+      "2026-11-21",
+      "2026-11-22"
+     ]
+    },
+    {
+     "op": "hasVisibleSlotInDays",
+     "activityId": "A-1",
+     "dates": [
+      "2026-11-16",
+      "2026-11-17",
+      "2026-11-18",
+      "2026-11-19",
+      "2026-11-20",
+      "2026-11-21",
+      "2026-11-22"
+     ]
+    },
+    {
+     "op": "hasVisibleSlotInDays",
+     "activityId": "A-1",
+     "dates": [
+      "2026-11-16"
+     ]
+    },
+    {
+     "op": "visibleSlotActivityIds",
+     "dates": [
+      "2026-11-16",
+      "2026-11-17",
+      "2026-11-18",
+      "2026-11-19",
+      "2026-11-20",
+      "2026-11-21",
+      "2026-11-22"
+     ]
+    },
+    {
+     "op": "setHidden",
+     "activityId": "B-2",
+     "date": "2026-11-20",
+     "hidden": false
+    },
+    {
+     "op": "visibleSlotActivityIds",
+     "dates": [
+      "2026-11-16",
+      "2026-11-17",
+      "2026-11-18",
+      "2026-11-19",
+      "2026-11-20",
+      "2026-11-21",
+      "2026-11-22",
+      "bad"
+     ]
+    },
+    {
+     "op": "setSlot",
+     "activityId": "A-1",
+     "date": "2026-11-19",
+     "present": false
+    },
+    {
+     "op": "setSlot",
+     "activityId": "A-1",
+     "date": "2026-02-30",
+     "present": true
+    },
+    {
+     "op": "setSlot",
+     "activityId": "  ",
+     "date": "2026-11-19",
+     "present": true
+    },
+    {
+     "op": "setValue",
+     "activityId": "A-1",
+     "date": "2026-11-16",
+     "value": 4
+    },
+    {
+     "op": "clearSlot",
+     "activityId": "A-1",
+     "date": "2026-11-16",
+     "scheduled": true
+    },
+    {
+     "op": "hasHidden",
+     "activityId": "A-1",
+     "date": "2026-11-16"
+    },
+    {
+     "op": "restoreSlot",
+     "activityId": "A-1",
+     "date": "2026-11-16",
+     "scheduled": true
+    },
+    {
+     "op": "restoreSlot",
+     "activityId": "A-1",
+     "date": "2026-11-21",
+     "scheduled": false
+    },
+    {
+     "op": "setValue",
+     "activityId": "A-1",
+     "date": "2026-11-21",
+     "value": 2
+    },
+    {
+     "op": "clearSlot",
+     "activityId": "A-1",
+     "date": "2026-11-21",
+     "scheduled": false
+    },
+    {
+     "op": "setHidden",
+     "activityId": "A-1",
+     "date": "x",
+     "hidden": true
+    },
+    {
+     "op": "hasAny"
+    }
+   ]
+  },
+  {
+   "name": "values_edit",
+   "description": "Values per activity day: valid, zero, negative, NaN/Infinity, blank edit, trimmed and invalid ids/dates, key escaping.",
+   "steps": [
+    {
+     "op": "setValue",
+     "activityId": "A-1",
+     "date": "2026-11-16",
+     "value": 12.5
+    },
+    {
+     "op": "setValue",
+     "activityId": "A-1",
+     "date": "2026-11-17",
+     "value": 0
+    },
+    {
+     "op": "setValue",
+     "activityId": "A-1",
+     "date": "2026-11-18",
+     "value": -1
+    },
+    {
+     "op": "setValue",
+     "activityId": "A-1",
+     "date": "2026-11-19",
+     "value": "NaN"
+    },
+    {
+     "op": "setValue",
+     "activityId": "A-1",
+     "date": "2026-11-20",
+     "value": "Infinity"
+    },
+    {
+     "op": "value",
+     "activityId": "A-1",
+     "date": "2026-11-16"
+    },
+    {
+     "op": "value",
+     "activityId": "A-1",
+     "date": "2026-11-17"
+    },
+    {
+     "op": "value",
+     "activityId": "A-1",
+     "date": "2026-11-18"
+    },
+    {
+     "op": "value",
+     "activityId": " A-1 ",
+     "date": "2026-11-16"
+    },
+    {
+     "op": "setValue",
+     "activityId": "  B-2\t",
+     "date": "2026-11-16",
+     "value": 3
+    },
+    {
+     "op": "setValue",
+     "activityId": "Ñ\"q\\u\n\u0001 é",
+     "date": "2026-11-16",
+     "value": 1
+    },
+    {
+     "op": "value",
+     "activityId": "Ñ\"q\\u\n\u0001 é",
+     "date": "2026-11-16"
+    },
+    {
+     "op": "setValue",
+     "activityId": "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+     "date": "2026-11-16",
+     "value": 1
+    },
+    {
+     "op": "setValue",
+     "activityId": "A-1",
+     "date": "2026-11-31",
+     "value": 1
+    },
+    {
+     "op": "setValue",
+     "activityId": "A-1",
+     "date": "2026-11-1",
+     "value": 1
+    },
+    {
+     "op": "setValue",
+     "activityId": "A-1",
+     "date": "0000-01-01",
+     "value": 1
+    },
+    {
+     "op": "setValue",
+     "activityId": "A-1",
+     "date": "2024-02-29",
+     "value": 1
+    },
+    {
+     "op": "setValue",
+     "activityId": "A-1",
+     "date": "2026-11-16",
+     "value": 7
+    },
+    {
+     "op": "editValue",
+     "activityId": "A-1",
+     "date": "2026-11-17",
+     "value": null
+    },
+    {
+     "op": "editValue",
+     "activityId": "A-1",
+     "date": "2026-11-21",
+     "value": 3.25
+    },
+    {
+     "op": "editValue",
+     "activityId": "A-1",
+     "date": "2026-11-22",
+     "value": "NaN"
+    },
+    {
+     "op": "setFragmentValue",
+     "fragmentId": "A-1#0",
+     "value": 5
+    },
+    {
+     "op": "setFragmentValue",
+     "fragmentId": "A-1#1",
+     "value": -2
+    },
+    {
+     "op": "setFragmentValue",
+     "fragmentId": "",
+     "value": 2
+    },
+    {
+     "op": "hasAny"
+    },
+    {
+     "op": "editValue",
+     "activityId": "A-1",
+     "date": "2026-11-16",
+     "value": null
+    }
+   ]
+  },
+  {
+   "name": "move_single",
+   "description": "moveLocalActualProgress (exported, unused by the HTML).",
+   "state": {
+    "byDay": [
+     [
+      "[\"A-1\",\"2026-11-16\"]",
+      4
+     ],
+     [
+      "[\"A-1\",\"2026-11-17\"]",
+      0
+     ],
+     [
+      "[\"A-1\",\"2026-11-18\"]",
+      6
+     ]
+    ]
+   },
+   "steps": [
+    {
+     "op": "move",
+     "activityId": "A-1",
+     "originDate": "2026-11-16",
+     "targetDate": "2026-11-20"
+    },
+    {
+     "op": "move",
+     "activityId": "A-1",
+     "originDate": "2026-11-17",
+     "targetDate": "2026-11-21"
+    },
+    {
+     "op": "move",
+     "activityId": "A-1",
+     "originDate": "2026-11-18",
+     "targetDate": "2026-11-18"
+    },
+    {
+     "op": "move",
+     "activityId": "A-1",
+     "originDate": "2026-11-18",
+     "targetDate": "2026-11-20"
+    },
+    {
+     "op": "move",
+     "activityId": "A-1",
+     "originDate": "2026-11-19",
+     "targetDate": "2026-11-21"
+    },
+    {
+     "op": "move",
+     "activityId": "A-1",
+     "originDate": "2026-11-20",
+     "targetDate": "bad"
+    }
+   ]
+  },
+  {
+   "name": "cascade_values",
+   "description": "Visible value cascades: forward, backward, zero offset, missing origin, non-visible target, duplicate and invalid visible dates.",
+   "state": {
+    "byDay": [
+     [
+      "[\"A-1\",\"2026-11-16\"]",
+      4
+     ],
+     [
+      "[\"A-1\",\"2026-11-17\"]",
+      2
+     ],
+     [
+      "[\"A-1\",\"2026-11-19\"]",
+      1.5
+     ],
+     [
+      "[\"A-1\",\"2026-11-20\"]",
+      0
+     ],
+     [
+      "[\"B-2\",\"2026-11-17\"]",
+      9
+     ]
+    ]
+   },
+   "steps": [
+    {
+     "op": "cascadeMoves",
+     "activityId": "A-1",
+     "originDate": "2026-11-17",
+     "targetDate": "2026-11-18",
+     "dates": [
+      "2026-11-16",
+      "2026-11-17",
+      "2026-11-18",
+      "2026-11-19",
+      "2026-11-20",
+      "2026-11-21",
+      "2026-11-22"
+     ]
+    },
+    {
+     "op": "cascadeMoves",
+     "activityId": "A-1",
+     "originDate": "2026-11-17",
+     "targetDate": "2026-11-16",
+     "dates": [
+      "2026-11-16",
+      "2026-11-17",
+      "2026-11-18",
+      "2026-11-19",
+      "2026-11-20",
+      "2026-11-21",
+      "2026-11-22"
+     ]
+    },
+    {
+     "op": "cascadeMoves",
+     "activityId": "A-1",
+     "originDate": "2026-11-17",
+     "targetDate": "2026-11-17",
+     "dates": [
+      "2026-11-16",
+      "2026-11-17",
+      "2026-11-18",
+      "2026-11-19",
+      "2026-11-20",
+      "2026-11-21",
+      "2026-11-22"
+     ]
+    },
+    {
+     "op": "cascadeMoves",
+     "activityId": "A-1",
+     "originDate": "2026-11-18",
+     "targetDate": "2026-11-19",
+     "dates": [
+      "2026-11-16",
+      "2026-11-17",
+      "2026-11-18",
+      "2026-11-19",
+      "2026-11-20",
+      "2026-11-21",
+      "2026-11-22"
+     ]
+    },
+    {
+     "op": "cascadeMoves",
+     "activityId": "A-1",
+     "originDate": "2026-11-17",
+     "targetDate": "2026-11-23",
+     "dates": [
+      "2026-11-16",
+      "2026-11-17",
+      "2026-11-18",
+      "2026-11-19",
+      "2026-11-20",
+      "2026-11-21",
+      "2026-11-22"
+     ]
+    },
+    {
+     "op": "cascadeMoves",
+     "activityId": "A-1",
+     "originDate": "2026-11-17",
+     "targetDate": "2026-11-19",
+     "dates": [
+      "2026-11-17",
+      "2026-11-17",
+      "bad",
+      "2026-11-19",
+      "2026-11-16",
+      "2026-11-20"
+     ]
+    },
+    {
+     "op": "moveCascade",
+     "activityId": "A-1",
+     "originDate": "2026-11-16",
+     "targetDate": "2026-11-18",
+     "dates": [
+      "2026-11-16",
+      "2026-11-17",
+      "2026-11-18",
+      "2026-11-19",
+      "2026-11-20",
+      "2026-11-21",
+      "2026-11-22"
+     ]
+    },
+    {
+     "op": "moveCascade",
+     "activityId": "A-1",
+     "originDate": "2026-11-21",
+     "targetDate": "2026-11-17",
+     "dates": [
+      "2026-11-16",
+      "2026-11-17",
+      "2026-11-18",
+      "2026-11-19",
+      "2026-11-20",
+      "2026-11-21",
+      "2026-11-22"
+     ]
+    },
+    {
+     "op": "moveCascade",
+     "activityId": "B-2",
+     "originDate": "2026-11-17",
+     "targetDate": "2026-11-22",
+     "dates": [
+      "2026-11-16",
+      "2026-11-17",
+      "2026-11-18",
+      "2026-11-19",
+      "2026-11-20",
+      "2026-11-21",
+      "2026-11-22"
+     ]
+    },
+    {
+     "op": "moveCascade",
+     "activityId": "B-2",
+     "originDate": "2026-11-18",
+     "targetDate": "2026-11-22",
+     "dates": [
+      "2026-11-16",
+      "2026-11-17",
+      "2026-11-18",
+      "2026-11-19",
+      "2026-11-20",
+      "2026-11-21",
+      "2026-11-22"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "slot_cascade",
+   "description": "Visible slot cascades: forward over the slot dates, backward single move, empty values clear the target.",
+   "state": {
+    "byDay": [
+     [
+      "[\"A-1\",\"2026-11-16\"]",
+      4
+     ],
+     [
+      "[\"A-1\",\"2026-11-17\"]",
+      2
+     ],
+     [
+      "[\"A-1\",\"2026-11-19\"]",
+      1.5
+     ],
+     [
+      "[\"A-1\",\"2026-11-20\"]",
+      0
+     ],
+     [
+      "[\"B-2\",\"2026-11-17\"]",
+      9
+     ]
+    ]
+   },
+   "steps": [
+    {
+     "op": "slotCascadeMoves",
+     "activityId": "A-1",
+     "originDate": "2026-11-17",
+     "targetDate": "2026-11-19",
+     "dates": [
+      "2026-11-16",
+      "2026-11-17",
+      "2026-11-18",
+      "2026-11-19",
+      "2026-11-20",
+      "2026-11-21",
+      "2026-11-22"
+     ],
+     "slotDates": [
+      "2026-11-16",
+      "2026-11-17",
+      "2026-11-18",
+      "2026-11-19"
+     ]
+    },
+    {
+     "op": "slotCascadeMoves",
+     "activityId": "A-1",
+     "originDate": "2026-11-19",
+     "targetDate": "2026-11-16",
+     "dates": [
+      "2026-11-16",
+      "2026-11-17",
+      "2026-11-18",
+      "2026-11-19",
+      "2026-11-20",
+      "2026-11-21",
+      "2026-11-22"
+     ],
+     "slotDates": [
+      "2026-11-19"
+     ]
+    },
+    {
+     "op": "slotCascadeMoves",
+     "activityId": "A-1",
+     "originDate": "2026-11-18",
+     "targetDate": "2026-11-16",
+     "dates": [
+      "2026-11-16",
+      "2026-11-17",
+      "2026-11-18",
+      "2026-11-19",
+      "2026-11-20",
+      "2026-11-21",
+      "2026-11-22"
+     ],
+     "slotDates": []
+    },
+    {
+     "op": "slotCascadeMoves",
+     "activityId": "A-1",
+     "originDate": "2026-11-17",
+     "targetDate": "2026-11-17",
+     "dates": [
+      "2026-11-16",
+      "2026-11-17",
+      "2026-11-18",
+      "2026-11-19",
+      "2026-11-20",
+      "2026-11-21",
+      "2026-11-22"
+     ],
+     "slotDates": [
+      "2026-11-17"
+     ]
+    },
+    {
+     "op": "slotCascadeMoves",
+     "activityId": "",
+     "originDate": "2026-11-17",
+     "targetDate": "2026-11-18",
+     "dates": [
+      "2026-11-16",
+      "2026-11-17",
+      "2026-11-18",
+      "2026-11-19",
+      "2026-11-20",
+      "2026-11-21",
+      "2026-11-22"
+     ],
+     "slotDates": [
+      "2026-11-17"
+     ]
+    },
+    {
+     "op": "moveSlotCascade",
+     "activityId": "A-1",
+     "originDate": "2026-11-17",
+     "targetDate": "2026-11-19",
+     "dates": [
+      "2026-11-16",
+      "2026-11-17",
+      "2026-11-18",
+      "2026-11-19",
+      "2026-11-20",
+      "2026-11-21",
+      "2026-11-22"
+     ],
+     "slotDates": [
+      "2026-11-16",
+      "2026-11-17",
+      "2026-11-18",
+      "2026-11-19"
+     ]
+    },
+    {
+     "op": "moveSlotCascade",
+     "activityId": "A-1",
+     "originDate": "2026-11-22",
+     "targetDate": "2026-11-18",
+     "dates": [
+      "2026-11-16",
+      "2026-11-17",
+      "2026-11-18",
+      "2026-11-19",
+      "2026-11-20",
+      "2026-11-21",
+      "2026-11-22"
+     ],
+     "slotDates": [
+      "2026-11-22"
+     ]
+    },
+    {
+     "op": "moveSlotCascade",
+     "activityId": "A-1",
+     "originDate": "2026-11-16",
+     "targetDate": "2026-11-17",
+     "dates": [
+      "2026-11-16",
+      "2026-11-17",
+      "2026-11-18",
+      "2026-11-19",
+      "2026-11-20",
+      "2026-11-21",
+      "2026-11-22"
+     ],
+     "slotDates": [
+      "2026-11-16",
+      "2026-11-21"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "apply_slot_cascade",
+   "description": "Template drag finish (applyVisibleActualProgressSlotCascade): scheduled origins are hidden, explicit ones removed, targets restored.",
+   "state": {
+    "byDay": [
+     [
+      "[\"A-1\",\"2026-11-16\"]",
+      4
+     ],
+     [
+      "[\"A-1\",\"2026-11-17\"]",
+      3
+     ]
+    ],
+    "slots": [
+     [
+      "[\"A-1\",\"2026-11-20\"]",
+      true
+     ]
+    ],
+    "hidden": [
+     [
+      "[\"A-1\",\"2026-11-18\"]",
+      true
+     ]
+    ]
+   },
+   "steps": [
+    {
+     "op": "visibleSlotDates",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     }
+    },
+    {
+     "op": "applySlotCascade",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "originDate": "2026-11-16",
+     "targetDate": "2026-11-17"
+    },
+    {
+     "op": "visibleSlotDates",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     }
+    },
+    {
+     "op": "applySlotCascade",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "originDate": "2026-11-21",
+     "targetDate": "2026-11-19"
+    },
+    {
+     "op": "applySlotCascade",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "originDate": "2026-11-19",
+     "targetDate": "2026-11-19"
+    },
+    {
+     "op": "applySlotCascade",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "originDate": "2026-11-19",
+     "targetDate": "2026-11-23"
+    },
+    {
+     "op": "visibleSlotDates",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     }
+    },
+    {
+     "op": "applySlotCascade",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "originDate": "2026-11-17",
+     "targetDate": "2026-11-22"
+    }
+   ]
+  },
+  {
+   "name": "apply_cascade",
+   "description": "Template value cascade (applyVisibleActualProgressCascade).",
+   "state": {
+    "byDay": [
+     [
+      "[\"A-1\",\"2026-11-16\"]",
+      4
+     ],
+     [
+      "[\"A-1\",\"2026-11-17\"]",
+      3
+     ],
+     [
+      "[\"A-1\",\"2026-11-18\"]",
+      0
+     ]
+    ]
+   },
+   "steps": [
+    {
+     "op": "applyCascade",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "originDate": "2026-11-16",
+     "targetDate": "2026-11-18"
+    },
+    {
+     "op": "applyCascade",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "originDate": "2026-11-16",
+     "targetDate": "2026-11-17"
+    },
+    {
+     "op": "applyCascade",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "originDate": "2026-11-20",
+     "targetDate": "2026-11-19"
+    }
+   ]
+  },
+  {
+   "name": "migrate",
+   "description": "Legacy migration: fragment totals and fragment-day keys move to the activity day; invalid values are dropped; byFragment is consumed.",
+   "state": {
+    "byDay": [
+     [
+      "[\"A-1#0\",\"2026-11-16\"]",
+      2
+     ],
+     [
+      "[\"A-1\",\"2026-11-16\"]",
+      1
+     ],
+     [
+      "[\"A-1#1\",\"2026-11-17\"]",
+      3
+     ],
+     [
+      "[\"Z-9\",\"2026-11-16\"]",
+      5
+     ],
+     [
+      "[\"A-1\",\"2026-11-18\"]",
+      -1
+     ]
+    ],
+    "byFragment": [
+     [
+      "A-1#2",
+      4
+     ],
+     [
+      "B-2#0",
+      6
+     ],
+     [
+      "X#0",
+      1
+     ],
+     [
+      "A-1#0",
+      -3
+     ]
+    ],
+    "slots": [
+     [
+      "[\"A-1\",\"2026-11-19\"]",
+      true
+     ]
+    ],
+    "hidden": [
+     [
+      "[\"A-1\",\"2026-11-16\"]",
+      true
+     ]
+    ]
+   },
+   "steps": [
+    {
+     "op": "migrate",
+     "segments": [
+      {
+       "fragmentId": "A-1#0",
+       "activityId": "A-1",
+       "date": "2026-11-16"
+      },
+      {
+       "fragmentId": "A-1#1",
+       "activityId": "A-1",
+       "date": "2026-11-17"
+      },
+      {
+       "fragmentId": "A-1#2",
+       "activityId": "A-1",
+       "date": "2026-11-18"
+      },
+      {
+       "fragmentId": "A-1#2",
+       "activityId": "A-1",
+       "date": "2026-11-19"
+      },
+      {
+       "fragmentId": "B-2#0",
+       "activityId": "B-2",
+       "date": "2026-11-17"
+      },
+      {
+       "fragmentId": "Q#0",
+       "activityId": "",
+       "date": "2026-11-17"
+      },
+      {
+       "fragmentId": "",
+       "activityId": "R",
+       "date": "2026-11-17"
+      },
+      {
+       "fragmentId": "S#0",
+       "activityId": "S",
+       "date": "bad"
+      }
+     ]
+    },
+    {
+     "op": "migrate",
+     "segments": []
+    },
+    {
+     "op": "hasAny"
+    }
+   ]
+  },
+  {
+   "name": "by_type",
+   "description": "buildActualProgressByType: planned vs actual per type, resource and day; completed work, numeric type names, fallbacks.",
+   "state": {
+    "byDay": [
+     [
+      "[\"A-1\",\"2026-11-16\"]",
+      8
+     ],
+     [
+      "[\"A-1\",\"2026-11-18\"]",
+      6
+     ],
+     [
+      "[\"B-2\",\"2026-11-16\"]",
+      20
+     ],
+     [
+      "[\"B-2\",\"2026-11-18\"]",
+      1
+     ],
+     [
+      "[\"B-2\",\"2026-11-19\"]",
+      4
+     ],
+     [
+      "[\"C-3\",\"2026-11-18\"]",
+      2.5
+     ],
+     [
+      "[\"N-9\",\"2026-11-21\"]",
+      3
+     ],
+     [
+      "[\"A-1\",\"2026-11-22\"]",
+      -4
+     ],
+     [
+      "[\"\",\"2026-11-16\"]",
+      5
+     ]
+    ]
+   },
+   "steps": [
+    {
+     "op": "byType",
+     "view": {
+      "dates": [
+       "2026-11-16",
+       "2026-11-17",
+       "2026-11-18",
+       "2026-11-19",
+       "2026-11-20",
+       "2026-11-21",
+       "2026-11-22"
+      ],
+      "rows": [
+       {
+        "activityId": "A-1",
+        "type": "Desarrollo",
+        "resources": [
+         "Jumbo J-01"
+        ],
+        "days": [
+         {
+          "date": "2026-11-16",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 10,
+            "resource": "Jumbo J-01"
+           }
+          ]
+         },
+         {
+          "date": "2026-11-17",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 10,
+            "resource": "Jumbo J-01"
+           }
+          ]
+         },
+         {
+          "date": "2026-11-18",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 5,
+            "resource": "Jumbo J-02"
+           }
+          ]
+         },
+         {
+          "date": "2026-11-19",
+          "segments": []
+         },
+         {
+          "date": "2026-11-20",
+          "segments": []
+         },
+         {
+          "date": "2026-11-21",
+          "segments": []
+         },
+         {
+          "date": "2026-11-22",
+          "segments": []
+         }
+        ]
+       },
+       {
+        "activityId": "B-2",
+        "type": "Relleno",
+        "resources": [
+         "Planta"
+        ],
+        "days": [
+         {
+          "date": "2026-11-16",
+          "segments": [
+           {
+            "status": "completed",
+            "amount": 20,
+            "resource": ""
+           }
+          ]
+         },
+         {
+          "date": "2026-11-17",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 20,
+            "resource": ""
+           }
+          ]
+         },
+         {
+          "date": "2026-11-18",
+          "segments": []
+         },
+         {
+          "date": "2026-11-19",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 7.5,
+            "resource": "Planta 2"
+           }
+          ]
+         },
+         {
+          "date": "2026-11-20",
+          "segments": []
+         },
+         {
+          "date": "2026-11-21",
+          "segments": []
+         },
+         {
+          "date": "2026-11-22",
+          "segments": []
+         }
+        ]
+       },
+       {
+        "activityId": "C-3",
+        "type": "",
+        "resources": [],
+        "days": [
+         {
+          "date": "2026-11-16",
+          "segments": []
+         },
+         {
+          "date": "2026-11-17",
+          "segments": []
+         },
+         {
+          "date": "2026-11-18",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 3,
+            "resource": ""
+           }
+          ]
+         },
+         {
+          "date": "2026-11-19",
+          "segments": []
+         },
+         {
+          "date": "2026-11-20",
+          "segments": []
+         },
+         {
+          "date": "2026-11-21",
+          "segments": []
+         },
+         {
+          "date": "2026-11-22",
+          "segments": []
+         }
+        ]
+       },
+       {
+        "activityId": "N-9",
+        "type": "100",
+        "resources": [
+         "Z"
+        ],
+        "days": [
+         {
+          "date": "2026-11-16",
+          "segments": []
+         },
+         {
+          "date": "2026-11-17",
+          "segments": []
+         },
+         {
+          "date": "2026-11-18",
+          "segments": []
+         },
+         {
+          "date": "2026-11-19",
+          "segments": []
+         },
+         {
+          "date": "2026-11-20",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 1,
+            "resource": "Z"
+           }
+          ]
+         },
+         {
+          "date": "2026-11-21",
+          "segments": []
+         },
+         {
+          "date": "2026-11-22",
+          "segments": []
+         }
+        ]
+       },
+       {
+        "activityId": "",
+        "type": "X",
+        "resources": [],
+        "days": [
+         {
+          "date": "2026-11-16",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 99,
+            "resource": ""
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "op": "byType",
+     "view": {
+      "dates": [
+       "2026-11-17",
+       "2026-11-16"
+      ],
+      "rows": [
+       {
+        "activityId": "A-1",
+        "type": "Desarrollo",
+        "resources": [
+         "Jumbo J-01"
+        ],
+        "days": [
+         {
+          "date": "2026-11-16",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 10,
+            "resource": "Jumbo J-01"
+           }
+          ]
+         },
+         {
+          "date": "2026-11-17",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 10,
+            "resource": "Jumbo J-01"
+           }
+          ]
+         },
+         {
+          "date": "2026-11-18",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 5,
+            "resource": "Jumbo J-02"
+           }
+          ]
+         },
+         {
+          "date": "2026-11-19",
+          "segments": []
+         },
+         {
+          "date": "2026-11-20",
+          "segments": []
+         },
+         {
+          "date": "2026-11-21",
+          "segments": []
+         },
+         {
+          "date": "2026-11-22",
+          "segments": []
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "op": "byType",
+     "view": {
+      "dates": [],
+      "rows": []
+     }
+    }
+   ]
+  },
+  {
+   "name": "period_totals",
+   "description": "buildActivityPeriodTotals and buildActualProgressPeriodTotals over the visible dates.",
+   "state": {
+    "byDay": [
+     [
+      "[\"A-1\",\"2026-11-16\"]",
+      8
+     ],
+     [
+      "[\"A-1\",\"2026-11-18\"]",
+      6
+     ],
+     [
+      "[\"B-2\",\"2026-11-16\"]",
+      20
+     ],
+     [
+      "[\"B-2\",\"2026-11-18\"]",
+      1
+     ],
+     [
+      "[\"B-2\",\"2026-11-19\"]",
+      4
+     ],
+     [
+      "[\"C-3\",\"2026-11-18\"]",
+      2.5
+     ],
+     [
+      "[\"N-9\",\"2026-11-21\"]",
+      3
+     ],
+     [
+      "[\"A-1\",\"2026-11-22\"]",
+      -4
+     ],
+     [
+      "[\"\",\"2026-11-16\"]",
+      5
+     ]
+    ]
+   },
+   "steps": [
+    {
+     "op": "activityPeriodTotals",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "show": true
+    },
+    {
+     "op": "activityPeriodTotals",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "show": false
+    },
+    {
+     "op": "activityPeriodTotals",
+     "row": {
+      "activityId": "B-2",
+      "type": "Relleno",
+      "resources": [
+       "Planta"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "completed",
+          "amount": 20,
+          "resource": ""
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 20,
+          "resource": ""
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": []
+       },
+       {
+        "date": "2026-11-19",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 7.5,
+          "resource": "Planta 2"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "show": true
+    },
+    {
+     "op": "typePeriodTotals",
+     "view": {
+      "dates": [
+       "2026-11-16",
+       "2026-11-17",
+       "2026-11-18",
+       "2026-11-19",
+       "2026-11-20",
+       "2026-11-21",
+       "2026-11-22"
+      ],
+      "rows": [
+       {
+        "activityId": "A-1",
+        "type": "Desarrollo",
+        "resources": [
+         "Jumbo J-01"
+        ],
+        "days": [
+         {
+          "date": "2026-11-16",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 10,
+            "resource": "Jumbo J-01"
+           }
+          ]
+         },
+         {
+          "date": "2026-11-17",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 10,
+            "resource": "Jumbo J-01"
+           }
+          ]
+         },
+         {
+          "date": "2026-11-18",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 5,
+            "resource": "Jumbo J-02"
+           }
+          ]
+         },
+         {
+          "date": "2026-11-19",
+          "segments": []
+         },
+         {
+          "date": "2026-11-20",
+          "segments": []
+         },
+         {
+          "date": "2026-11-21",
+          "segments": []
+         },
+         {
+          "date": "2026-11-22",
+          "segments": []
+         }
+        ]
+       },
+       {
+        "activityId": "B-2",
+        "type": "Relleno",
+        "resources": [
+         "Planta"
+        ],
+        "days": [
+         {
+          "date": "2026-11-16",
+          "segments": [
+           {
+            "status": "completed",
+            "amount": 20,
+            "resource": ""
+           }
+          ]
+         },
+         {
+          "date": "2026-11-17",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 20,
+            "resource": ""
+           }
+          ]
+         },
+         {
+          "date": "2026-11-18",
+          "segments": []
+         },
+         {
+          "date": "2026-11-19",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 7.5,
+            "resource": "Planta 2"
+           }
+          ]
+         },
+         {
+          "date": "2026-11-20",
+          "segments": []
+         },
+         {
+          "date": "2026-11-21",
+          "segments": []
+         },
+         {
+          "date": "2026-11-22",
+          "segments": []
+         }
+        ]
+       },
+       {
+        "activityId": "C-3",
+        "type": "",
+        "resources": [],
+        "days": [
+         {
+          "date": "2026-11-16",
+          "segments": []
+         },
+         {
+          "date": "2026-11-17",
+          "segments": []
+         },
+         {
+          "date": "2026-11-18",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 3,
+            "resource": ""
+           }
+          ]
+         },
+         {
+          "date": "2026-11-19",
+          "segments": []
+         },
+         {
+          "date": "2026-11-20",
+          "segments": []
+         },
+         {
+          "date": "2026-11-21",
+          "segments": []
+         },
+         {
+          "date": "2026-11-22",
+          "segments": []
+         }
+        ]
+       },
+       {
+        "activityId": "N-9",
+        "type": "100",
+        "resources": [
+         "Z"
+        ],
+        "days": [
+         {
+          "date": "2026-11-16",
+          "segments": []
+         },
+         {
+          "date": "2026-11-17",
+          "segments": []
+         },
+         {
+          "date": "2026-11-18",
+          "segments": []
+         },
+         {
+          "date": "2026-11-19",
+          "segments": []
+         },
+         {
+          "date": "2026-11-20",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 1,
+            "resource": "Z"
+           }
+          ]
+         },
+         {
+          "date": "2026-11-21",
+          "segments": []
+         },
+         {
+          "date": "2026-11-22",
+          "segments": []
+         }
+        ]
+       },
+       {
+        "activityId": "",
+        "type": "X",
+        "resources": [],
+        "days": [
+         {
+          "date": "2026-11-16",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 99,
+            "resource": ""
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "dates": [
+      "2026-11-16",
+      "2026-11-17",
+      "2026-11-18",
+      "2026-11-19",
+      "2026-11-20",
+      "2026-11-21",
+      "2026-11-22"
+     ]
+    },
+    {
+     "op": "typePeriodTotals",
+     "view": {
+      "dates": [
+       "2026-11-16",
+       "2026-11-17",
+       "2026-11-18",
+       "2026-11-19",
+       "2026-11-20",
+       "2026-11-21",
+       "2026-11-22"
+      ],
+      "rows": [
+       {
+        "activityId": "A-1",
+        "type": "Desarrollo",
+        "resources": [
+         "Jumbo J-01"
+        ],
+        "days": [
+         {
+          "date": "2026-11-16",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 10,
+            "resource": "Jumbo J-01"
+           }
+          ]
+         },
+         {
+          "date": "2026-11-17",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 10,
+            "resource": "Jumbo J-01"
+           }
+          ]
+         },
+         {
+          "date": "2026-11-18",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 5,
+            "resource": "Jumbo J-02"
+           }
+          ]
+         },
+         {
+          "date": "2026-11-19",
+          "segments": []
+         },
+         {
+          "date": "2026-11-20",
+          "segments": []
+         },
+         {
+          "date": "2026-11-21",
+          "segments": []
+         },
+         {
+          "date": "2026-11-22",
+          "segments": []
+         }
+        ]
+       },
+       {
+        "activityId": "B-2",
+        "type": "Relleno",
+        "resources": [
+         "Planta"
+        ],
+        "days": [
+         {
+          "date": "2026-11-16",
+          "segments": [
+           {
+            "status": "completed",
+            "amount": 20,
+            "resource": ""
+           }
+          ]
+         },
+         {
+          "date": "2026-11-17",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 20,
+            "resource": ""
+           }
+          ]
+         },
+         {
+          "date": "2026-11-18",
+          "segments": []
+         },
+         {
+          "date": "2026-11-19",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 7.5,
+            "resource": "Planta 2"
+           }
+          ]
+         },
+         {
+          "date": "2026-11-20",
+          "segments": []
+         },
+         {
+          "date": "2026-11-21",
+          "segments": []
+         },
+         {
+          "date": "2026-11-22",
+          "segments": []
+         }
+        ]
+       },
+       {
+        "activityId": "C-3",
+        "type": "",
+        "resources": [],
+        "days": [
+         {
+          "date": "2026-11-16",
+          "segments": []
+         },
+         {
+          "date": "2026-11-17",
+          "segments": []
+         },
+         {
+          "date": "2026-11-18",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 3,
+            "resource": ""
+           }
+          ]
+         },
+         {
+          "date": "2026-11-19",
+          "segments": []
+         },
+         {
+          "date": "2026-11-20",
+          "segments": []
+         },
+         {
+          "date": "2026-11-21",
+          "segments": []
+         },
+         {
+          "date": "2026-11-22",
+          "segments": []
+         }
+        ]
+       },
+       {
+        "activityId": "N-9",
+        "type": "100",
+        "resources": [
+         "Z"
+        ],
+        "days": [
+         {
+          "date": "2026-11-16",
+          "segments": []
+         },
+         {
+          "date": "2026-11-17",
+          "segments": []
+         },
+         {
+          "date": "2026-11-18",
+          "segments": []
+         },
+         {
+          "date": "2026-11-19",
+          "segments": []
+         },
+         {
+          "date": "2026-11-20",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 1,
+            "resource": "Z"
+           }
+          ]
+         },
+         {
+          "date": "2026-11-21",
+          "segments": []
+         },
+         {
+          "date": "2026-11-22",
+          "segments": []
+         }
+        ]
+       },
+       {
+        "activityId": "",
+        "type": "X",
+        "resources": [],
+        "days": [
+         {
+          "date": "2026-11-16",
+          "segments": [
+           {
+            "status": "pending",
+            "amount": 99,
+            "resource": ""
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     "dates": [
+      "2026-11-16",
+      "2026-11-16",
+      "bad",
+      "2026-11-30"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "context_rules",
+   "description": "Which days show a value box and where 'Agregar avance real' is offered.",
+   "state": {
+    "slots": [
+     [
+      "[\"A-1\",\"2026-11-20\"]",
+      true
+     ],
+     [
+      "[\"A-1\",\"2026-11-17\"]",
+      true
+     ]
+    ],
+    "hidden": [
+     [
+      "[\"A-1\",\"2026-11-18\"]",
+      true
+     ],
+     [
+      "[\"A-1\",\"2026-11-17\"]",
+      true
+     ]
+    ]
+   },
+   "steps": [
+    {
+     "op": "visibleSlotDates",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     }
+    },
+    {
+     "op": "showsControl",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "date": "2026-11-16"
+    },
+    {
+     "op": "showsControl",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "date": "2026-11-17"
+    },
+    {
+     "op": "showsControl",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "date": "2026-11-18"
+    },
+    {
+     "op": "showsControl",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "date": "2026-11-19"
+    },
+    {
+     "op": "showsControl",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "date": "2026-11-20"
+    },
+    {
+     "op": "showsControl",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "date": "2026-11-21"
+    },
+    {
+     "op": "showsControl",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "date": "2026-11-22"
+    },
+    {
+     "op": "showsControl",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "date": "2026-11-23"
+    },
+    {
+     "op": "canAddSlot",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "date": "2026-11-16"
+    },
+    {
+     "op": "canAddSlot",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "date": "2026-11-17"
+    },
+    {
+     "op": "canAddSlot",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "date": "2026-11-18"
+    },
+    {
+     "op": "canAddSlot",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "date": "2026-11-19"
+    },
+    {
+     "op": "canAddSlot",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "date": "2026-11-20"
+    },
+    {
+     "op": "canAddSlot",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "date": "2026-11-21"
+    },
+    {
+     "op": "canAddSlot",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "date": "2026-11-22"
+    },
+    {
+     "op": "canAddSlot",
+     "row": {
+      "activityId": "A-1",
+      "type": "Desarrollo",
+      "resources": [
+       "Jumbo J-01"
+      ],
+      "days": [
+       {
+        "date": "2026-11-16",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-17",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 10,
+          "resource": "Jumbo J-01"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-18",
+        "segments": [
+         {
+          "status": "pending",
+          "amount": 5,
+          "resource": "Jumbo J-02"
+         }
+        ]
+       },
+       {
+        "date": "2026-11-19",
+        "segments": []
+       },
+       {
+        "date": "2026-11-20",
+        "segments": []
+       },
+       {
+        "date": "2026-11-21",
+        "segments": []
+       },
+       {
+        "date": "2026-11-22",
+        "segments": []
+       }
+      ]
+     },
+     "date": "2026-11-23"
+    }
+   ]
+  }
+ ]
+}

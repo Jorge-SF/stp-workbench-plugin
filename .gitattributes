@@ -6,3 +6,4 @@ python/** text eol=lf
 reference/web/** -text
 tools/golden/fixtures/** -text
 tools/golden/expected/** -text
+tools/golden/expected_actual_progress/** -text
