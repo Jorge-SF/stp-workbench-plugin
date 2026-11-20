@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <!-- Stand-alone window that shows the timeline control with fake data, so it can be checked without Vulcan.
-       Command-line options: see Options in Program.cs (data, rows, days, screenshot, width, height, scroll-row, day-width). -->
+       Command-line options: see Options in Program.cs (data, rows, days, screenshot, width, height, scroll-row, day-width, bench, demo). -->
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net48</TargetFramework>

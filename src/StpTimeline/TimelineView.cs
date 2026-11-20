@@ -22,9 +22,11 @@ namespace Maptek.Vulcan.Stp.Timeline
     /// into one per dispatcher Render pass.
     /// </para>
     /// Input: mouse wheel scrolls, Shift+wheel scrolls horizontally, Ctrl+wheel zooms around the pointer,
-    /// Up/Down move the selection. Feed it an <see cref="ITimelineModel"/> through <see cref="Model"/>.
+    /// arrows move the selection. Editing (drag, keyboard moves, context menu, blocked feedback) is in
+    /// TimelineView.Editing.cs: the control raises requests, the host edits. Feed it an <see cref="ITimelineModel"/>
+    /// through <see cref="Model"/>.
     /// </summary>
-    public class TimelineView : UserControl
+    public partial class TimelineView : UserControl
     {
         private readonly TimelineGridPanel _grid;
         private readonly TimelineChartPanel _chart;
@@ -232,6 +234,8 @@ namespace Maptek.Vulcan.Stp.Timeline
             if (oldModel != null) oldModel.Changed -= OnModelContentChanged;
             if (newModel != null) newModel.Changed += OnModelContentChanged;
             OffsetX = OffsetY = 0;
+            _focusDay = -1;
+            _flashes.Clear();
             Rebuild();
         }
 
@@ -244,6 +248,7 @@ namespace Maptek.Vulcan.Stp.Timeline
         /// <summary>Re-read the rows (keys, day spans, row tops). O(rows + blocks).</summary>
         private void Rebuild()
         {
+            _chart.CancelDrag(); // row and block indices are about to change
             var model = Model;
             _rows = model?.Rows ?? Array.Empty<ITimelineRow>();
             _rowByKey.Clear();
@@ -270,6 +275,7 @@ namespace Maptek.Vulcan.Stp.Timeline
             }
             Layout = model == null ? null : new TimelineLayout(kinds, DayWidth);
             SelectedRowIndex = LookUpSelected();
+            RemapFlashes();
             ClampOffsets();
             RequestRedraw(TimelineLayers.All);
         }
@@ -334,10 +340,25 @@ namespace Maptek.Vulcan.Stp.Timeline
             SelectedRowChanged?.Invoke(this, EventArgs.Empty);
         }
 
+        /// <summary>Grid click: select the row; the keyboard focus moves to its block nearest the focused day.</summary>
         internal void SelectRowFromInput(int row, Point position, IInputElement panel)
         {
             if (row < 0 || row >= _rows.Count || _rows[row].Kind != TimelineRowKind.Activity) return;
+            if (_focusDay >= 0)
+            {
+                int k = TimelineEditMath.NearestBlockIndex(_rows[row].Blocks, _focusDay);
+                if (k >= 0) _focusDay = _rows[row].Blocks[k].Day;
+            }
             SelectedKey = _rows[row].Key;
+        }
+
+        /// <summary>Chart click: select the row and focus the clicked block (none when the click missed the blocks).</summary>
+        internal void SelectRowFromInput(int row, int block)
+        {
+            if (row < 0 || row >= _rows.Count || _rows[row].Kind != TimelineRowKind.Activity) return;
+            _focusDay = block >= 0 && _rows[row].Blocks != null && block < _rows[row].Blocks.Count ? _rows[row].Blocks[block].Day : -1;
+            SelectedKey = _rows[row].Key;
+            RequestRedraw(TimelineLayers.Overlay);
         }
 
         internal void RaiseBlockEvent(RoutedEvent routedEvent, TimelineHit hit, Point panelPoint, UIElement panel)
@@ -411,22 +432,6 @@ namespace Maptek.Vulcan.Stp.Timeline
             else
             {
                 SetVerticalOffset(OffsetY - steps * 3 * TimelineLayout.ActivityRowHeight);
-            }
-            e.Handled = true;
-        }
-
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            base.OnKeyDown(e);
-            if (e.Handled || (e.Key != Key.Up && e.Key != Key.Down)) return;
-            int step = e.Key == Key.Down ? 1 : -1;
-            int i = SelectedRowIndex < 0 ? (step > 0 ? -1 : _rows.Count) : SelectedRowIndex;
-            for (i += step; i >= 0 && i < _rows.Count; i += step)
-            {
-                if (_rows[i].Kind != TimelineRowKind.Activity) continue;
-                SelectedKey = _rows[i].Key;
-                ScrollIntoView(_rows[i].Key);
-                break;
             }
             e.Handled = true;
         }
