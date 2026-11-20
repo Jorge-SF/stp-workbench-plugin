@@ -199,4 +199,12 @@ El planificador se abre con la instantánea, pero Actualizar y Aplicar a VGS que
   <data name="Planner_PickResourceNote" xml:space="preserve"><value>El equipo se asigna sólo a este día y sólo en la vista local; VGS no cambia.</value></data>
   <data name="Planner_PickResourceDefault" xml:space="preserve"><value>Predeterminado de actividad ({0})</value></data>
   <data name="Planner_PickResourceOk" xml:space="preserve"><value>Asignar</value></data>
+  <data name="Planner_ResourceVgs" xml:space="preserve"><value>{0} (VGS)</value></data>
+  <data name="Planner_AddManualResourceChoice" xml:space="preserve"><value>+ Recurso manual…</value></data>
+  <data name="Planner_AddManualResource" xml:space="preserve"><value>+ Recurso manual</value></data>
+  <data name="Planner_AddManualResourceTip" xml:space="preserve"><value>Agrega un equipo que no está en VGS. Sólo existe en el planificador; VGS no se modifica.</value></data>
+  <data name="Planner_RemoveManualResourceTip" xml:space="preserve"><value>Quitar el recurso manual; sus días vuelven al equipo de la actividad</value></data>
+  <data name="Planner_ManualResourceNameTip" xml:space="preserve"><value>Nombre del recurso manual (único; se aplica al salir del campo)</value></data>
+  <data name="Planner_VgsResourceTip" xml:space="preserve"><value>Recurso de VGS (no se puede renombrar)</value></data>
+  <data name="Planner_ResourcesNote" xml:space="preserve"><value>Los recursos manuales y los equipos asignados se guardan por proyecto y no se envían a VGS.</value></data>
 </root>

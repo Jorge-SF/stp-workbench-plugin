@@ -1,0 +1,9 @@
+{
+  "compatLogicSha256": "fabc389f9196e3b95992a606e294bd97f23b7f8dde49eb896332504e53693701",
+  "cases": [
+    "manual_resources.add_name_collision.json",
+    "manual_resources.add_rename_remove.json",
+    "manual_resources.load_normalize.json",
+    "manual_resources.load_not_a_list.json"
+  ]
+}

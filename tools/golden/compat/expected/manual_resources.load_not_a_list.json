@@ -1,0 +1,44 @@
+{
+  "case": "load_not_a_list",
+  "description": "A manualResources value that is not a list reads as none.",
+  "vgsResources": [],
+  "steps": [
+    {
+      "step": {
+        "op": "load",
+        "preferences": {
+          "manualResources": {
+            "id": "manual:1",
+            "name": "Objeto"
+          }
+        }
+      },
+      "notice": "",
+      "manualResources": [],
+      "options": [],
+      "activityResourceOverrides": {},
+      "fragmentResourceOverrides": {}
+    },
+    {
+      "step": {
+        "op": "add"
+      },
+      "notice": "",
+      "manualResources": [
+        {
+          "id": "manual:1",
+          "name": "Equipo manual 1"
+        }
+      ],
+      "options": [
+        {
+          "id": "manual:1",
+          "name": "Equipo manual 1",
+          "source": "manual"
+        }
+      ],
+      "activityResourceOverrides": {},
+      "fragmentResourceOverrides": {}
+    }
+  ]
+}

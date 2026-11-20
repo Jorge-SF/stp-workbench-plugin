@@ -1,0 +1,774 @@
+{
+  "case": "add_rename_remove",
+  "description": "Add two, rename (accepted, duplicate, blank, VGS clash, Sin recurso, trimmed), assign, remove drops its assignments, the freed id is reused.",
+  "vgsResources": [
+    "Jumbo 01",
+    "Scoop LH-07",
+    ""
+  ],
+  "steps": [
+    {
+      "step": {
+        "op": "add"
+      },
+      "notice": "",
+      "manualResources": [
+        {
+          "id": "manual:1",
+          "name": "Equipo manual 1"
+        }
+      ],
+      "options": [
+        {
+          "id": "vgs:Jumbo 01",
+          "name": "Jumbo 01",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Scoop LH-07",
+          "name": "Scoop LH-07",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Sin recurso",
+          "name": "Sin recurso",
+          "source": "vgs"
+        },
+        {
+          "id": "manual:1",
+          "name": "Equipo manual 1",
+          "source": "manual"
+        }
+      ],
+      "activityResourceOverrides": {},
+      "fragmentResourceOverrides": {}
+    },
+    {
+      "step": {
+        "op": "add"
+      },
+      "notice": "",
+      "manualResources": [
+        {
+          "id": "manual:1",
+          "name": "Equipo manual 1"
+        },
+        {
+          "id": "manual:2",
+          "name": "Equipo manual 2"
+        }
+      ],
+      "options": [
+        {
+          "id": "vgs:Jumbo 01",
+          "name": "Jumbo 01",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Scoop LH-07",
+          "name": "Scoop LH-07",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Sin recurso",
+          "name": "Sin recurso",
+          "source": "vgs"
+        },
+        {
+          "id": "manual:1",
+          "name": "Equipo manual 1",
+          "source": "manual"
+        },
+        {
+          "id": "manual:2",
+          "name": "Equipo manual 2",
+          "source": "manual"
+        }
+      ],
+      "activityResourceOverrides": {},
+      "fragmentResourceOverrides": {}
+    },
+    {
+      "step": {
+        "op": "rename",
+        "id": "manual:1",
+        "name": "Scoop LH-05"
+      },
+      "notice": "",
+      "manualResources": [
+        {
+          "id": "manual:1",
+          "name": "Scoop LH-05"
+        },
+        {
+          "id": "manual:2",
+          "name": "Equipo manual 2"
+        }
+      ],
+      "options": [
+        {
+          "id": "vgs:Jumbo 01",
+          "name": "Jumbo 01",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Scoop LH-07",
+          "name": "Scoop LH-07",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Sin recurso",
+          "name": "Sin recurso",
+          "source": "vgs"
+        },
+        {
+          "id": "manual:1",
+          "name": "Scoop LH-05",
+          "source": "manual"
+        },
+        {
+          "id": "manual:2",
+          "name": "Equipo manual 2",
+          "source": "manual"
+        }
+      ],
+      "activityResourceOverrides": {},
+      "fragmentResourceOverrides": {}
+    },
+    {
+      "step": {
+        "op": "assignFragment",
+        "logicalUnitId": "A1:2026-11-21",
+        "resourceId": "manual:1"
+      },
+      "notice": "",
+      "manualResources": [
+        {
+          "id": "manual:1",
+          "name": "Scoop LH-05"
+        },
+        {
+          "id": "manual:2",
+          "name": "Equipo manual 2"
+        }
+      ],
+      "options": [
+        {
+          "id": "vgs:Jumbo 01",
+          "name": "Jumbo 01",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Scoop LH-07",
+          "name": "Scoop LH-07",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Sin recurso",
+          "name": "Sin recurso",
+          "source": "vgs"
+        },
+        {
+          "id": "manual:1",
+          "name": "Scoop LH-05",
+          "source": "manual"
+        },
+        {
+          "id": "manual:2",
+          "name": "Equipo manual 2",
+          "source": "manual"
+        }
+      ],
+      "activityResourceOverrides": {},
+      "fragmentResourceOverrides": {
+        "A1:2026-11-21": "manual:1"
+      }
+    },
+    {
+      "step": {
+        "op": "assignFragment",
+        "logicalUnitId": "A1:2026-11-22",
+        "resourceId": "manual:2"
+      },
+      "notice": "",
+      "manualResources": [
+        {
+          "id": "manual:1",
+          "name": "Scoop LH-05"
+        },
+        {
+          "id": "manual:2",
+          "name": "Equipo manual 2"
+        }
+      ],
+      "options": [
+        {
+          "id": "vgs:Jumbo 01",
+          "name": "Jumbo 01",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Scoop LH-07",
+          "name": "Scoop LH-07",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Sin recurso",
+          "name": "Sin recurso",
+          "source": "vgs"
+        },
+        {
+          "id": "manual:1",
+          "name": "Scoop LH-05",
+          "source": "manual"
+        },
+        {
+          "id": "manual:2",
+          "name": "Equipo manual 2",
+          "source": "manual"
+        }
+      ],
+      "activityResourceOverrides": {},
+      "fragmentResourceOverrides": {
+        "A1:2026-11-21": "manual:1",
+        "A1:2026-11-22": "manual:2"
+      }
+    },
+    {
+      "step": {
+        "op": "assignActivity",
+        "activityId": "A2",
+        "resourceId": "manual:1"
+      },
+      "notice": "",
+      "manualResources": [
+        {
+          "id": "manual:1",
+          "name": "Scoop LH-05"
+        },
+        {
+          "id": "manual:2",
+          "name": "Equipo manual 2"
+        }
+      ],
+      "options": [
+        {
+          "id": "vgs:Jumbo 01",
+          "name": "Jumbo 01",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Scoop LH-07",
+          "name": "Scoop LH-07",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Sin recurso",
+          "name": "Sin recurso",
+          "source": "vgs"
+        },
+        {
+          "id": "manual:1",
+          "name": "Scoop LH-05",
+          "source": "manual"
+        },
+        {
+          "id": "manual:2",
+          "name": "Equipo manual 2",
+          "source": "manual"
+        }
+      ],
+      "activityResourceOverrides": {
+        "A2": "manual:1"
+      },
+      "fragmentResourceOverrides": {
+        "A1:2026-11-21": "manual:1",
+        "A1:2026-11-22": "manual:2"
+      }
+    },
+    {
+      "step": {
+        "op": "rename",
+        "id": "manual:2",
+        "name": "scoop lh-05"
+      },
+      "notice": "El nombre del recurso manual debe ser único y no estar vacío.",
+      "manualResources": [
+        {
+          "id": "manual:1",
+          "name": "Scoop LH-05"
+        },
+        {
+          "id": "manual:2",
+          "name": "Equipo manual 2"
+        }
+      ],
+      "options": [
+        {
+          "id": "vgs:Jumbo 01",
+          "name": "Jumbo 01",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Scoop LH-07",
+          "name": "Scoop LH-07",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Sin recurso",
+          "name": "Sin recurso",
+          "source": "vgs"
+        },
+        {
+          "id": "manual:1",
+          "name": "Scoop LH-05",
+          "source": "manual"
+        },
+        {
+          "id": "manual:2",
+          "name": "Equipo manual 2",
+          "source": "manual"
+        }
+      ],
+      "activityResourceOverrides": {
+        "A2": "manual:1"
+      },
+      "fragmentResourceOverrides": {
+        "A1:2026-11-21": "manual:1",
+        "A1:2026-11-22": "manual:2"
+      }
+    },
+    {
+      "step": {
+        "op": "rename",
+        "id": "manual:2",
+        "name": "   "
+      },
+      "notice": "El nombre del recurso manual debe ser único y no estar vacío.",
+      "manualResources": [
+        {
+          "id": "manual:1",
+          "name": "Scoop LH-05"
+        },
+        {
+          "id": "manual:2",
+          "name": "Equipo manual 2"
+        }
+      ],
+      "options": [
+        {
+          "id": "vgs:Jumbo 01",
+          "name": "Jumbo 01",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Scoop LH-07",
+          "name": "Scoop LH-07",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Sin recurso",
+          "name": "Sin recurso",
+          "source": "vgs"
+        },
+        {
+          "id": "manual:1",
+          "name": "Scoop LH-05",
+          "source": "manual"
+        },
+        {
+          "id": "manual:2",
+          "name": "Equipo manual 2",
+          "source": "manual"
+        }
+      ],
+      "activityResourceOverrides": {
+        "A2": "manual:1"
+      },
+      "fragmentResourceOverrides": {
+        "A1:2026-11-21": "manual:1",
+        "A1:2026-11-22": "manual:2"
+      }
+    },
+    {
+      "step": {
+        "op": "rename",
+        "id": "manual:2",
+        "name": "JUMBO 01"
+      },
+      "notice": "El nombre del recurso manual debe ser único y no estar vacío.",
+      "manualResources": [
+        {
+          "id": "manual:1",
+          "name": "Scoop LH-05"
+        },
+        {
+          "id": "manual:2",
+          "name": "Equipo manual 2"
+        }
+      ],
+      "options": [
+        {
+          "id": "vgs:Jumbo 01",
+          "name": "Jumbo 01",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Scoop LH-07",
+          "name": "Scoop LH-07",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Sin recurso",
+          "name": "Sin recurso",
+          "source": "vgs"
+        },
+        {
+          "id": "manual:1",
+          "name": "Scoop LH-05",
+          "source": "manual"
+        },
+        {
+          "id": "manual:2",
+          "name": "Equipo manual 2",
+          "source": "manual"
+        }
+      ],
+      "activityResourceOverrides": {
+        "A2": "manual:1"
+      },
+      "fragmentResourceOverrides": {
+        "A1:2026-11-21": "manual:1",
+        "A1:2026-11-22": "manual:2"
+      }
+    },
+    {
+      "step": {
+        "op": "rename",
+        "id": "manual:2",
+        "name": "sin recurso"
+      },
+      "notice": "El nombre del recurso manual debe ser único y no estar vacío.",
+      "manualResources": [
+        {
+          "id": "manual:1",
+          "name": "Scoop LH-05"
+        },
+        {
+          "id": "manual:2",
+          "name": "Equipo manual 2"
+        }
+      ],
+      "options": [
+        {
+          "id": "vgs:Jumbo 01",
+          "name": "Jumbo 01",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Scoop LH-07",
+          "name": "Scoop LH-07",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Sin recurso",
+          "name": "Sin recurso",
+          "source": "vgs"
+        },
+        {
+          "id": "manual:1",
+          "name": "Scoop LH-05",
+          "source": "manual"
+        },
+        {
+          "id": "manual:2",
+          "name": "Equipo manual 2",
+          "source": "manual"
+        }
+      ],
+      "activityResourceOverrides": {
+        "A2": "manual:1"
+      },
+      "fragmentResourceOverrides": {
+        "A1:2026-11-21": "manual:1",
+        "A1:2026-11-22": "manual:2"
+      }
+    },
+    {
+      "step": {
+        "op": "rename",
+        "id": "manual:2",
+        "name": "  Camión 3  "
+      },
+      "notice": "",
+      "manualResources": [
+        {
+          "id": "manual:1",
+          "name": "Scoop LH-05"
+        },
+        {
+          "id": "manual:2",
+          "name": "Camión 3"
+        }
+      ],
+      "options": [
+        {
+          "id": "vgs:Jumbo 01",
+          "name": "Jumbo 01",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Scoop LH-07",
+          "name": "Scoop LH-07",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Sin recurso",
+          "name": "Sin recurso",
+          "source": "vgs"
+        },
+        {
+          "id": "manual:1",
+          "name": "Scoop LH-05",
+          "source": "manual"
+        },
+        {
+          "id": "manual:2",
+          "name": "Camión 3",
+          "source": "manual"
+        }
+      ],
+      "activityResourceOverrides": {
+        "A2": "manual:1"
+      },
+      "fragmentResourceOverrides": {
+        "A1:2026-11-21": "manual:1",
+        "A1:2026-11-22": "manual:2"
+      }
+    },
+    {
+      "step": {
+        "op": "rename",
+        "id": "manual:9",
+        "name": "Nadie"
+      },
+      "notice": "El nombre del recurso manual debe ser único y no estar vacío.",
+      "manualResources": [
+        {
+          "id": "manual:1",
+          "name": "Scoop LH-05"
+        },
+        {
+          "id": "manual:2",
+          "name": "Camión 3"
+        }
+      ],
+      "options": [
+        {
+          "id": "vgs:Jumbo 01",
+          "name": "Jumbo 01",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Scoop LH-07",
+          "name": "Scoop LH-07",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Sin recurso",
+          "name": "Sin recurso",
+          "source": "vgs"
+        },
+        {
+          "id": "manual:1",
+          "name": "Scoop LH-05",
+          "source": "manual"
+        },
+        {
+          "id": "manual:2",
+          "name": "Camión 3",
+          "source": "manual"
+        }
+      ],
+      "activityResourceOverrides": {
+        "A2": "manual:1"
+      },
+      "fragmentResourceOverrides": {
+        "A1:2026-11-21": "manual:1",
+        "A1:2026-11-22": "manual:2"
+      }
+    },
+    {
+      "step": {
+        "op": "remove",
+        "id": "manual:1"
+      },
+      "notice": "",
+      "manualResources": [
+        {
+          "id": "manual:2",
+          "name": "Camión 3"
+        }
+      ],
+      "options": [
+        {
+          "id": "vgs:Jumbo 01",
+          "name": "Jumbo 01",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Scoop LH-07",
+          "name": "Scoop LH-07",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Sin recurso",
+          "name": "Sin recurso",
+          "source": "vgs"
+        },
+        {
+          "id": "manual:2",
+          "name": "Camión 3",
+          "source": "manual"
+        }
+      ],
+      "activityResourceOverrides": {},
+      "fragmentResourceOverrides": {
+        "A1:2026-11-22": "manual:2"
+      }
+    },
+    {
+      "step": {
+        "op": "remove",
+        "id": "manual:1"
+      },
+      "notice": "",
+      "manualResources": [
+        {
+          "id": "manual:2",
+          "name": "Camión 3"
+        }
+      ],
+      "options": [
+        {
+          "id": "vgs:Jumbo 01",
+          "name": "Jumbo 01",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Scoop LH-07",
+          "name": "Scoop LH-07",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Sin recurso",
+          "name": "Sin recurso",
+          "source": "vgs"
+        },
+        {
+          "id": "manual:2",
+          "name": "Camión 3",
+          "source": "manual"
+        }
+      ],
+      "activityResourceOverrides": {},
+      "fragmentResourceOverrides": {
+        "A1:2026-11-22": "manual:2"
+      }
+    },
+    {
+      "step": {
+        "op": "add"
+      },
+      "notice": "",
+      "manualResources": [
+        {
+          "id": "manual:2",
+          "name": "Camión 3"
+        },
+        {
+          "id": "manual:1",
+          "name": "Equipo manual 1"
+        }
+      ],
+      "options": [
+        {
+          "id": "vgs:Jumbo 01",
+          "name": "Jumbo 01",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Scoop LH-07",
+          "name": "Scoop LH-07",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Sin recurso",
+          "name": "Sin recurso",
+          "source": "vgs"
+        },
+        {
+          "id": "manual:2",
+          "name": "Camión 3",
+          "source": "manual"
+        },
+        {
+          "id": "manual:1",
+          "name": "Equipo manual 1",
+          "source": "manual"
+        }
+      ],
+      "activityResourceOverrides": {},
+      "fragmentResourceOverrides": {
+        "A1:2026-11-22": "manual:2"
+      }
+    },
+    {
+      "step": {
+        "op": "assignFragment",
+        "logicalUnitId": "A1:2026-11-22",
+        "resourceId": "__activity_default__"
+      },
+      "notice": "",
+      "manualResources": [
+        {
+          "id": "manual:2",
+          "name": "Camión 3"
+        },
+        {
+          "id": "manual:1",
+          "name": "Equipo manual 1"
+        }
+      ],
+      "options": [
+        {
+          "id": "vgs:Jumbo 01",
+          "name": "Jumbo 01",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Scoop LH-07",
+          "name": "Scoop LH-07",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Sin recurso",
+          "name": "Sin recurso",
+          "source": "vgs"
+        },
+        {
+          "id": "manual:2",
+          "name": "Camión 3",
+          "source": "manual"
+        },
+        {
+          "id": "manual:1",
+          "name": "Equipo manual 1",
+          "source": "manual"
+        }
+      ],
+      "activityResourceOverrides": {},
+      "fragmentResourceOverrides": {}
+    }
+  ]
+}

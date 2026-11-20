@@ -37,7 +37,8 @@ namespace Maptek.Vulcan.Stp.Planner.Tests
             Assert.True(Segment(session, Day2).HasResourceOverride);
             Assert.Equal("Jumbo 01, Empernador 01", session.Rows.First(r => r.ActivityId == "A100").Resource);
             Assert.False(session.HasPendingChanges);   // local view setting, nothing for VGS
-            Assert.False(session.CanUndo);
+            Assert.True(session.CanUndo);              // but an undo step (manual resources made equipment undoable)
+            Assert.Equal("Asignar Empernador 01 a " + Day2, session.UndoDescription);
 
             // Saved per project: a new session over the same storage sees it.
             var reopened = new PlannerSession(ProjectionTests.ChainWithRates(), Golden.StaticConfig(), null, storage, new PlannerOptions { TypeColumns = new[] { "Type" } });

@@ -68,14 +68,18 @@ namespace Maptek.Vulcan.Stp.Planner
         internal OperationResult Run(CivilHorizonController controller) => run(controller);
     }
 
-    /// <summary>A plan state: the horizon it starts from plus the accepted operations since then.</summary>
+    /// <summary>
+    /// A plan state: the horizon it starts from plus the accepted operations since then, and the equipment settings
+    /// (manual resources and assignments) at that point.
+    /// </summary>
     internal sealed class PlanState
     {
-        public PlanState(CivilHorizon seed, IReadOnlyList<PlanOperation> operations, string description)
+        public PlanState(CivilHorizon seed, IReadOnlyList<PlanOperation> operations, string description, ResourceState resources = null)
         {
             Seed = seed;
             Operations = operations;
             Description = description;
+            Resources = resources ?? ResourceState.Empty;
         }
 
         public CivilHorizon Seed { get; }
@@ -85,7 +89,13 @@ namespace Maptek.Vulcan.Stp.Planner
         /// <summary>What produced this state (for "Deshacer …").</summary>
         public string Description { get; }
 
-        public PlanState With(PlanOperation operation) => new PlanState(Seed, Operations.Concat(new[] { operation }).ToList(), operation.Description);
+        /// <summary>Gets the equipment settings.</summary>
+        public ResourceState Resources { get; }
+
+        public PlanState With(PlanOperation operation) => new PlanState(Seed, Operations.Concat(new[] { operation }).ToList(), operation.Description, Resources);
+
+        /// <summary>The same plan with other equipment settings (no replay needed).</summary>
+        public PlanState With(ResourceState resources, string description) => new PlanState(Seed, Operations, description, resources);
     }
 
     /// <summary>Undo/redo stacks of <see cref="PlanState"/>.</summary>

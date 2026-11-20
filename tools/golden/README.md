@@ -64,3 +64,17 @@ node tools/golden/actual_progress.mjs --check    # compare with the committed fi
 
 The steps live in `fixtures/actual_progress.steps.json`; each case starts from a seeded state and runs queries and edits in order. Every step records its outcome and the state after it. Maps are written as ordered `[key, value]` lists, so the C# port (`src/StpEngine/ActualProgress.cs`, tested by `ActualProgressGoldenTests`) is checked for JS property order too: array-index keys such as a type named `100` come first. In the fixtures, the strings `"NaN"` and `"Infinity"` stand for those numbers.
 
+## Compatibility layer: manual resources
+
+`tools/golden/compat/run.mjs` does the same for the manual resources of `reference/web/v1_compat_logic.js`. It loads
+the file unchanged and replays `compat/cases/*.cases.json` through `normalizeManualResources`,
+`normalizeCompatibilityPreferences` and `resourceOptions`, plus copies of the template's `addManualResource`,
+`renameManualResource`, `removeManualResource` and `set*ResourceOverride`. Each step records the manual list, the
+options, the overrides and the rename notice in `compat/expected/`. `src/StpPlanner.Tests/ManualResourcesTests.cs`
+replays the same cases through the C# `ManualResources`/`ResourceState`. The plugin stores assignments by name, not by
+id, so the test compares them by name.
+
+```bash
+node tools/golden/compat/run.mjs            # regenerate tools/golden/compat/expected/
+node tools/golden/compat/run.mjs --check    # compare (Build-Plugin.ps1 -Test runs this too)
+```
