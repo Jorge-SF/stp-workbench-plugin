@@ -4,7 +4,7 @@
   <Alias Name="BIN" FullText="StpClient"/>   <!-- assembly name -->
   <Alias Name="RES" FullText="Resources"/>   <!-- Resources\Resources.resx -->
 
-  <!-- STP UG > Preparar proyecto / Abrir planificador / Planificador HTML (script 2) / Aplicar STP a VGS / Verificar guardado | Configuración y acerca de -->
+  <!-- STP UG > Preparar proyecto / Abrir planificador / Aplicar STP a VGS / Verificar guardado | Configuración y acerca de -->
   <Segment Name="[NS].Segments.StpMenu">
     <SegmentInstance MenuSegmentName="[NS].Segments.StpSteps"/>
     <SegmentInstance MenuSegmentName="[NS].Segments.StpSettings"/>
@@ -17,9 +17,6 @@
     <Command CommandName="[NS].Commands.PlannerView"
              Label="{Key [BIN]:[RES]:Menu_PlannerView}" ToolTip="{Key [BIN]:[RES]:Tip_PlannerView}"
              Image="{Resource [BIN]:[RES]/Icons/Step2.ico}" SortOrder="15"/>
-    <Command CommandName="[NS].Commands.OpenPlanner"
-             Label="{Key [BIN]:[RES]:Menu_Planner}" ToolTip="{Key [BIN]:[RES]:Tip_Planner}"
-             Image="{Resource [BIN]:[RES]/Icons/Step2.ico}" SortOrder="20"/>
     <Command CommandName="[NS].Commands.ApplyToVgs"
              Label="{Key [BIN]:[RES]:Menu_Apply}" ToolTip="{Key [BIN]:[RES]:Tip_Apply}"
              Image="{Resource [BIN]:[RES]/Icons/Step3.ico}" SortOrder="30"/>

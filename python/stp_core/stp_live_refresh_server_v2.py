@@ -123,6 +123,36 @@ class _Config:
     provider: Callable[[dict[str, Any]], Mapping[str, Any]] | None
 
 
+def _runtime_root() -> Path:
+    """Script 2's per-user runtime folder (stp_core.runtime.default_runtime_root), computed
+    inline so the single-file bundle works too.  The bridge process inherits Script 2's
+    environment, so ``STP_RUNTIME_ROOT`` matches."""
+    configured = os.environ.get("STP_RUNTIME_ROOT")
+    if configured:
+        return Path(configured)
+    local = os.environ.get("LOCALAPPDATA") or str(Path.home() / "AppData" / "Local")
+    return Path(local) / "Maptek" / "StpUG" / "runtime"
+
+
+def _snapshot_roots(project: Path) -> tuple[Path, ...]:
+    """Folders the snapshot may live in: the per-user runtime folder Script 2 writes it to
+    (docs/known_issues.md, KI-2), or the project folder (bundled Script 2 layout)."""
+    roots = [project.parent]
+    try:
+        roots.append(_runtime_root().resolve(strict=True))
+    except (OSError, RuntimeError):
+        pass
+    return tuple(roots)
+
+
+def _inside(path: Path, directory: Path) -> bool:
+    try:
+        path.relative_to(directory)
+        return True
+    except ValueError:
+        return False
+
+
 def _config(raw: Mapping[str, Any]) -> _Config:
     required = {"projectPath", "projectKey", "projectFingerprint", "token", "port", "snapshotPath"}
     allowed = required | {"bind", "snapshotProvider"}
@@ -138,7 +168,8 @@ def _config(raw: Mapping[str, Any]) -> _Config:
         raise BridgeError("invalid configuration", 500)
     try:
         project, snapshot = Path(raw["projectPath"]).resolve(strict=True), Path(raw["snapshotPath"]).resolve(strict=True)
-        snapshot.relative_to(project.parent)
+        if not any(_inside(snapshot, root) for root in _snapshot_roots(project)):
+            raise ValueError("snapshot outside the allowed folders")
     except (OSError, RuntimeError, ValueError):
         raise BridgeError("invalid configuration", 500) from None
     if not project.is_file() or project.is_symlink() or not snapshot.is_file() or snapshot.is_symlink():
@@ -763,6 +794,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         return run_bridge_from_file(arguments.config, arguments.ready)
     except Exception:
+        # stdout/stderr go to DEVNULL; leave the cause beside the ready file for diagnosis.
+        try:
+            import traceback
+
+            ready = Path(arguments.ready)
+            error_file = ready.with_name(ready.name.replace("ready-", "error-", 1)).with_suffix(".txt")
+            error_file.write_text(traceback.format_exc(), encoding="utf-8")
+        except Exception:
+            pass
         return 1
 
 

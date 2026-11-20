@@ -85,7 +85,7 @@ namespace Maptek.Vulcan.Stp
         public void RunPrepare() => RunScript(StpScript.Prepare, Res.Menu_Prepare);
 
         /// <summary>
-        /// STP UG > Abrir planificador: runs script 2p (snapshot of the open VGS project + local bridge, no browser), then
+        /// STP UG > Abrir planificador: runs script 2p (snapshot of the open VGS project + local bridge), then
         /// opens its plugin_session.json as one planner document. A repeat while the document is open activates it
         /// (Actualizar in the document reloads from VGS).
         /// </summary>
@@ -107,9 +107,6 @@ namespace Maptek.Vulcan.Stp
                 Show(string.Format(Res.Msg_PlannerFailed, ex.Message), MessageBoxImage.Error);
             }
         }
-
-        /// <summary>STP UG > Abrir planificador (navegador) (script 2): the browser planner, unchanged.</summary>
-        public void RunPlanner() => RunScript(StpScript.Planner, Res.Menu_Planner);
 
         public void RunApply() => RunScript(StpScript.Apply, Res.Menu_Apply);
 

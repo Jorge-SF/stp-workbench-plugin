@@ -1,7 +1,7 @@
 // STP suelto: the browser planner as one offline HTML file, with the current plan in it and no live bridge
 // (template exportStandalonePlanner / standaloneDocumentHtml). Built from the web resources script 2 copies into the
 // per-user runtime folder (stp_core/runtime.py materialize_runtime_resources): the template's module placeholders are
-// filled as render_planner does (2. VGS_ShortTermPlanner.py), and its STANDALONE_BOOTSTRAP block is replaced with
+// filled as the removed render_planner of script 2 did, and its STANDALONE_BOOTSTRAP block is replaced with
 // { snapshot, plannerState: { model, horizon }, localState } and a static bridge, so the page opens on this plan and
 // can never apply to VGS.
 // localState carries the "Avance real" values and boxes (ActualProgressStore.ToJson, the template's
@@ -111,7 +111,7 @@ namespace Maptek.Vulcan.Stp.Planner.Export
             return Render(resources, bootstrap, bridge);
         }
 
-        /// <summary>Fills the template (render_planner's checks) and replaces its bootstrap block.</summary>
+        /// <summary>Fills the template (the old script 2 render_planner checks) and replaces its bootstrap block.</summary>
         public static string Render(StandaloneResources resources, JObject bootstrap, JObject bridge)
         {
             if (resources?.Template == null) throw new ArgumentNullException(nameof(resources));
@@ -231,12 +231,12 @@ namespace Maptek.Vulcan.Stp.Planner.Export
                 ["durationDays"] = horizon.DurationDays,
             };
 
-        /// <summary>Script 2 <c>_safe_json</c> / template <c>jsonForInlineScript</c>.</summary>
+        /// <summary>Template <c>jsonForInlineScript</c> (formerly script 2 <c>_safe_json</c>).</summary>
         internal static string SafeJson(JToken value) => value.ToString(Formatting.None)
             .Replace("<", "\\u003c").Replace(">", "\\u003e").Replace("&", "\\u0026")
             .Replace("\u2028", "\\u2028").Replace("\u2029", "\\u2029");
 
-        /// <summary>Script 2 <c>_safe_logic</c>: only an HTML end tag is dangerous in executable source.</summary>
+        /// <summary>Only an HTML end tag is dangerous in executable source (formerly script 2 <c>_safe_logic</c>).</summary>
         internal static string SafeLogic(string source) => ScriptEnd.Replace(source, "<\\/script").Replace("\u2028", "\\u2028").Replace("\u2029", "\\u2029");
 
         private static int Count(string text, string value)

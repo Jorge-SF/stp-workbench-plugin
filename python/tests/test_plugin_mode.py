@@ -1,11 +1,11 @@
-"""Unit tests for script 2's plugin mode (``plugin_session.json``) and its unchanged browser mode.
+"""Unit tests for script 2: it always writes ``plugin_session.json`` (no browser page).
 
 Run outside Vulcan (``maptek`` is stubbed, VGS and the bridge process are mocked)::
 
     python -I python/tests/test_plugin_mode.py
 
 Script 2 and 2p are copied into a temporary folder, and ``STP_RUNTIME_ROOT`` points their
-runtime folder there too.  The web resources are dummy files: the template only carries the placeholders.
+runtime folder there too.  The web resources are dummy files (still copied for the STP suelto export).
 """
 
 from __future__ import annotations
@@ -15,7 +15,6 @@ import importlib.util
 import io
 import json
 import os
-import re
 import shutil
 import sys
 import tempfile
@@ -102,8 +101,7 @@ class PlannerModesTest(unittest.TestCase):
         }
         self._environment = mock.patch.dict(os.environ, environment)
         self._environment.start()
-        for name in ("STP_PLUGIN_MODE", "STP_PLUGIN_SESSION"):
-            os.environ.pop(name, None)
+        os.environ.pop("STP_PLUGIN_SESSION", None)
         self._saved_modules = {
             name: sys.modules.get(name) for name in ("maptek", "maptek.gantt", "vulcan_gui")
         }
@@ -115,20 +113,16 @@ class PlannerModesTest(unittest.TestCase):
             "projectFingerprint": "c" * 64,
             "projectPath": str(self.project_file.resolve()),
             "exportedAt": "2026-11-19T08:00:00",
-            "note": "sintético <&> ñ",
+            "note": "sintÃ©tico <&> Ã±",
         }
         self.bridge = BridgeDescriptor(
             "live", "http://127.0.0.1:50123", TOKEN, PROJECT_KEY, BRIDGE_ID,
-            "Actualización en vivo disponible.",
+            "ActualizaciÃ³n en vivo disponible.",
         )
         self.launch = mock.Mock(return_value=self.bridge)
-        self.open_planner = mock.Mock(return_value=(True, "abierto"))
-        self.report = mock.Mock()
         for name, value in (
             ("build_snapshot", mock.Mock(return_value=self.snapshot)),
             ("launch_read_bridge", self.launch),
-            ("open_planner", self.open_planner),
-            ("_report", self.report),
         ):
             patcher = mock.patch.object(self.planner, name, value)
             patcher.start()
@@ -154,13 +148,7 @@ class PlannerModesTest(unittest.TestCase):
     def _session_path(self) -> Path:
         return self.runtime / "plugin_session.json"
 
-    def _browser_bridge_config(self) -> dict:
-        html = (self.runtime / "short_term_planner_v2" / "index.html").read_text(encoding="utf-8")
-        match = re.search(r"window\.BRIDGE=(\{.*?\});</script>", html)
-        self.assertIsNotNone(match)
-        return json.loads(match.group(1))
-
-    # -- plugin mode ---------------------------------------------------------------
+    # -- session -------------------------------------------------------------------
 
     def test_plugin_mode_writes_session_and_skips_html(self) -> None:
         result, stdout = self._run(plugin_session=True)
@@ -182,29 +170,36 @@ class PlannerModesTest(unittest.TestCase):
             {**self.bridge.page_config(), "precedenceConflictPolicy": "allow-inherited"},
         )
         self.assertFalse((self.runtime / "short_term_planner_v2" / "index.html").exists())
-        self.open_planner.assert_not_called()
-        self.report.assert_not_called()
+        self.assertFalse(hasattr(self.planner, "render_planner"))
+        self.assertFalse(hasattr(self.planner, "open_planner"))
         self.assertEqual(
             sorted(p.name for p in self.runtime.iterdir() if p.name.startswith(".plugin")), [],
             "no temporary or backup siblings may be left behind",
         )
 
-    def test_plugin_mode_launches_bridge_like_browser_mode(self) -> None:
-        self._run(plugin_session=True)
-        plugin_call = self.launch.call_args
-        self._run()
-        self.assertEqual(self.launch.call_args, plugin_call)
+    def test_default_run_writes_default_session(self) -> None:
+        result, _ = self._run()
+        self.assertEqual(result, self._session_path().resolve())
+        self.launch.assert_called_once()
+        kwargs = self.launch.call_args.kwargs
+        self.assertEqual(kwargs["runtime_dir"], self.runtime.resolve() / "short_term_planner_v2" / ".bridge")
+        self.assertEqual(kwargs["server_path"], self.runtime.resolve() / "stp_live_refresh_server_v2.py")
 
-    def test_bridge_config_identical_to_browser_page(self) -> None:
+    def test_session_bridge_config_carries_policy(self) -> None:
         for policy in ("allow-inherited", "block-inherited"):
             with self.subTest(policy=policy):
-                self._run(precedence_conflict_policy=policy, plugin_session=True)
-                session = json.loads(self._session_path().read_text(encoding="utf-8"))
                 self._run(precedence_conflict_policy=policy)
-                self.assertEqual(session["bridge_config"], self._browser_bridge_config())
+                session = json.loads(self._session_path().read_text(encoding="utf-8"))
+                self.assertEqual(
+                    session["bridge_config"],
+                    {**self.bridge.page_config(), "precedenceConflictPolicy": policy},
+                )
 
+    def test_web_resources_still_copied_for_standalone_export(self) -> None:
+        self._run()
+        self.assertTrue((self.runtime / "short_term_planner_template_v2.html").is_file())
     def test_static_bridge_is_reported_in_session(self) -> None:
-        static = BridgeDescriptor("static", "", "", PROJECT_KEY, "", "estático")
+        static = BridgeDescriptor("static", "", "", PROJECT_KEY, "", "estÃ¡tico")
         self.launch.return_value = static
         self._run(plugin_session=True)
         session = json.loads(self._session_path().read_text(encoding="utf-8"))
@@ -275,7 +270,7 @@ class PlannerModesTest(unittest.TestCase):
         self.assertEqual(self.planner.resolve_plugin_session_path(""), expected)
         self.assertEqual(self.planner.resolve_plugin_session_path(str(expected)), expected)
 
-    # -- mode selection --------------------------------------------------------------
+    # -- session request -------------------------------------------------------------
 
     def test_plugin_session_request(self) -> None:
         request = self.planner.plugin_session_request
@@ -283,19 +278,15 @@ class PlannerModesTest(unittest.TestCase):
         custom = (self.runtime / "x.json").resolve()
         script = str(self.script_dir / SCRIPT_2)
         cases = (
-            ([script], {}, None),
-            ([], {}, None),
-            ([script, "--other"], {}, None),
+            ([script], {}, default),
+            ([], {}, default),
+            ([script, "--other"], {}, default),
             ([script, "--plugin-session"], {}, default),
             ([script, "--plugin-session", "--other"], {}, default),
             ([script, "--plugin-session", "x.json"], {}, custom),
             ([script, "--plugin-session=x.json"], {}, custom),
-            ([script], {"STP_PLUGIN_MODE": "1"}, default),
-            ([script], {"STP_PLUGIN_MODE": "TRUE"}, default),
-            ([script], {"STP_PLUGIN_MODE": "0"}, None),
-            ([script], {"STP_PLUGIN_MODE": ""}, None),
             ([script], {"STP_PLUGIN_SESSION": "x.json"}, custom),
-            ([script], {"STP_PLUGIN_SESSION": "  "}, None),
+            ([script], {"STP_PLUGIN_SESSION": "  "}, default),
             ([script, "--plugin-session"], {"STP_PLUGIN_SESSION": "x.json"}, default),
         )
         for argv, environ, expected in cases:
@@ -303,26 +294,23 @@ class PlannerModesTest(unittest.TestCase):
                 self.assertEqual(request(argv, environ), expected)
 
     def test_request_without_sys_argv(self) -> None:
+        default = self._session_path().resolve()
         with mock.patch.object(sys, "argv", None, create=True):
-            self.assertIsNone(self.planner.plugin_session_request(environ={}))
+            self.assertEqual(self.planner.plugin_session_request(environ={}), default)
         saved = sys.__dict__.pop("argv", None)
         try:
-            self.assertIsNone(self.planner.plugin_session_request(environ={}))
+            self.assertEqual(self.planner.plugin_session_request(environ={}), default)
         finally:
             if saved is not None:
                 sys.argv = saved
 
-    def test_main_passes_request_to_run_planner(self) -> None:
-        with mock.patch.object(self.planner, "run_planner") as run, mock.patch.object(
-            sys, "argv", ["script"]
-        ):
-            self.planner.main()
-            run.assert_called_once_with(plugin_session=None)
-            run.reset_mock()
-            with mock.patch.dict(os.environ, {"STP_PLUGIN_MODE": "1"}):
-                self.planner.main()
-            run.assert_called_once_with(plugin_session=self._session_path().resolve())
-
+    def test_main_writes_session(self) -> None:
+        with mock.patch.object(sys, "argv", ["script"]):
+            stdout = io.StringIO()
+            with contextlib.redirect_stdout(stdout):
+                result = self.planner.main()
+        self.assertEqual(result, self._session_path().resolve())
+        self.assertFalse((self.runtime / "short_term_planner_v2" / "index.html").exists())
     def test_entry_script_2p_selects_plugin_mode(self) -> None:
         entry = _load(self.script_dir / SCRIPT_2P, "stp_test_script_2p")
         self.assertEqual(entry._PLANNER_SCRIPT, (self.script_dir / SCRIPT_2).resolve())
@@ -335,36 +323,8 @@ class PlannerModesTest(unittest.TestCase):
                 with contextlib.redirect_stdout(stdout):
                     result = entry.main()
             self.assertEqual(result, (self.runtime / "x.json").resolve())
-        self.open_planner.assert_not_called()
 
-    # -- browser mode unchanged ------------------------------------------------------
-
-    def test_browser_mode_unchanged(self) -> None:
-        self.runtime.mkdir(exist_ok=True)
-        self._session_path().write_text('{"previous":true}', encoding="utf-8")
-        result, stdout = self._run()
-        self.assertIsNone(result)
-        self.assertNotIn("STP_PLUGIN_SESSION", stdout)
-        index = (self.runtime / "short_term_planner_v2" / "index.html").resolve()
-        self.assertTrue(index.is_file())
-        self.open_planner.assert_called_once_with(index)
-        self.report.assert_called_once()
-        message = self.report.call_args.args[0]
-        self.assertIn("Actualización en vivo disponible.", message)
-        self.assertIn("abierto", message)
-        self.assertEqual(
-            self._browser_bridge_config(),
-            {**self.bridge.page_config(), "precedenceConflictPolicy": "allow-inherited"},
-        )
-        self.assertEqual(
-            self._session_path().read_text(encoding="utf-8"), '{"previous":true}',
-            "browser mode must not touch the plugin session file",
-        )
-        html = index.read_text(encoding="utf-8")
-        self.assertNotIn("__VGS_STP_V2_", html)
-        self.assertIn("\\u003c\\u0026\\u003e", html, "snapshot is embedded with HTML-safe escaping")
-
-    def test_render_planner_rejects_bad_policy(self) -> None:
+    def test_rejects_bad_policy(self) -> None:
         with self.assertRaises(ValueError):
             self.planner.planner_bridge_config({}, precedence_conflict_policy="other")
         with self.assertRaises(ValueError):

@@ -14,7 +14,8 @@ python/
     build_bundle.py    stp_core + scripts + web resources -> legacy single-file bundles
     bundle_format.py   the shared bundle layout
   tests/smoke_test.py  import test outside Vulcan (maptek is stubbed)
-  tests/test_plugin_mode.py  script 2 plugin mode + browser mode (maptek, VGS and bridge mocked)
+  tests/test_plugin_mode.py  script 2 / 2p plugin session (maptek, VGS and bridge mocked)
+  tests/test_bridge_config.py  bridge accepts the snapshot in the per-user runtime folder
 ```
 
 ## Importing
@@ -37,24 +38,22 @@ still the script's own folder. Script 1 writes its work files there. Script 2 wr
 runtime files to the per-user folder `%LOCALAPPDATA%\Maptek\StpUGuntime` (override with
 `STP_RUNTIME_ROOT`), not beside itself: an installed copy is read-only (docs/known_issues.md, KI-2).
 
-Script 2 also needs the planner web resources. `stp_core.runtime` copies them from
+Script 2 still copies the planner web resources into the runtime folder: the plugin's
+*STP suelto* export builds its standalone HTML from them. `stp_core.runtime` copies them from
 `STP_WEB_RESOURCES`, else `python/web/` (the installed layout), else `<repo>/reference/web/`,
 accepting either file-name style, and writes a small bridge launcher that runs
 `stp_live_refresh_server_v2` from this package. The Maptek footer logo
 (`assets/Maptek_highres.jpg`) is optional: the public repository doesn't hold it.
 
-## Plugin mode (Workbench C# view)
+## Plugin session (Workbench C# view)
 
-Script 2 can skip the HTML page and the browser, and write
+Script 2 exports the snapshot, starts the bridge and writes
 `<runtime>/plugin_session.json` = `{snapshot_path, bridge_config}` for the Workbench
-plugin instead. The bridge still starts as before. Select it in one of these ways:
+plugin. It no longer renders an HTML page or opens a browser (that mode was removed).
+From Vulcan run `scripts/2p. VGS_ShortTermPlanner_Plugin.py`. A different session file
+can be named with `--plugin-session <path>` or `STP_PLUGIN_SESSION=<path>`.
 
-* run `scripts/2p. VGS_ShortTermPlanner_Plugin.py` (no arguments needed; use this from Vulcan);
-* pass `--plugin-session [path]`;
-* set `STP_PLUGIN_SESSION=<path>` or `STP_PLUGIN_MODE=1`.
-
-Without any of these, script 2 runs in browser mode, as before. The format, lifetime and
-security notes are in [`docs/plugin_session.md`](../docs/plugin_session.md).
+The format, lifetime and security notes are in [`docs/plugin_session.md`](../docs/plugin_session.md).
 
 ## Single-file bundles
 

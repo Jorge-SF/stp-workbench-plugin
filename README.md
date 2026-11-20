@@ -53,11 +53,11 @@ Requirements: Visual Studio 2026 (MSBuild 18) with .NET Framework 4.8 targeting,
    `python -I python/tests/smoke_test.py`; `node tools/golden/run.mjs --check`.
 4. Load in Vulcan: `tools\Register-PluginSearchPath.ps1` registers `Deploy\Client` (value name `StpUG.Dev`), then
    restart Vulcan. Close Vulcan before rebuilding: Workbench locks the DLLs.
-   Vulcan then shows an **STP UG** menu (Preparar proyecto, Abrir planificador, Abrir planificador (navegador),
+   Vulcan then shows an **STP UG** menu (Preparar proyecto, Abrir planificador,
    Aplicar STP a VGS, Verificar guardado, Configuración y acerca de…). Each item runs `python/scripts/1..4` inside
-   Vulcan (`docs/envisage_python.md`), one at a time. *Abrir planificador* runs `2p` (plugin mode, no browser), reads
-   the `plugin_session.json` it writes (`docs/plugin_session.md`) and opens the planner as a Workbench document;
-   *Abrir planificador (navegador)* is the unchanged browser planner (script 2).
+   Vulcan (`docs/envisage_python.md`), one at a time. *Abrir planificador* runs `2p` (which loads script 2), reads
+   the `plugin_session.json` it writes (`docs/plugin_session.md`) and opens the planner as a Workbench document.
+   The old browser planner is gone; the web template/JS are still installed for the *STP suelto* HTML export.
    `tools\Preview-Planner.ps1 -Show` shows the planner screen outside Vulcan on design data. The scripts folder defaults to `<plugin>\Python\scripts`, else the
    repository's `python\scripts` found above `Deploy\Client`; change it in *Configuración y acerca de…*
    (stored in `%AppData%\Maptek\StpUG\settings.xml`). Run logs: `%LocalAppData%\Maptek\StpUG\run\`.

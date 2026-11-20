@@ -37,7 +37,12 @@ def find_current_pending_receipt(project_root: Path) -> Path:
         if path.is_file() and not path.is_symlink()
     ] if report_dir.is_dir() else []
     if not candidates:
-        raise FileNotFoundError("No existe un recibo pendiente de verificar")
+        raise NothingToVerify(
+            "No hay ninguna aplicación pendiente de verificar en esta carpeta "
+            f"({report_dir}). Primero use Aplicar a VGS desde el planificador "
+            "(con el puente en vivo), guarde con el comando Guardar de VGS y "
+            "después ejecute la verificación."
+        )
     return max(candidates, key=lambda path: (path.stat().st_mtime_ns, path.name))
 
 
@@ -45,11 +50,17 @@ def find_current_apply_package(project_root: Path) -> Path:
     root = Path(os.path.abspath(os.fspath(project_root)))
     package = root / "Respaldos_STPUG-VGS_v2" / "stp_apply_pending_v2.json"
     if not package.is_file() or package.is_symlink():
-        raise FileNotFoundError("No existe el paquete STP V2 que corresponde al recibo")
+        raise NothingToVerify(
+            f"Hay un recibo pendiente, pero falta el paquete STP V2 que le corresponde ({package})."
+        )
     return package
 
 
-def result_user_message(result: ApplicationResult) -> str:
+class NothingToVerify(Exception):
+    """A precondition for verification is missing; the message says which, in Spanish."""
+
+
+def result_user_message(result: ApplicationResult, detail: str = "") -> str:
     if result.status == "applied":
         message = "Guardado manual verificado: STP V2 coincide con el respaldo y el paquete."
     else:
@@ -57,6 +68,8 @@ def result_user_message(result: ApplicationResult) -> str:
             "No se pudo verificar el guardado manual. Script 4 no modificó VGS ni "
             "restauró archivos; revise el reporte y conserve el respaldo."
         )
+    if detail:
+        message += "\nMotivo: " + detail
     if result.html_report_path is not None:
         message += "\nReporte: " + str(result.html_report_path)
     return message
@@ -64,6 +77,7 @@ def result_user_message(result: ApplicationResult) -> str:
 
 def main(project_root: Path | None = None) -> ApplicationResult:
     """Verify the latest receipt rooted at VGS's current working directory."""
+    detail = ""
     try:
         root = Path.cwd() if project_root is None else Path(project_root)
         receipt_path = find_current_pending_receipt(root)
@@ -74,9 +88,13 @@ def main(project_root: Path | None = None) -> ApplicationResult:
             object(), project_file=project_file, package_file=package_file,
             receipt_file=receipt_path, expected_package_sha256=receipt.package_sha256,
         )
-    except Exception:
+    except NothingToVerify as error:
         result = ApplicationResult("verification_failed", None, None, None)
-    print(result_user_message(result))
+        detail = str(error)
+    except Exception as error:
+        result = ApplicationResult("verification_failed", None, None, None)
+        detail = f"{type(error).__name__}: {error}"
+    print(result_user_message(result, detail))
     return result
 
 
