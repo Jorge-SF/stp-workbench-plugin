@@ -70,6 +70,9 @@ namespace Maptek.Vulcan.Stp.Planner
 
         /// <summary>Gets the colour per type (<see cref="TypePalette.Assign"/>); missing types use <see cref="TypePalette.Fallback"/>.</summary>
         public IReadOnlyDictionary<string, string> TypeColors { get; init; } = new Dictionary<string, string>();
+
+        /// <summary>Gets the local equipment assignments and capacity exemptions, or <c>null</c> for none.</summary>
+        public LocalOverrides Overrides { get; init; }
     }
 
     /// <summary>Pure projection of the engine state to rows, groups, counters, capacity and details.</summary>
@@ -111,11 +114,12 @@ namespace Maptek.Vulcan.Stp.Planner
                     {
                         if (fragment.LockedCompleted && !filter.ShowCompleted) continue;
                         if (fragment.DisplaySuppressed == true) continue;
-                        segments.AddRange(Segments(fragment, state.Horizon, dayIndex, info.Rate, eligibility));
+                        segments.AddRange(Segments(fragment, state.Horizon, dayIndex, info, filter.Overrides, eligibility));
                     }
                 }
 
                 if (segments.Count == 0) continue;
+                var dayResources = segments.Where(s => s.Status != SegmentStatus.Completed).Select(s => s.Resource).Distinct(StringComparer.Ordinal).ToList();
                 segments.Sort((a, b) => a.DayIndex != b.DayIndex ? a.DayIndex.CompareTo(b.DayIndex) : CivilTime.Scalar(a.Start).CompareTo(CivilTime.Scalar(b.Start)));
                 double? plan = info.Rate.HasValue ? segments.Where(s => s.Status != SegmentStatus.Completed).Sum(s => s.Amount ?? 0) : (double?)null;
                 visible.Add(new PlannerRow
@@ -124,7 +128,8 @@ namespace Maptek.Vulcan.Stp.Planner
                     Name = info.Name,
                     Type = info.Type,
                     Level = info.Level,
-                    Resource = info.Resource,
+                    // template: the row lists the equipment of its visible days (local assignments included)
+                    Resource = dayResources.Count == 0 ? info.Resource : string.Join(", ", dayResources),
                     PlanQuantity = plan,
                     PlanText = QuantityText(plan, info.Unit),
                     Unit = info.Unit,
@@ -135,6 +140,7 @@ namespace Maptek.Vulcan.Stp.Planner
                     IsLocked = fragments.Count > 0 && fragments.All(f => f.LockedCompleted),
                     HasPending = fragments.Any(f => !f.LockedCompleted),
                     IsSelected = info.Id == filter.SelectedActivityId,
+                    CapacityExemptible = info.HasType,
                     Segments = segments,
                     SourceIndex = info.SourceIndex,
                 });
@@ -268,8 +274,12 @@ namespace Maptek.Vulcan.Stp.Planner
         }
 
         // timeline_logic.js segmentGroups.
-        private static IEnumerable<DaySegment> Segments(PlannerFragment fragment, CivilHorizon horizon, IReadOnlyDictionary<string, int> dayIndex, double? rate, Func<string, FragmentEligibility> eligibility)
+        private static IEnumerable<DaySegment> Segments(PlannerFragment fragment, CivilHorizon horizon, IReadOnlyDictionary<string, int> dayIndex, ActivityInfo info, LocalOverrides overrides, Func<string, FragmentEligibility> eligibility)
         {
+            double? rate = info.Rate;
+            string unit = LocalOverrides.LogicalUnitId(fragment.ActivityId, fragment.LogicalUnitDate);
+            string assigned = fragment.LockedCompleted ? null : overrides?.ResourceOf(unit);
+            bool exempt = info.HasType && !fragment.LockedCompleted && overrides != null && overrides.IsExempt(unit);
             long day = CivilTime.DayMicroseconds;
             long lower = CivilTime.Scalar(horizon.HorizonStart), upper = CivilTime.Scalar(horizon.HorizonFinish);
             long start = CivilTime.Scalar(fragment.Start), finish = CivilTime.Scalar(fragment.Finish);
@@ -299,6 +309,10 @@ namespace Maptek.Vulcan.Stp.Planner
                     Status = Status(fragment),
                     CanMoveTail = tail.Eligible,
                     TailGuidance = tail.Guidance ?? string.Empty,
+                    LogicalUnitId = unit,
+                    Resource = assigned ?? info.Resource,
+                    HasResourceOverride = assigned != null,
+                    IsCapacityExempt = exempt,
                 };
             }
         }
@@ -377,9 +391,12 @@ namespace Maptek.Vulcan.Stp.Planner
             {
                 double objective = objectives != null && objectives.TryGetValue(type, out double value) && value > 0 ? value : 0;
                 var sums = new double[days.Count];
+                var counted = new double[days.Count];   // v1_compat_logic.js: typeDay.capacity skips exempt days
                 foreach (var segment in rows.Where(r => r.Type == type).SelectMany(r => r.Segments))
                 {
-                    if (segment.Status != SegmentStatus.Completed && segment.DayIndex >= 0 && segment.DayIndex < sums.Length) sums[segment.DayIndex] += segment.Amount ?? 0;
+                    if (segment.Status == SegmentStatus.Completed || segment.DayIndex < 0 || segment.DayIndex >= sums.Length) continue;
+                    sums[segment.DayIndex] += segment.Amount ?? 0;
+                    if (!segment.IsCapacityExempt) counted[segment.DayIndex] += segment.Amount ?? 0;
                 }
 
                 result.Add(new CapacityRow
@@ -387,7 +404,10 @@ namespace Maptek.Vulcan.Stp.Planner
                     Type = type,
                     Objective = objective,
                     Color = ColorOf(colors, type),
-                    Cells = days.Select(d => new CapacityCell { Date = d.Date, Value = sums[d.Index], IsOver = objective > 0 && sums[d.Index] > objective, IsWeekend = d.IsWeekend }).ToList(),
+                    Cells = days.Select(d => new CapacityCell
+                    {
+                        Date = d.Date, Value = sums[d.Index], CapacityValue = counted[d.Index], IsOver = objective > 0 && counted[d.Index] > objective, IsWeekend = d.IsWeekend,
+                    }).ToList(),
                 });
             }
 

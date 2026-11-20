@@ -63,6 +63,30 @@ namespace Maptek.Vulcan.Stp.Planner
         /// <summary>Plugin: redo done.</summary>
         public const string Redone = "Se rehízo el cambio.";
 
+        /// <summary>Plugin: equipment assigned to a day (template's notice style: local only).</summary>
+        public const string ResourceAssigned = "Equipo asignado sólo en la vista local. VGS no fue modificado.";
+
+        /// <summary>Plugin: day back to the activity's equipment.</summary>
+        public const string ResourceCleared = "El día vuelve al equipo de la actividad. VGS no fue modificado.";
+
+        /// <summary>Plugin: day exempted from the capacity limit.</summary>
+        public const string ExemptionSet = "Día exento del límite de capacidad en la vista local. VGS no fue modificado.";
+
+        /// <summary>Plugin: exemption removed.</summary>
+        public const string ExemptionCleared = "Se quitó la exención del límite de capacidad.";
+
+        /// <summary>Plugin: unknown or completed day for "Asignar equipo" / "Exentar Límite".</summary>
+        public const string DayNotEditable = "Ese día no tiene trabajo pendiente que se pueda ajustar.";
+
+        /// <summary>Plugin: the equipment is not one of the project's.</summary>
+        public const string UnknownResource = "El equipo no existe en el proyecto.";
+
+        /// <summary>Plugin: activities without a VGS type cannot be exempted (template <c>capacityExemptible</c>).</summary>
+        public const string NotExemptible = "Sólo las actividades con tipo de VGS se pueden exentar del límite de capacidad.";
+
+        /// <summary>Plugin: the local setting could not be saved.</summary>
+        public const string OverridesNotSaved = "No se pudo guardar el ajuste local: ";
+
         private static readonly IReadOnlyDictionary<string, string> OutcomeMessages = new Dictionary<string, string>
         {
             [OperationResult.Codes.HorizonRange] = "El movimiento saldría del horizonte visible. Extienda el rango o reduzca el desplazamiento.",

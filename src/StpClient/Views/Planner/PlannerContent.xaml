@@ -342,8 +342,10 @@
         <!-- Timeline (StpTimeline): rows, day blocks and links from PlannerTimelineModel; selection two-way with the side panel -->
         <Border Grid.Row="0" Background="{StaticResource Panel}">
           <Grid>
+            <!-- Edit requests (drag, Ctrl+arrows, Ctrl+Z/Y, block menu) go to Editor in PlannerContent.xaml.cs -->
             <t:TimelineView x:Name="Timeline" Model="{Binding Timeline}" SelectedKey="{Binding SelectedKey, Mode=TwoWay}"
-                            ShowLinks="{Binding ShowPrecedences}" ShowCompleted="{Binding ShowCompleted}"/>
+                            ShowLinks="{Binding ShowPrecedences}" ShowCompleted="{Binding ShowCompleted}"
+                            IsEditable="{Binding Editor.IsEditable}"/>
             <Border BorderBrush="{StaticResource Line}" BorderThickness="1" Margin="12" CornerRadius="4"
                     Background="{StaticResource Strip}"
                     Visibility="{Binding Timeline, Converter={StaticResource EmptyToVisible}}">

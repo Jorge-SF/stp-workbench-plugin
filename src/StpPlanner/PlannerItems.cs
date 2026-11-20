@@ -57,6 +57,18 @@ namespace Maptek.Vulcan.Stp.Planner
 
         /// <summary>Gets the tail-move guidance when it cannot move.</summary>
         public string TailGuidance { get; init; }
+
+        /// <summary>Gets the logical unit (<c>activityId:logicalUnitDate</c>) the local equipment and exemption are keyed by.</summary>
+        public string LogicalUnitId { get; init; }
+
+        /// <summary>Gets the equipment of this day: the local assignment, else the activity's VGS resource.</summary>
+        public string Resource { get; init; }
+
+        /// <summary>Gets a value indicating whether the equipment is a local assignment ("Asignar equipo").</summary>
+        public bool HasResourceOverride { get; init; }
+
+        /// <summary>Gets a value indicating whether this pending day is exempt from the capacity limit ("Exentar Límite").</summary>
+        public bool IsCapacityExempt { get; init; }
     }
 
     /// <summary>One activity row of the planner grid (ID · Actividad · Recurso · Plan) with its timeline segments.</summary>
@@ -106,6 +118,9 @@ namespace Maptek.Vulcan.Stp.Planner
 
         /// <summary>Gets a value indicating whether this row is the selected activity.</summary>
         public bool IsSelected { get; init; }
+
+        /// <summary>Gets a value indicating whether its days can be exempted from the capacity limit (it has a VGS type).</summary>
+        public bool CapacityExemptible { get; init; }
 
         /// <summary>Gets the visible segments, by day.</summary>
         public IReadOnlyList<DaySegment> Segments { get; init; }
@@ -176,6 +191,9 @@ namespace Maptek.Vulcan.Stp.Planner
 
         /// <summary>Gets the scheduled pending amount.</summary>
         public double Value { get; init; }
+
+        /// <summary>Gets the amount that counts against the objective (exempt days left out).</summary>
+        public double CapacityValue { get; init; }
 
         /// <summary>Gets a value indicating whether the value exceeds the objective (red).</summary>
         public bool IsOver { get; init; }

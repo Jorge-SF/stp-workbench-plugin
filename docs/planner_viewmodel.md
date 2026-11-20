@@ -48,6 +48,13 @@ In the plugin, `src/StpClient/Views/Planner/PlannerScreenViewModel.cs` maps this
 (`IPlannerViewModel`) and `PlannerTimelineModel.cs` maps its groups, rows, day segments and precedences to the
 timeline control (`StpTimeline.ITimelineModel`).
 
+Per-day local settings (the browser's compatibility preferences, never sent to VGS, not undoable): `ResourceOptions`,
+`AssignResource(logicalUnitId, resource)` ("Asignar equipo"), `SetCapacityExemption(logicalUnitId, exempt)`
+("Exentar Límite"; only for activities with a VGS type, `IsCapacityExemptible`), saved per project under
+`stp-plugin:overrides:<projectKey>` in the horizon storage. `DaySegment` carries `LogicalUnitId`, `Resource`,
+`HasResourceOverride` and `IsCapacityExempt`; capacity `IsOver` ignores exempt days (`CapacityCell.CapacityValue`).
+In the plugin, `PlannerEditRouter` maps every timeline edit request to these and the plan commands below.
+
 Plan commands return a `PlannerOutcome`. `Message` is the Spanish text to show (timeline_logic.js
 `humanPlannerOutcome`), `Code` is the engine outcome code and `Detail` is the engine's own message. The commands are
 `MoveActivity`, `MoveSelected`, `MoveDailyTail`, `DeferDailyTail`, `SplitAndStagger` and the range edits.

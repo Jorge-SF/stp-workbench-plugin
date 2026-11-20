@@ -13,7 +13,7 @@ See `docs/STP_Workbench_Plugin_Design.md` for the architecture and phase plan.
 | `tools/golden/` | Node harness that replays the JS planner logic and records golden outputs |
 | `tools/*.ps1` | Workbench runtime setup and plugin search-path registration |
 | `StpWorkbench.sln` | C# solution |
-| `src/StpClient/` | Workbench client plugin (.NET Framework 4.8, WPF): menus, commands, the planner document (`Views/Planner`: `PlannerScreenViewModel` over `PlannerSession`, `PlannerTimelineModel` feeding `StpTimeline`) |
+| `src/StpClient/` | Workbench client plugin (.NET Framework 4.8, WPF): menus, commands, the planner document (`Views/Planner`: `PlannerScreenViewModel` over `PlannerSession`, `PlannerTimelineModel` feeding `StpTimeline`, `PlannerEditRouter` applying the timeline's edit requests to the session) |
 | `src/StpEngine/` | Planning-rules engine, C# port of `planner_logic.js`. No Workbench/WPF/JSON dependencies |
 | `src/StpBridge/` | Wire models, canonical JSON + SHA-256, HTTP client for the Python loopback server |
 | `src/StpPlanner/` | Planner view model (`PlannerSession`): snapshot→engine mapping, rows/filters/counters/capacity, undo/redo, apply + refresh. No WPF |

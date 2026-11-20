@@ -106,13 +106,24 @@ namespace Maptek.Vulcan.Stp.Views.Planner
                 var segments = day.ToList();
                 bool completed = segments.All(s => s.Status == SegmentStatus.Completed);
                 var amounts = segments.Where(s => s.Amount.HasValue).ToList();
-                string label = amounts.Count == 0 ? null : PlannerProjection.CompactQuantity(amounts.Sum(s => s.Amount.Value));
-                // Tag: the day's first pending segment (fragment id, tail eligibility) for the drag work to come.
+                double? amount = amounts.Count == 0 ? (double?)null : amounts.Sum(s => s.Amount.Value);
+                string label = amount.HasValue ? PlannerProjection.CompactQuantity(amount.Value) : null;
+                // Tag: the day's first pending segment (fragment id, logical unit) that PlannerEditRouter edits.
                 var tag = segments.FirstOrDefault(s => s.Status != SegmentStatus.Completed) ?? segments[0];
-                result.Blocks.Add(new TimelineBlock(day.Key, label, completed, tag));
+                result.Blocks.Add(new TimelineBlock(day.Key, label, completed, tag, BlockDetail(tag, PlannerProjection.QuantityText(amount, row.Unit))));
             }
 
             return result;
+        }
+
+        /// <summary>Block tooltip detail: quantity, equipment (marked when assigned locally) and the capacity exemption.</summary>
+        public static string BlockDetail(DaySegment segment, string quantityText)
+        {
+            var parts = new List<string>();
+            if (!string.IsNullOrEmpty(quantityText)) parts.Add(quantityText);
+            if (!string.IsNullOrEmpty(segment?.Resource)) parts.Add(segment.HasResourceOverride ? segment.Resource + " (asignado)" : segment.Resource);
+            if (segment != null && segment.IsCapacityExempt) parts.Add("exento del límite");
+            return parts.Count == 0 ? null : string.Join(" · ", parts);
         }
 
         /// <summary><c>#RRGGBB</c> to a colour; anything else gives the palette fallback.</summary>

@@ -26,6 +26,9 @@ namespace Maptek.Vulcan.Stp.Views.Planner
 
         /// <summary>Verificar guardado (script 4); null hides the command.</summary>
         Action VerifySave { get; }
+
+        /// <summary>"Asignar equipo": asks for the day's equipment; null = cancelled.</summary>
+        PickedResource PickResource(ResourcePickRequest request);
     }
 
     public class PlannerScreenViewModel : ObservableObject, IPlannerViewModel, IDisposable
@@ -73,6 +76,7 @@ namespace Maptek.Vulcan.Stp.Views.Planner
             };
 
             _timeline = new PlannerTimelineModel(session);
+            Editor = new PlannerEditRouter(session, host == null ? (Func<ResourcePickRequest, PickedResource>)null : host.PickResource);
             _selected = BuildSelected(session.Selected);
             Session.PropertyChanged += OnSessionChanged;
         }
@@ -167,6 +171,8 @@ namespace Maptek.Vulcan.Stp.Views.Planner
         // ---- Centre ------------------------------------------------------------------------------------------------
         public ITimelineModel Timeline => _timeline;
 
+        public PlannerEditRouter Editor { get; }
+
         public string SelectedKey
         {
             get => Session.SelectedActivityId;
@@ -197,6 +203,7 @@ namespace Maptek.Vulcan.Stp.Views.Planner
         {
             Session.PropertyChanged -= OnSessionChanged;
             _timeline.Dispose();
+            Editor.Dispose();
         }
 
         /// <summary>The confirmation text of Aplicar a VGS: which activities, how they moved, and what happens next.</summary>
