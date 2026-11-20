@@ -12,7 +12,8 @@
     <AssemblyName>StpClient</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <LangVersion>7.3</LangVersion>
+    <!-- 9+: StpPlanner's display types use init-only setters (PlannerOptions in the design data) -->
+    <LangVersion>latest</LangVersion>
     <NoWarn>$(NoWarn);SA1009;SA1107;SA1117;SA1118;SA1122;SA1128;SA1132;SA1312;SA1401;SA1402;SA1403;SA1407;SA1500;SA1503;SA1520;CA1052</NoWarn>
     <!-- F5 launches the debug Workbench (with the debugger attached) -->
     <StartAction>Program</StartAction>
@@ -62,6 +63,8 @@
   <ItemGroup>
     <ProjectReference Include="..\StpEngine\StpEngine.csproj" />
     <ProjectReference Include="..\StpBridge\StpBridge.csproj" />
+    <ProjectReference Include="..\StpPlanner\StpPlanner.csproj" />
+    <ProjectReference Include="..\StpTimeline\StpTimeline.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\Build\SolutionVersionInfo.cs">
@@ -78,7 +81,10 @@
     <Compile Include="Views\Planner\IPlannerViewModel.cs" />
     <Compile Include="Views\Planner\PlannerModels.cs" />
     <Compile Include="Views\Planner\PlannerConverters.cs" />
+    <Compile Include="Views\Planner\DesignSnapshot.cs" />
     <Compile Include="Views\Planner\DesignPlannerViewModel.cs" />
+    <Compile Include="Views\Planner\PlannerScreenViewModel.cs" />
+    <Compile Include="Views\Planner\PlannerTimelineModel.cs" />
     <Compile Include="Views\Planner\PlannerDocumentViewModel.cs" />
     <Compile Include="Views\Planner\PlannerContent.xaml.cs">
       <DependentUpon>PlannerContent.xaml</DependentUpon>
@@ -144,10 +150,10 @@
   <Import Project="$(WorkbenchRuntime)\Build\MSBuild\Maptek.Build.ExternalPlugin.targets" Condition="Exists('$(WorkbenchRuntime)\Build\MSBuild\Maptek.Build.ExternalPlugin.targets')" />
   <!-- End Workbench build script settings -->
 
-  <!-- Copy only this plugin's own files (plugin + StpEngine + StpBridge, PDBs, satellites) to Deploy\Client -->
+  <!-- Copy only this plugin's own files (plugin + StpEngine, StpBridge, StpPlanner, StpTimeline, PDBs, satellites) to Deploy\Client -->
   <Target Name="CopyToPluginDeployDir" AfterTargets="Build">
     <ItemGroup>
-      <!-- The plugin and every Stp* library it references (StpEngine, StpBridge, later StpPlanner, StpTimeline):
+      <!-- The plugin and every Stp* library it references (StpEngine, StpBridge, StpPlanner, StpTimeline):
            a new referenced project is deployed and packaged without editing this list. -->
       <PluginDeployCandidates Include="$(TargetPath);$(TargetDir)$(TargetName).pdb;$(TargetDir)Stp*.dll;$(TargetDir)Stp*.pdb" />
       <PluginDeployFiles Include="@(PluginDeployCandidates)" Condition="Exists('%(FullPath)')" />

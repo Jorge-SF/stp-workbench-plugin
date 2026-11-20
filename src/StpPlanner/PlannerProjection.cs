@@ -67,6 +67,9 @@ namespace Maptek.Vulcan.Stp.Planner
 
         /// <summary>Gets the daily objective per type.</summary>
         public IReadOnlyDictionary<string, double> Objectives { get; init; } = new Dictionary<string, double>();
+
+        /// <summary>Gets the colour per type (<see cref="TypePalette.Assign"/>); missing types use <see cref="TypePalette.Fallback"/>.</summary>
+        public IReadOnlyDictionary<string, string> TypeColors { get; init; } = new Dictionary<string, string>();
     }
 
     /// <summary>Pure projection of the engine state to rows, groups, counters, capacity and details.</summary>
@@ -147,7 +150,7 @@ namespace Maptek.Vulcan.Stp.Planner
 
             var hidden = new HashSet<string>(filter.HiddenTypes ?? Array.Empty<string>(), StringComparer.Ordinal);
             var chips = visible.GroupBy(r => r.Type).OrderBy(g => g.Key, Comparer<string>.Create(CompareBase))
-                .Select(g => new TypeChip { Type = g.Key, Count = g.Count(), IsVisible = !hidden.Contains(g.Key) }).ToList();
+                .Select(g => new TypeChip { Type = g.Key, Count = g.Count(), IsVisible = !hidden.Contains(g.Key), Color = ColorOf(filter.TypeColors, g.Key) }).ToList();
             var byType = visible.Where(r => !hidden.Contains(r.Type)).ToList();
             var rows = byType.Where(r => Matches(r, filter.Search)).ToList();
             rows.Sort(RowComparer(filter, catalog));
@@ -165,7 +168,7 @@ namespace Maptek.Vulcan.Stp.Planner
                 Groups = groups,
                 Rows = groups.SelectMany(g => g.Rows).ToList(),
                 Counters = counters,
-                Capacity = Capacity(days, chips.Where(c => c.IsVisible).Select(c => c.Type), byType, filter.Objectives),
+                Capacity = Capacity(days, chips.Where(c => c.IsVisible).Select(c => c.Type), byType, filter.Objectives, filter.TypeColors),
                 Selected = Details(snapshot, catalog, fragmentsByActivity, moved, filter.SelectedActivityId, activityEligibility),
                 PlanTotals = rows.Where(r => r.PlanQuantity.HasValue).GroupBy(r => r.Unit ?? string.Empty)
                     .OrderBy(g => g.Key, StringComparer.Ordinal)
@@ -222,6 +225,29 @@ namespace Maptek.Vulcan.Stp.Planner
         public static string QuantityText(double? value, string unit) => value.HasValue
             ? (value.Value.ToString("#,0.##", Spanish) + (string.IsNullOrEmpty(unit) ? string.Empty : " " + unit))
             : string.Empty;
+
+        /// <summary>
+        /// Short quantity for timeline blocks and capacity cells, as in the mockup: <c>1.7k</c> from 1000, else an
+        /// integer (one decimal when not whole). Invariant culture: the cells are too small for group separators.
+        /// </summary>
+        /// <param name="value">The quantity.</param>
+        /// <returns>The text, or empty for NaN/infinity.</returns>
+        public static string CompactQuantity(double value)
+        {
+            if (double.IsNaN(value) || double.IsInfinity(value)) return string.Empty;
+            if (Math.Abs(value) >= 1000) return (value / 1000).ToString("0.0", CultureInfo.InvariantCulture) + "k";
+            double rounded = Math.Round(value, 1);
+            return rounded == Math.Round(rounded)
+                ? Math.Round(rounded).ToString("0", CultureInfo.InvariantCulture)
+                : rounded.ToString("0.0", CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>The colour of a type, or <see cref="TypePalette.Fallback"/>.</summary>
+        /// <param name="colors">Type to colour, or <c>null</c>.</param>
+        /// <param name="type">The type.</param>
+        /// <returns>The colour.</returns>
+        public static string ColorOf(IReadOnlyDictionary<string, string> colors, string type) =>
+            type != null && colors != null && colors.TryGetValue(type, out string color) ? color : TypePalette.Fallback;
 
         /// <summary>Day shift pill text: <c>+1 día</c>, <c>-2 días</c>, or empty for 0.</summary>
         /// <param name="days">The shift.</param>
@@ -344,7 +370,7 @@ namespace Maptek.Vulcan.Stp.Planner
         }
 
         // v1_compat_logic.js buildCapacityRows (byType): pending segments only, over = objective > 0 && value > objective.
-        private static IReadOnlyList<CapacityRow> Capacity(IReadOnlyList<HorizonDay> days, IEnumerable<string> types, List<PlannerRow> rows, IReadOnlyDictionary<string, double> objectives)
+        private static IReadOnlyList<CapacityRow> Capacity(IReadOnlyList<HorizonDay> days, IEnumerable<string> types, List<PlannerRow> rows, IReadOnlyDictionary<string, double> objectives, IReadOnlyDictionary<string, string> colors)
         {
             var result = new List<CapacityRow>();
             foreach (string type in types)
@@ -360,6 +386,7 @@ namespace Maptek.Vulcan.Stp.Planner
                 {
                     Type = type,
                     Objective = objective,
+                    Color = ColorOf(colors, type),
                     Cells = days.Select(d => new CapacityCell { Date = d.Date, Value = sums[d.Index], IsOver = objective > 0 && sums[d.Index] > objective, IsWeekend = d.IsWeekend }).ToList(),
                 });
             }

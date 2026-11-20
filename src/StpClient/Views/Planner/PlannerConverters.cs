@@ -28,4 +28,14 @@ namespace Maptek.Vulcan.Stp.Views.Planner
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
             throw new NotSupportedException();
     }
+
+    /// <summary>Null for null or an empty string (a tooltip bound through it does not show an empty box).</summary>
+    public sealed class EmptyToNullConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
+            value == null || (value is string s && s.Length == 0) ? null : value;
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
+            throw new NotSupportedException();
+    }
 }

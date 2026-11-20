@@ -7,6 +7,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:res="clr-namespace:Maptek.Vulcan.Stp.Resources"
              xmlns:p="clr-namespace:Maptek.Vulcan.Stp.Views.Planner"
+             xmlns:t="clr-namespace:Maptek.Vulcan.Stp.Timeline;assembly=StpTimeline"
              FontFamily="Segoe UI" FontSize="12" Foreground="#1F2933" Background="#EEF0F3"
              UseLayoutRounding="True" SnapsToDevicePixels="True">
   <UserControl.Resources>
@@ -24,6 +25,7 @@
 
     <p:EmptyToVisibleConverter x:Key="EmptyToVisible"/>
     <p:PositiveConverter x:Key="Positive"/>
+    <p:EmptyToNullConverter x:Key="EmptyToNull"/>
     <BooleanToVisibilityConverter x:Key="BoolToVisible"/>
 
     <!-- Command bar button: glyph (Tag) over the label (Content) -->
@@ -33,6 +35,7 @@
       <Setter Property="BorderBrush" Value="Transparent"/>
       <Setter Property="MinWidth" Value="54"/>
       <Setter Property="Margin" Value="2,0"/>
+      <Setter Property="ToolTipService.ShowOnDisabled" Value="True"/>
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
@@ -173,13 +176,17 @@
               <Button Style="{StaticResource BarButton}" Tag="&#x21BB;" Command="{Binding RefreshCommand}"
                       Content="{x:Static res:Resources.Planner_Refresh}" ToolTip="{x:Static res:Resources.Planner_RefreshTip}"/>
               <Border x:Name="LiveIndicator" CornerRadius="10" Padding="8,2" Margin="4,0" VerticalAlignment="Center"
-                      Background="#E7F5EC" TextBlock.Foreground="{StaticResource Ok}">
+                      ToolTip="{Binding ConnectionTip, Converter={StaticResource EmptyToNull}}">
                 <StackPanel Orientation="Horizontal">
-                  <Ellipse x:Name="LiveDot" Width="8" Height="8" Fill="{StaticResource Ok}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                  <Ellipse x:Name="LiveDot" Width="8" Height="8" Margin="0,0,6,0" VerticalAlignment="Center"
+                           Fill="{Binding (TextElement.Foreground), RelativeSource={RelativeSource Self}}"/>
                   <TextBlock Text="{Binding ConnectionText}" FontWeight="SemiBold"/>
                 </StackPanel>
                 <Border.Style>
+                  <!-- Colours as setters, not local values: a local value would win over the "not live" trigger. -->
                   <Style TargetType="Border">
+                    <Setter Property="Background" Value="#E7F5EC"/>
+                    <Setter Property="TextElement.Foreground" Value="{StaticResource Ok}"/>
                     <Style.Triggers>
                       <DataTrigger Binding="{Binding IsLive}" Value="False">
                         <Setter Property="Background" Value="#F3F5F8"/>
@@ -197,8 +204,10 @@
           <DockPanel>
             <TextBlock DockPanel.Dock="Bottom" Style="{StaticResource GroupLabel}" Text="{x:Static res:Resources.Planner_GroupPlan}"/>
             <StackPanel Orientation="Horizontal">
-              <Button Style="{StaticResource BarButton}" Tag="&#x21B6;" Command="{Binding UndoCommand}" Content="{x:Static res:Resources.Planner_Undo}"/>
-              <Button Style="{StaticResource BarButton}" Tag="&#x21B7;" Command="{Binding RedoCommand}" Content="{x:Static res:Resources.Planner_Redo}"/>
+              <Button Style="{StaticResource BarButton}" Tag="&#x21B6;" Command="{Binding UndoCommand}" Content="{x:Static res:Resources.Planner_Undo}"
+                      ToolTip="{Binding UndoTip}"/>
+              <Button Style="{StaticResource BarButton}" Tag="&#x21B7;" Command="{Binding RedoCommand}" Content="{x:Static res:Resources.Planner_Redo}"
+                      ToolTip="{Binding RedoTip}"/>
               <Button Style="{StaticResource BarButton}" Tag="&#x2715;" Command="{Binding DiscardCommand}" Content="{x:Static res:Resources.Planner_Discard}"
                       ToolTip="{x:Static res:Resources.Planner_DiscardTip}"/>
             </StackPanel>
@@ -210,9 +219,10 @@
             <TextBlock DockPanel.Dock="Bottom" Style="{StaticResource GroupLabel}" Text="{x:Static res:Resources.Planner_GroupVgs}"/>
             <StackPanel Orientation="Horizontal">
               <Button Style="{StaticResource PrimaryButton}" Tag="&#x2714;" Command="{Binding ApplyToVgsCommand}"
-                      Content="{x:Static res:Resources.Planner_Apply}" ToolTip="{x:Static res:Resources.Planner_ApplyTip}"/>
+                      Content="{x:Static res:Resources.Planner_Apply}" ToolTip="{Binding ApplyTip}"/>
               <Button Style="{StaticResource BarButton}" Tag="&#x2611;" Command="{Binding VerifySaveCommand}"
-                      Content="{x:Static res:Resources.Planner_Verify}"/>
+                      Content="{x:Static res:Resources.Planner_Verify}"
+                      ToolTip="{x:Static res:Resources.Planner_VerifyTip}"/>
             </StackPanel>
           </DockPanel>
         </Border>
@@ -221,10 +231,12 @@
           <DockPanel>
             <TextBlock DockPanel.Dock="Bottom" Style="{StaticResource GroupLabel}" Text="{x:Static res:Resources.Planner_GroupExport}"/>
             <StackPanel Orientation="Horizontal">
-              <Button Style="{StaticResource BarButton}" Tag="&#x1F4C4;" Command="{Binding ExportExcelCommand}" Content="{x:Static res:Resources.Planner_ExportExcel}"/>
-              <Button Style="{StaticResource BarButton}" Tag="&#x1F5A8;" Command="{Binding ExportPdfCommand}" Content="{x:Static res:Resources.Planner_ExportPdf}"/>
+              <Button Style="{StaticResource BarButton}" Tag="&#x1F4C4;" Command="{Binding ExportExcelCommand}" Content="{x:Static res:Resources.Planner_ExportExcel}"
+                      ToolTip="{x:Static res:Resources.Planner_ComingSoonTip}"/>
+              <Button Style="{StaticResource BarButton}" Tag="&#x1F5A8;" Command="{Binding ExportPdfCommand}" Content="{x:Static res:Resources.Planner_ExportPdf}"
+                      ToolTip="{x:Static res:Resources.Planner_ComingSoonTip}"/>
               <Button Style="{StaticResource BarButton}" Tag="&#x2197;" Command="{Binding ExportStandaloneCommand}" Content="{x:Static res:Resources.Planner_ExportStandalone}"
-                      ToolTip="{x:Static res:Resources.Planner_ExportStandaloneTip}"/>
+                      ToolTip="{x:Static res:Resources.Planner_ComingSoonTip}"/>
             </StackPanel>
           </DockPanel>
         </Border>
@@ -237,7 +249,8 @@
               <Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
               <CheckBox Grid.Row="0" Grid.Column="0" Margin="4,2,10,2" IsChecked="{Binding ShowPrecedences}" Content="{x:Static res:Resources.Planner_ViewPrecedences}"/>
               <CheckBox Grid.Row="0" Grid.Column="1" Margin="4,2" IsChecked="{Binding ShowCompleted}" Content="{x:Static res:Resources.Planner_ViewCompleted}"/>
-              <CheckBox Grid.Row="1" Grid.Column="0" Margin="4,2,10,2" IsChecked="{Binding ShowResources}" Content="{x:Static res:Resources.Planner_ViewResources}"/>
+              <CheckBox Grid.Row="1" Grid.Column="0" Margin="4,2,10,2" IsChecked="{Binding ShowResources}" Content="{x:Static res:Resources.Planner_ViewResources}"
+                        IsEnabled="False" ToolTipService.ShowOnDisabled="True" ToolTip="{x:Static res:Resources.Planner_ComingSoonTip}"/>
               <CheckBox Grid.Row="1" Grid.Column="1" Margin="4,2" IsChecked="{Binding ShowCapacityPanel}" Content="{x:Static res:Resources.Planner_ViewCapacity}"/>
             </Grid>
           </DockPanel>
@@ -279,11 +292,12 @@
         </Grid>
         <!-- One strip, as in the mockup; on a narrow document the right end is clipped (search stays visible). -->
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" ClipToBounds="True">
-          <StackPanel Orientation="Horizontal" Margin="0,0,10,0" VerticalAlignment="Center">
+          <StackPanel Orientation="Horizontal" Margin="0,0,10,0" VerticalAlignment="Center"
+                      ToolTipService.ShowOnDisabled="True" ToolTip="{Binding RangeTip, Converter={StaticResource EmptyToNull}}">
             <TextBlock Style="{StaticResource FilterLabel}" Text="{x:Static res:Resources.Planner_Range}"/>
-            <DatePicker SelectedDate="{Binding RangeStart}" Width="104" Language="es-MX"/>
+            <DatePicker SelectedDate="{Binding RangeStart}" Width="104" Language="es-MX" IsEnabled="{Binding CanEditRange}"/>
             <TextBlock Text="–" Margin="4,0" VerticalAlignment="Center"/>
-            <DatePicker SelectedDate="{Binding RangeEnd}" Width="104" Language="es-MX"/>
+            <DatePicker SelectedDate="{Binding RangeEnd}" Width="104" Language="es-MX" IsEnabled="{Binding CanEditRange}"/>
             <TextBlock Style="{StaticResource FilterLabel}" Margin="6,0,0,0">
               <Run Text="{Binding RangeDays, Mode=OneWay}"/> <Run Text="{x:Static res:Resources.Planner_Days}"/>
             </TextBlock>
@@ -292,7 +306,10 @@
                         ToolTip="{x:Static res:Resources.Planner_ChipsTip}">
             <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
-              <DataTemplate><ToggleButton Style="{StaticResource Chip}" IsChecked="{Binding IsVisible}"/></DataTemplate>
+              <DataTemplate>
+                <ToggleButton Style="{StaticResource Chip}" IsChecked="{Binding IsVisible, Mode=OneWay}" CommandParameter="{Binding Type}"
+                              Command="{Binding DataContext.ToggleTypeCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"/>
+              </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
           <StackPanel Orientation="Horizontal" Margin="0,0,10,0" VerticalAlignment="Center">
@@ -322,13 +339,14 @@
           <RowDefinition x:Name="BottomRow" Height="190"/>
         </Grid.RowDefinitions>
 
-        <!-- Timeline (StpTimeline) -->
+        <!-- Timeline (StpTimeline): rows, day blocks and links from PlannerTimelineModel; selection two-way with the side panel -->
         <Border Grid.Row="0" Background="{StaticResource Panel}">
           <Grid>
-            <ContentControl Content="{Binding TimelineContent}" Focusable="False"/>
+            <t:TimelineView x:Name="Timeline" Model="{Binding Timeline}" SelectedKey="{Binding SelectedKey, Mode=TwoWay}"
+                            ShowLinks="{Binding ShowPrecedences}" ShowCompleted="{Binding ShowCompleted}"/>
             <Border BorderBrush="{StaticResource Line}" BorderThickness="1" Margin="12" CornerRadius="4"
                     Background="{StaticResource Strip}"
-                    Visibility="{Binding TimelineContent, Converter={StaticResource EmptyToVisible}}">
+                    Visibility="{Binding Timeline, Converter={StaticResource EmptyToVisible}}">
               <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="{x:Static res:Resources.Planner_TimelinePlaceholder}" FontSize="14" FontWeight="SemiBold"
                            Foreground="{StaticResource Muted}" HorizontalAlignment="Center"/>
@@ -359,12 +377,12 @@
                       <TextBlock Text="{x:Static res:Resources.Planner_CapDaily}" Foreground="{StaticResource Muted}" FontWeight="SemiBold"/>
                     </DockPanel>
                   </Border>
-                  <ItemsControl ItemsSource="{Binding Capacity.Rows}">
+                  <ItemsControl ItemsSource="{Binding CapacityRows}">
                     <ItemsControl.ItemTemplate>
                       <DataTemplate>
                         <Border Height="26" BorderBrush="{StaticResource LineSoft}" BorderThickness="0,0,0,1" Padding="8,0">
                           <DockPanel VerticalAlignment="Center">
-                            <TextBlock DockPanel.Dock="Right" Text="{Binding GoalText}" Foreground="{StaticResource Muted}"/>
+                            <TextBlock DockPanel.Dock="Right" Text="{Binding ObjectiveText}" Foreground="{StaticResource Muted}"/>
                             <Border Width="10" Height="10" CornerRadius="2" Background="{Binding Color}" Margin="0,0,6,0"/>
                             <TextBlock Text="{Binding Type}"/>
                           </DockPanel>
@@ -377,12 +395,12 @@
               <!-- right: one column per day -->
               <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
                 <StackPanel>
-                  <ItemsControl ItemsSource="{Binding Capacity.Days}">
+                  <ItemsControl ItemsSource="{Binding CapacityDays}">
                     <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                       <DataTemplate>
                         <Border x:Name="C" Width="44" Height="26" BorderBrush="{StaticResource LineSoft}" BorderThickness="0,0,1,1">
-                          <TextBlock Text="{Binding Label}" Foreground="{StaticResource Muted}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                          <TextBlock Text="{Binding DayOfMonth}" Foreground="{StaticResource Muted}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <DataTemplate.Triggers>
                           <DataTrigger Binding="{Binding IsWeekend}" Value="True">
@@ -392,7 +410,7 @@
                       </DataTemplate>
                     </ItemsControl.ItemTemplate>
                   </ItemsControl>
-                  <ItemsControl ItemsSource="{Binding Capacity.Rows}">
+                  <ItemsControl ItemsSource="{Binding CapacityRows}">
                     <ItemsControl.ItemTemplate>
                       <DataTemplate>
                         <ItemsControl ItemsSource="{Binding Cells}">
@@ -518,7 +536,18 @@
         <StackPanel Orientation="Horizontal">
           <TextBlock Text="{Binding SnapshotText}" Margin="0,0,18,0"/>
           <TextBlock Text="{Binding PolicyText}" Margin="0,0,18,0"/>
-          <TextBlock Text="{Binding PendingChangesText}" Foreground="{StaticResource Warn}" FontWeight="SemiBold"/>
+          <TextBlock Text="{Binding PendingChangesText}" Foreground="{StaticResource Warn}" FontWeight="SemiBold" Margin="0,0,18,0"/>
+          <TextBlock Text="{Binding StatusMessage}" TextTrimming="CharacterEllipsis" ToolTip="{Binding StatusMessage, Converter={StaticResource EmptyToNull}}">
+            <TextBlock.Style>
+              <Style TargetType="TextBlock">
+                <Style.Triggers>
+                  <DataTrigger Binding="{Binding StatusIsError}" Value="True">
+                    <Setter Property="Foreground" Value="{StaticResource Warn}"/>
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </TextBlock.Style>
+          </TextBlock>
         </StackPanel>
       </DockPanel>
     </Border>

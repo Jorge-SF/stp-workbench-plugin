@@ -42,6 +42,7 @@ namespace Maptek.Vulcan.Stp.Planner
 
         private PlannerModel baseModel;
         private IReadOnlyDictionary<string, ActivityInfo> catalog;
+        private IReadOnlyDictionary<string, string> typeColors = new Dictionary<string, string>();
         private CivilHorizonController controller;
         private PlanHistory history;
         private PlannerView view = new PlannerView();
@@ -225,6 +226,14 @@ namespace Maptek.Vulcan.Stp.Planner
             hiddenTypes.Clear();
             RefreshView();
         }
+
+        /// <summary>Gets the colour (<c>#RRGGBB</c>) of every type of the snapshot (<see cref="TypePalette"/>).</summary>
+        public IReadOnlyDictionary<string, string> TypeColors => typeColors;
+
+        /// <summary>The colour of one type.</summary>
+        /// <param name="type">The type.</param>
+        /// <returns><c>#RRGGBB</c>.</returns>
+        public string TypeColor(string type) => PlannerProjection.ColorOf(typeColors, type);
 
         /// <summary>Gets the daily objective per type.</summary>
         public IReadOnlyDictionary<string, double> TypeObjectives => objectives;
@@ -559,6 +568,7 @@ namespace Maptek.Vulcan.Stp.Planner
             Snapshot = snapshot;
             baseModel = model;
             catalog = ActivityCatalog.Build(snapshot, options);
+            typeColors = TypePalette.Assign(catalog.Values.Select(a => a.Type));
             Attributes = snapshot.Activities.SelectMany(a => a.GridColumns.Select(c => c.Key)).Distinct(StringComparer.Ordinal).ToList();
             controller = next;
             ConflictAssessment = PlannerLogic.AssessPrecedenceConflicts(model, PrecedencePolicy);
@@ -670,6 +680,7 @@ namespace Maptek.Vulcan.Stp.Planner
                 ShowCompleted = showCompleted,
                 SelectedActivityId = selectedActivityId,
                 Objectives = objectives,
+                TypeColors = typeColors,
             });
             RaiseView();
         }

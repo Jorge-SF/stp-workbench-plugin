@@ -13,13 +13,13 @@ See `docs/STP_Workbench_Plugin_Design.md` for the architecture and phase plan.
 | `tools/golden/` | Node harness that replays the JS planner logic and records golden outputs |
 | `tools/*.ps1` | Workbench runtime setup and plugin search-path registration |
 | `StpWorkbench.sln` | C# solution |
-| `src/StpClient/` | Workbench client plugin (.NET Framework 4.8, WPF): menus, commands, views |
+| `src/StpClient/` | Workbench client plugin (.NET Framework 4.8, WPF): menus, commands, the planner document (`Views/Planner`: `PlannerScreenViewModel` over `PlannerSession`, `PlannerTimelineModel` feeding `StpTimeline`) |
 | `src/StpEngine/` | Planning-rules engine, C# port of `planner_logic.js`. No Workbench/WPF/JSON dependencies |
 | `src/StpBridge/` | Wire models, canonical JSON + SHA-256, HTTP client for the Python loopback server |
 | `src/StpPlanner/` | Planner view model (`PlannerSession`): snapshot→engine mapping, rows/filters/counters/capacity, undo/redo, apply + refresh. No WPF |
 | `src/StpTimeline/` | Planner timeline (Gantt) WPF control, per `docs/mockups/planner_layout.html`. No Workbench refs |
 | `src/StpTimeline.Preview/` | Small WPF app showing the timeline with fake data (no Vulcan needed) |
-| `src/*.Tests/` | xUnit tests (net48) |
+| `src/*.Tests/` | xUnit tests (net48); `StpClient.Tests` covers the planner screen's timeline adapter and design data without the Workbench |
 
 ## Building
 
@@ -49,13 +49,16 @@ Requirements: Visual Studio 2026 (MSBuild 18) with .NET Framework 4.8 targeting,
    Same thing by hand: `MSBuild StpWorkbench.sln -restore -p:Configuration=Debug`.
    No Vulcan assembly is referenced: `StpClient` reaches Vulcan's `IEnvisageInterface` by name
    (`src/StpClient/Bridge/EnvisageProxy.cs`), so one build runs in every Vulcan 2024.2 or later.
-3. Tests: `dotnet test src/StpEngine.Tests`, `dotnet test src/StpBridge.Tests`, `dotnet test src/StpPlanner.Tests` and `dotnet test src/StpTimeline.Tests`;
+3. Tests: `dotnet test src/StpEngine.Tests`, `dotnet test src/StpBridge.Tests`, `dotnet test src/StpPlanner.Tests`, `dotnet test src/StpTimeline.Tests` and `dotnet test src/StpClient.Tests`;
    `python -I python/tests/smoke_test.py`; `node tools/golden/run.mjs --check`.
 4. Load in Vulcan: `tools\Register-PluginSearchPath.ps1` registers `Deploy\Client` (value name `StpUG.Dev`), then
    restart Vulcan. Close Vulcan before rebuilding: Workbench locks the DLLs.
-   Vulcan then shows an **STP UG** menu (Preparar proyecto, Abrir planificador, Aplicar STP a VGS, Verificar
-   guardado, Configuración y acerca de…). Each item runs `python/scripts/1..4` inside Vulcan
-   (`docs/envisage_python.md`), one at a time. The scripts folder defaults to `<plugin>\Python\scripts`, else the
+   Vulcan then shows an **STP UG** menu (Preparar proyecto, Abrir planificador, Abrir planificador (navegador),
+   Aplicar STP a VGS, Verificar guardado, Configuración y acerca de…). Each item runs `python/scripts/1..4` inside
+   Vulcan (`docs/envisage_python.md`), one at a time. *Abrir planificador* runs `2p` (plugin mode, no browser), reads
+   the `plugin_session.json` it writes (`docs/plugin_session.md`) and opens the planner as a Workbench document;
+   *Abrir planificador (navegador)* is the unchanged browser planner (script 2).
+   `tools\Preview-Planner.ps1 -Show` shows the planner screen outside Vulcan on design data. The scripts folder defaults to `<plugin>\Python\scripts`, else the
    repository's `python\scripts` found above `Deploy\Client`; change it in *Configuración y acerca de…*
    (stored in `%AppData%\Maptek\StpUG\settings.xml`). Run logs: `%LocalAppData%\Maptek\StpUG\run\`.
 

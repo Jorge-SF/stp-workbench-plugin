@@ -141,6 +141,12 @@ namespace Maptek.Vulcan.Stp.Planner
 
         /// <summary>Gets a value indicating whether rows of this type are shown.</summary>
         public bool IsVisible { get; init; }
+
+        /// <summary>Gets the type colour, <c>#RRGGBB</c> (<see cref="TypePalette"/>).</summary>
+        public string Color { get; init; } = TypePalette.Fallback;
+
+        /// <summary>Gets the chip text (the type name).</summary>
+        public string Name => Type;
     }
 
     /// <summary>Summary counters ("Resumen").</summary>
@@ -179,6 +185,9 @@ namespace Maptek.Vulcan.Stp.Planner
 
         /// <summary>Gets a value indicating whether the day is Saturday or Sunday.</summary>
         public bool IsWeekend { get; init; }
+
+        /// <summary>Gets the cell text as in the mockup: <c>·</c> when empty, else the compact quantity (<c>1.7k</c>).</summary>
+        public string Text => IsEmpty ? "·" : PlannerProjection.CompactQuantity(Value);
     }
 
     /// <summary>The capacity row of one activity type (v1_compat_logic.js <c>buildCapacityRows</c>, byType).</summary>
@@ -189,6 +198,12 @@ namespace Maptek.Vulcan.Stp.Planner
 
         /// <summary>Gets the daily objective (0 = none).</summary>
         public double Objective { get; init; }
+
+        /// <summary>Gets the "meta" column text (<c>2,500</c>), or <c>—</c> without an objective.</summary>
+        public string ObjectiveText => Objective > 0 ? PlannerProjection.QuantityText(Objective, null) : "—";
+
+        /// <summary>Gets the type colour, <c>#RRGGBB</c>.</summary>
+        public string Color { get; init; } = TypePalette.Fallback;
 
         /// <summary>Gets the cells, one per visible day.</summary>
         public IReadOnlyList<CapacityCell> Cells { get; init; }
@@ -208,6 +223,9 @@ namespace Maptek.Vulcan.Stp.Planner
 
         /// <summary>Gets the label <c>DD/MM</c>.</summary>
         public string Label { get; init; }
+
+        /// <summary>Gets the day of the month <c>DD</c> (capacity header).</summary>
+        public string DayOfMonth => Date != null && Date.Length >= 10 ? Date.Substring(8, 2) : string.Empty;
 
         /// <summary>Gets a value indicating whether the day is Saturday or Sunday.</summary>
         public bool IsWeekend { get; init; }
