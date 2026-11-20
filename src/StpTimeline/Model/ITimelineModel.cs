@@ -30,13 +30,14 @@ namespace Maptek.Vulcan.Stp.Timeline.Model
     /// <summary>One day of work of an activity.</summary>
     public readonly struct TimelineBlock
     {
-        public TimelineBlock(int day, string label, bool isCompleted = false, object tag = null, string toolTip = null)
+        public TimelineBlock(int day, string label, bool isCompleted = false, object tag = null, string toolTip = null, bool isCapacityExempt = false)
         {
             Day = day;
             Label = label;
             IsCompleted = isCompleted;
             Tag = tag;
             ToolTip = toolTip;
+            IsCapacityExempt = isCapacityExempt;
         }
 
         /// <summary>Day index from <see cref="ITimelineModel.StartDate"/> (0 = first column). May be outside the range.</summary>
@@ -56,6 +57,12 @@ namespace Maptek.Vulcan.Stp.Timeline.Model
         /// and finish ("300 m · 16/11 07:00 — 16/11 19:00"). Null shows "Cantidad: <see cref="Label"/>".
         /// </summary>
         public string ToolTip { get; }
+
+        /// <summary>
+        /// Exempted from the capacity limit ("Exentar Límite"): drawn green instead of the type colour (the browser
+        /// planner's <c>.segment.capacity-exempt</c>, <c>--exempt-color: #68bd79</c>). Ignored for completed work.
+        /// </summary>
+        public bool IsCapacityExempt { get; }
     }
 
     /// <summary>A grid row and its chart lane.</summary>

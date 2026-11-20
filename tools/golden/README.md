@@ -46,6 +46,15 @@ Step ops map 1:1 to the controller: `moveActivity`, `moveDailyTail`, `deferDaily
 | `engine_edges` | Fractional seconds with trailing zeros (`.250` re-rendered `.25`), `HH:MM` times, `lagSeconds` lag, type aliases `fs` and `Start-Finish`. A tail moved away and back keeps its instants but not its text, so JS still reports a direct change and builds a package the server rejects (`movement_provenance_without_shift`). The C# engine deliberately keeps the original text there; its result is pinned in `src/StpEngine.Tests/TestData/deviations/`. `chain_fs.tail_roundtrip` is the whole-second reference for the correct result. `moveFragment` on part of a bar. |
 | `civil_edges` | Work in 9999-12: a derived horizon fails at setup (`CIVIL_RANGE`); with a seeded horizon, forward moves and defer-to-next-period hit `civil-range` and backward moves work. |
 
+## Capacity preview (`excesses/`)
+
+`excesses/run.mjs` pins `previewExcesses` from [`reference/web/timeline_logic.js`](../../reference/web/timeline_logic.js) (L805), the capacity check the planner runs on a drag candidate. The function is not exported, so the script cuts its text out of the file unchanged and evaluates it in a `vm` context. `excesses/cases.json` holds synthetic timeline views with preferences; `excesses/expected.json` records the excesses of each view and, for cases with a `baseline`, the excesses the view adds (the filter inline in `previewDailyTail`, L873-877). It also records the SHA-256 of the function text. `src/StpPlanner.Tests/CapacityPreviewTests.cs` replays the same cases through the C# `CapacityExcesses`.
+
+```bash
+node tools/golden/excesses/run.mjs           # regenerate excesses/expected.json
+node tools/golden/excesses/run.mjs --check   # exit 1 on drift
+```
+
 ## Contract notes for the C# port
 
 * Outcome `code` values are `''`, `invalid-move`, `completed-work`, `incoming-precedence`, `native-anchor`, `horizon-range`, `civil-range` and `local-changes`. JS derives some of them from the Spanish error text (`outcomeCode`, `planner_logic.js` L208). The C# engine must emit the same codes, and the same `message` strings if UI parity is required.

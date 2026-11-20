@@ -183,7 +183,7 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
                         if (b.Day >= days.End) break;
                         if (b.IsCompleted && !showCompleted) continue;
                         var rect = new Rect(DayScreenX(b.Day) + 1, top + BlockInset, Math.Max(1, dw - 2), bh);
-                        dc.DrawRoundedRectangle(b.IsCompleted ? T.Hatch : fill, b.IsCompleted ? null : movePen, rect, 2, 2);
+                        dc.DrawRoundedRectangle(b.IsCompleted ? T.Hatch : b.IsCapacityExempt ? T.Exempt : fill, b.IsCompleted ? null : movePen, rect, 2, 2);
                         if (labels && !string.IsNullOrEmpty(b.Label))
                         {
                             var ft = text.Get(b.Label, T.Bold, T.ChartFontSize, b.IsCompleted ? T.DoneText : T.BlockText);
@@ -311,7 +311,13 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
                     if (_drag.Delta != 0)
                     {
                         foreach (int k in _drag.Moved)
-                            if (k < blocks.Count && InHorizon(blocks[k].Day + _drag.Delta)) dc.DrawRoundedRectangle(T.GhostFill, T.GhostPen, BlockRect(_drag.Row, blocks[k].Day + _drag.Delta), 2, 2);
+                        {
+                            if (k >= blocks.Count) continue;
+                            int day = blocks[k].Day + _drag.Delta;
+                            if (!InHorizon(day)) continue;
+                            bool warn = _drag.WarningDays.Contains(day);   // previewDailyTail: previewWarning
+                            dc.DrawRoundedRectangle(warn ? T.GhostWarnFill : T.GhostFill, warn ? T.GhostWarnPen : T.GhostPen, BlockRect(_drag.Row, day), 2, 2);
+                        }
                     }
                     DrawBadge(dc, _drag);
                 }
@@ -333,7 +339,9 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
             var layout = _owner.Layout;
             DateTime target = model.StartDate.Date.AddDays(drag.OriginDay + drag.Delta);
             string text = TimelineEditMath.DeltaText(drag.Delta) + " · " + TimelineLabels.Weekday(target) + " " + target.ToString("dd/MM", CultureInfo.InvariantCulture)
-                          + (drag.Scope == TimelineMoveScope.Activity ? " · actividad completa" : string.Empty);
+                          + (drag.Scope == TimelineMoveScope.Activity ? " · actividad completa" : string.Empty)
+                          + (drag.Delta != 0 && drag.WarningText != null ? " · " + drag.WarningText : string.Empty);
+            bool warn = drag.Delta != 0 && (drag.WarningText != null || drag.WarningDays.Count > 0);
             var ft = _owner.Text.Get(text, T.Bold, T.ChartFontSize, T.BadgeText);
             double w = ft.Width + 12, h = ft.Height + 4;
             double top = RowScreenTop(drag.Row);
@@ -341,7 +349,7 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
             if (y < TimelineLayout.HeaderHeight + 1) y = top + layout.RowHeight(drag.Row) + 1;
             double x = DayScreenX(drag.OriginDay + drag.Delta);
             x = Math.Max(2, Math.Min(ActualWidth - w - 2, x));
-            dc.DrawRoundedRectangle(T.BadgeBack, null, new Rect(x, y, w, h), 3, 3);
+            dc.DrawRoundedRectangle(warn ? T.BadgeWarnBack : T.BadgeBack, null, new Rect(x, y, w, h), 3, 3);
             dc.DrawText(ft, new Point(x + 6, y + 2));
         }
 
@@ -354,6 +362,8 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
             public int Row, Block, OriginDay, Delta;
             public TimelineMoveScope Scope;
             public System.Collections.Generic.List<int> Moved;
+            public System.Collections.Generic.HashSet<int> WarningDays = new System.Collections.Generic.HashSet<int>();
+            public string WarningText;
         }
 
         private DragState _drag;
@@ -370,6 +380,31 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
 
         /// <summary>Blocks the current drag carries.</summary>
         internal System.Collections.Generic.IReadOnlyList<int> DragMovedBlocks => _drag?.Moved ?? new System.Collections.Generic.List<int>();
+
+        /// <summary>Days the capacity preview marks (empty when not dragging).</summary>
+        internal System.Collections.Generic.IReadOnlyCollection<int> DragWarningDays =>
+            _drag != null ? (System.Collections.Generic.IReadOnlyCollection<int>)_drag.WarningDays : Array.Empty<int>();
+
+        internal string DragWarningText => _drag?.WarningText;
+
+        internal void SetDragWarnings(System.Collections.Generic.IEnumerable<int> days, string text)
+        {
+            if (_drag == null) return;
+            _drag.WarningDays = new System.Collections.Generic.HashSet<int>(days ?? Array.Empty<int>());
+            _drag.WarningText = string.IsNullOrEmpty(text) ? null : text;
+            _owner.RequestRedraw(TimelineLayers.Overlay);
+        }
+
+        /// <summary>Ask the host for the capacity preview of the current target (sync handlers set the warnings).</summary>
+        private void PublishPreview()
+        {
+            var drag = _drag;
+            drag.WarningDays.Clear();
+            drag.WarningText = null;
+            var args = _owner.RaiseDragPreview(true, drag.Row, drag.Block, drag.Scope, drag.Delta);
+            if (_drag != drag) return;   // a handler ended the drag
+            if (args.WarningDays.Count > 0 || args.WarningText != null) SetDragWarnings(args.WarningDays, args.WarningText);
+        }
 
         /// <summary>Row and block under a point of this panel.</summary>
         internal TimelineHit HitTest(Point p)
@@ -478,6 +513,7 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
                 };
                 Cursor = Cursors.SizeWE;
                 StartAutoScroll();
+                PublishPreview();
             }
             if (_drag != null)
             {
@@ -516,7 +552,9 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
             }
             int delta = TimelineEditMath.DayDelta(_drag.OriginDay, p.X + _owner.OffsetX, layout.DayWidth, model.DayCount);
             if (delta != _drag.Delta) { _drag.Delta = delta; changed = true; }
-            if (changed) _owner.RequestRedraw(TimelineLayers.Overlay);
+            if (!changed) return;
+            PublishPreview();
+            _owner.RequestRedraw(TimelineLayers.Overlay);
         }
 
         /// <summary>Left button up: raise the move (drag), the click (no drag), or flash a locked block.</summary>
@@ -555,7 +593,11 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
             _autoScroll?.Stop();
             Cursor = null;
             if (IsMouseCaptured) ReleaseMouseCapture();
-            if (hadDrag) _owner.RequestRedraw(TimelineLayers.Overlay);
+            if (hadDrag)
+            {
+                _owner.RaiseDragPreview(false, -1, -1, TimelineMoveScope.Tail, 0);   // drop, Esc, lost capture: clear the preview
+                _owner.RequestRedraw(TimelineLayers.Overlay);
+            }
         }
 
         /// <summary>While dragging near the left or right edge, scroll the days (faster closer to the edge).</summary>

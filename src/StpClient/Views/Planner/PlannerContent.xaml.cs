@@ -28,6 +28,20 @@ namespace Maptek.Vulcan.Stp.Views.Planner
             Timeline.UndoRequested += OnEditRequested;
             Timeline.RedoRequested += OnEditRequested;
             Timeline.BlockMenuOpening += OnBlockMenuOpening;
+            Timeline.DragPreviewChanged += OnDragPreviewChanged;
+        }
+
+        /// <summary>
+        /// While dragging: the capacity preview of the move (ghosts on days that would exceed capacity turn red, the
+        /// capacity panel shows the candidate's cells). The drag's end (drop, Esc) clears it.
+        /// </summary>
+        private void OnDragPreviewChanged(object sender, TimelineDragPreviewEventArgs e)
+        {
+            var editor = _vm?.Editor;
+            if (editor == null) return;
+            var warnings = editor.PreviewDrag(PlannerEditRequest.From(e), e.IsActive);
+            e.SetWarnings(warnings.Days, warnings.Text);
+            e.Handled = true;
         }
 
         /// <summary>

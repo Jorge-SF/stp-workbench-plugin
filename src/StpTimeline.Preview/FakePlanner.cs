@@ -148,7 +148,32 @@ namespace Maptek.Vulcan.Stp.Timeline.Preview
         {
             bool exempt = !_exempt.Remove(e.ActivityKey);
             if (exempt) _exempt.Add(e.ActivityKey);
+            // Green blocks while exempt (the real planner exempts one day; the fake, the whole activity).
+            var blocks = _byKey[e.ActivityKey].Blocks;
+            for (int k = 0; k < blocks.Count; k++)
+            {
+                var b = blocks[k];
+                blocks[k] = new TimelineBlock(b.Day, b.Label, b.IsCompleted, b.Tag, b.ToolTip, exempt && !b.IsCompleted);
+            }
             return $"{e.ActivityKey}: " + (exempt ? "exenta del límite" : "sin exención");
+        }
+
+        /// <summary>
+        /// Simulated capacity preview: a day "exceeds capacity" when another activity of the dragged row's type
+        /// (same colour) already work it. Exempt activities do not count. Not the real rule (PlannerSession does that).
+        /// </summary>
+        public void OnDragPreview(TimelineDragPreviewEventArgs e)
+        {
+            if (!e.IsActive || e.DayDelta == 0 || !_byKey.TryGetValue(e.ActivityKey, out var row) || _exempt.Contains(row.Key)) return;
+            var moved = TimelineEditMath.MovedBlocks(row.Blocks, e.BlockIndex, e.Scope).Select(k => row.Blocks[k].Day + e.DayDelta);
+            var busy = new Dictionary<int, int>();
+            foreach (var other in _byKey.Values)
+            {
+                if (other == row || other.Color != row.Color || _exempt.Contains(other.Key)) continue;
+                foreach (var b in other.Blocks.Where(b => !b.IsCompleted)) busy[b.Day] = (busy.TryGetValue(b.Day, out int n) ? n : 0) + 1;
+            }
+            var days = moved.Where(d => busy.ContainsKey(d)).ToList();
+            if (days.Count > 0) e.SetWarnings(days, "Capacidad excedida (simulada).");
         }
 
         /// <summary>Shift the pending blocks from <paramref name="fromIndex"/> on, enforcing the simplified rules.</summary>
@@ -177,7 +202,7 @@ namespace Maptek.Vulcan.Stp.Timeline.Preview
             for (int k = fromIndex; k < blocks.Count; k++)
             {
                 var b = blocks[k];
-                blocks[k] = new TimelineBlock(b.Day + delta, b.Label, b.IsCompleted, b.Tag, b.ToolTip);
+                blocks[k] = new TimelineBlock(b.Day + delta, b.Label, b.IsCompleted, b.Tag, b.ToolTip, b.IsCapacityExempt);
             }
             if (direct) row.Move = TimelineMoveKind.Direct;
         }

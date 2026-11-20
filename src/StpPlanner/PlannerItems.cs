@@ -198,6 +198,12 @@ namespace Maptek.Vulcan.Stp.Planner
         /// <summary>Gets a value indicating whether the value exceeds the objective (red).</summary>
         public bool IsOver { get; init; }
 
+        /// <summary>
+        /// Gets a value indicating whether a drag preview would take this cell over its objective (it is not over
+        /// now): drawn red with a dashed outline while the drag lasts (<see cref="CapacityPreview"/>).
+        /// </summary>
+        public bool IsPreviewExcess { get; init; }
+
         /// <summary>Gets a value indicating whether nothing is scheduled.</summary>
         public bool IsEmpty => Value == 0;
 
@@ -206,6 +212,14 @@ namespace Maptek.Vulcan.Stp.Planner
 
         /// <summary>Gets the cell text as in the mockup: <c>·</c> when empty, else the compact quantity (<c>1.7k</c>).</summary>
         public string Text => IsEmpty ? "·" : PlannerProjection.CompactQuantity(Value);
+
+        /// <summary>A copy with <see cref="IsPreviewExcess"/> set.</summary>
+        /// <param name="excess">The flag.</param>
+        /// <returns>The copy.</returns>
+        public CapacityCell WithPreview(bool excess) => new CapacityCell
+        {
+            Date = Date, Value = Value, CapacityValue = CapacityValue, IsOver = IsOver, IsWeekend = IsWeekend, IsPreviewExcess = excess,
+        };
     }
 
     /// <summary>The capacity row of one activity type (v1_compat_logic.js <c>buildCapacityRows</c>, byType).</summary>

@@ -460,7 +460,11 @@
                           <ItemsControl.ItemTemplate>
                             <DataTemplate>
                               <Border x:Name="C" Width="44" Height="26" BorderBrush="{StaticResource LineSoft}" BorderThickness="0,0,1,1">
-                                <TextBlock x:Name="T" Text="{Binding Text}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Grid>
+                                  <TextBlock x:Name="T" Text="{Binding Text}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                  <!-- drag preview: the move would take this day over the goal -->
+                                  <Rectangle x:Name="P" Visibility="Collapsed" Margin="1" Stroke="#B42318" StrokeThickness="1.5" StrokeDashArray="2 1.5"/>
+                                </Grid>
                               </Border>
                               <DataTemplate.Triggers>
                                 <DataTrigger Binding="{Binding IsWeekend}" Value="True">
@@ -473,6 +477,12 @@
                                   <Setter TargetName="C" Property="Background" Value="#FDECEA"/>
                                   <Setter TargetName="T" Property="Foreground" Value="#B42318"/>
                                   <Setter TargetName="T" Property="FontWeight" Value="SemiBold"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsPreviewExcess}" Value="True">
+                                  <Setter TargetName="C" Property="Background" Value="#FFE2DF"/>
+                                  <Setter TargetName="T" Property="Foreground" Value="#B42318"/>
+                                  <Setter TargetName="T" Property="FontWeight" Value="SemiBold"/>
+                                  <Setter TargetName="P" Property="Visibility" Value="Visible"/>
                                 </DataTrigger>
                               </DataTemplate.Triggers>
                             </DataTemplate>

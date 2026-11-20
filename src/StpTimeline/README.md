@@ -12,7 +12,7 @@ Set `TimelineView.Model` to an `ITimelineModel` (`Model/ITimelineModel.cs`):
 | `StartDate`, `DayCount` | Day columns (day index 0 = `StartDate`) |
 | `CompletedThrough` | "completado hasta" dashed line; null hides it |
 | `Rows` | Display order, group headers included (`TimelineRowKind.Group`, shows `Name (GroupCount)`) |
-| `ITimelineRow.Blocks` | One `TimelineBlock(day, label, isCompleted, tag)` per day, sorted by day |
+| `ITimelineRow.Blocks` | One `TimelineBlock(day, label, isCompleted, tag, toolTip, isCapacityExempt)` per day, sorted by day |
 | `ITimelineRow.Move` | `Direct` = solid dark outline, `Cascade` = dashed orange outline (not on completed blocks) |
 | `ITimelineRow.IsLocked` | Lock after the ID |
 | `Links` | `FromKey` → `ToKey` precedence elbows, from the last block of one row to the first of the other |
@@ -58,6 +58,19 @@ Rejected locally, without a request: locked completed work (completed blocks or 
 show a not-allowed cursor, get no menu, like the browser) and keyboard moves past the horizon edge. Arrows move the
 selection: Up/Down change the activity (the focus ring jumps to its nearest block), Left/Right the focused block.
 Hovering a block shows activity, date, quantity (or `ToolTip`) and state.
+
+**Capacity preview while dragging** (timeline_logic.js `previewExcesses` / `previewDailyTail` warnings). During a
+plain drag or Shift+drag the control raises `DragPreviewChanged` when the target day or the scope changes, and once
+more with `IsActive = false` when the drag ends (drop, Escape, lost capture; before `MoveRequested`, so a refused move
+leaves no preview). The host previews the move without applying it (`PlannerSession.PreviewMoveDailyTail` /
+`PreviewMoveActivity`) and calls `e.SetWarnings(days, text)`, or later `SetDragWarnings(days, text)`. Ghosts on those
+days are drawn like the browser's `.drag-preview-warning` (#ffe2df fill, dashed #b42318), and the badge turns red with
+the text ("Capacidad excedida para Rezagado."). StpClient also shows the candidate's capacity cells in the Capacidad tab,
+with the newly exceeded days red and outlined.
+
+**Capacity-exempt days** ("Exentar Límite"): `TimelineBlock(..., isCapacityExempt: true)` draws the block green
+(#68bd79, the browser's `--exempt-color` / `.segment.capacity-exempt`) instead of the type colour; completed work stays
+hatched. The host rebuilds the block without the flag after "Quitar exención", which restores the type colour.
 
 A drag redraws only the overlay layer (one activity), so it costs the same with 2,000 rows: `--bench` measures a
 median of ≈0.03 ms per drag frame. Pure math (hit test, pixel → day delta, snapping, what a move carries, the lock,

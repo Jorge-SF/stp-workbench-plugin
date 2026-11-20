@@ -9,3 +9,4 @@ tools/golden/expected/** -text
 tools/golden/expected_actual_progress/** -text
 tools/golden/compat/cases/** -text
 tools/golden/compat/expected/** -text
+tools/golden/excesses/** -text
