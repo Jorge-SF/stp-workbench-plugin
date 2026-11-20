@@ -258,7 +258,7 @@ namespace Maptek.Vulcan.Stp
                     return;
                 }
 
-                var screen = new PlannerScreenViewModel(session, new PlannerHost(this));
+                var screen = new PlannerScreenViewModel(session, new PlannerHost(this, Path.GetDirectoryName(Path.GetFullPath(path))));
                 _planner = new PlannerDocumentViewModel(screen, screen, session);
                 ViewManager.OpenViewModel(this, _planner, false);
                 Log.Info("STP: planner opened on {0} ({1}, {2} activities)", session.ProjectName, session.BridgeConfig.Mode, session.Snapshot.Activities.Count);
@@ -276,10 +276,13 @@ namespace Maptek.Vulcan.Stp
         {
             private readonly StpClientPlugin _plugin;
 
-            public PlannerHost(StpClientPlugin plugin)
+            public PlannerHost(StpClientPlugin plugin, string runtimeFolder)
             {
                 _plugin = plugin;
+                WebResourcesFolder = runtimeFolder;
             }
+
+            public string WebResourcesFolder { get; }
 
             public Action VerifySave => _plugin.RunVerify;
 
@@ -288,6 +291,23 @@ namespace Maptek.Vulcan.Stp
             public void Notify(string text, bool isError) => Show(text, isError ? MessageBoxImage.Warning : MessageBoxImage.Information);
 
             public PickedResource PickResource(ResourcePickRequest request) => ResourcePickerWindow.Show(OwnerWindow(), request);
+
+            public string PickSaveFile(string title, string filter, string fileName)
+            {
+                // Default to Documents: never offer the install folder or the runtime folder.
+                var dialog = new Microsoft.Win32.SaveFileDialog
+                {
+                    Title = title,
+                    Filter = filter,
+                    FileName = fileName,
+                    AddExtension = true,
+                    OverwritePrompt = true,
+                    InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                };
+                var owner = OwnerWindow();
+                bool? ok = owner != null ? dialog.ShowDialog(owner) : dialog.ShowDialog();
+                return ok == true ? dialog.FileName : null;
+            }
         }
 
         #endregion

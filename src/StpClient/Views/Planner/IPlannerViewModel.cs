@@ -57,7 +57,13 @@ namespace Maptek.Vulcan.Stp.Views.Planner
         ICommand VerifySaveCommand { get; }
 
         // ---- Command bar: Exportar ---------------------------------------------------------------------------------
+        /// <summary>Excel: the visible view through the bridge's Python exporter (needs STP en vivo).</summary>
         ICommand ExportExcelCommand { get; }
+
+        /// <summary>Why Excel is disabled, or its normal tooltip.</summary>
+        string ExportExcelTip { get; }
+
+        /// <summary>PDF: the plan report of the visible view.</summary>
         ICommand ExportPdfCommand { get; }
 
         /// <summary>STP suelto: standalone HTML planner.</summary>

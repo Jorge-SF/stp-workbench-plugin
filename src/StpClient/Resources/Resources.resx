@@ -151,6 +151,15 @@ guardado</value></data>
   <data name="Planner_RedoTip" xml:space="preserve"><value>Rehacer: {0}</value></data>
   <data name="Planner_VerifyTip" xml:space="preserve"><value>Script 4: verifica que el proyecto se guardó con el STP aplicado.</value></data>
   <data name="Planner_ComingSoonTip" xml:space="preserve"><value>Próximamente.</value></data>
+  <data name="Planner_ExportExcelTip" xml:space="preserve"><value>Exporta la vista actual (filas visibles y días del rango) a un libro de Excel, generado por el puente de VGS.</value></data>
+  <data name="Planner_ExportPdfTip" xml:space="preserve"><value>Exporta el plan visible a un reporte PDF (A4).</value></data>
+  <data name="Planner_ExportStandaloneTip" xml:space="preserve"><value>Exporta el STP como un HTML independiente, sin puente vivo ni permiso para aplicar en VGS.</value></data>
+  <data name="Planner_SaveExcelTitle" xml:space="preserve"><value>Exportar a Excel</value></data>
+  <data name="Planner_SavePdfTitle" xml:space="preserve"><value>Exportar a PDF</value></data>
+  <data name="Planner_SaveStandaloneTitle" xml:space="preserve"><value>Exportar STP suelto</value></data>
+  <data name="Planner_SaveExcelFilter" xml:space="preserve"><value>Libro de Excel (*.xlsx)|*.xlsx</value></data>
+  <data name="Planner_SavePdfFilter" xml:space="preserve"><value>Documento PDF (*.pdf)|*.pdf</value></data>
+  <data name="Planner_SaveStandaloneFilter" xml:space="preserve"><value>Página HTML (*.html)|*.html</value></data>
   <data name="Planner_ApplyConfirm" xml:space="preserve"><value>Se preparará el paquete STP de "{7}" con {0} actividades cambiadas.
 
 Movidas directamente ({1}): {2}

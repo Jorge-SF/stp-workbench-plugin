@@ -29,7 +29,7 @@ namespace Maptek.Vulcan.Stp.Planner
     }
 
     /// <summary><see cref="IPlannerBridge"/> over <see cref="StpBridgeClient"/>.</summary>
-    public sealed class StpBridgeGateway : IPlannerBridge, IDisposable
+    public sealed class StpBridgeGateway : IPlannerBridge, IExcelExportBridge, IDisposable
     {
         private readonly StpBridgeClient client;
 
@@ -45,6 +45,9 @@ namespace Maptek.Vulcan.Stp.Planner
 
         /// <inheritdoc/>
         public Task<ApplyPackageSaved> SubmitApplyPackageAsync(ApplyPackage package, CancellationToken cancellationToken) => client.SubmitApplyPackageAsync(package, cancellationToken);
+
+        /// <inheritdoc/>
+        public Task<byte[]> ExportXlsxAsync(ExcelExportRequest request, CancellationToken cancellationToken) => client.ExportXlsxAsync(request, cancellationToken);
 
         /// <inheritdoc/>
         public void Dispose() => client.Dispose();

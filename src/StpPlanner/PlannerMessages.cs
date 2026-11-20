@@ -184,6 +184,26 @@ namespace Maptek.Vulcan.Stp.Planner
             }
         }
 
+        /// <summary>Message for a bridge error while exporting Excel (<c>POST /export-xlsx</c>).</summary>
+        /// <param name="error">The error.</param>
+        /// <returns>The message.</returns>
+        public static string ExportError(StpBridgeException error)
+        {
+            const string failed = "No se pudo exportar el archivo Excel.";
+            switch (error.Kind)
+            {
+                case StpBridgeErrorKind.InvalidRequest:
+                    return failed + " El puente rechazó los datos de la exportación (422).";
+                case StpBridgeErrorKind.ServerError:
+                    return failed + " El puente local no pudo generar el libro (¿falta xlsxwriter en el Python de VGS?).";
+                case StpBridgeErrorKind.ProtocolViolation:
+                    return failed + " La respuesta del puente no es un libro .xlsx.";
+                default:
+                    string common = Common(error);
+                    return common == null ? failed : failed + " " + common;
+            }
+        }
+
         private static string Common(StpBridgeException error)
         {
             switch (error.Kind)
