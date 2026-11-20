@@ -1,0 +1,299 @@
+{
+  "case": "load_normalize",
+  "description": "Stored lists: bad ids, duplicate ids and names (case-insensitive, accents), VGS clashes, non-strings, length limits, trimming; overrides to unknown ids are dropped.",
+  "vgsResources": [
+    "Jumbo 01",
+    "Scoop LH-07"
+  ],
+  "steps": [
+    {
+      "step": {
+        "op": "load",
+        "preferences": {
+          "manualResources": [
+            {
+              "id": "manual:1",
+              "name": "  Camión 1 "
+            },
+            {
+              "id": "manual:1",
+              "name": "Otro"
+            },
+            {
+              "id": "manual:0",
+              "name": "Cero"
+            },
+            {
+              "id": "manual:01",
+              "name": "Cero uno"
+            },
+            {
+              "id": "vgs:Jumbo 01",
+              "name": "Jumbo VGS"
+            },
+            {
+              "id": "manual:3",
+              "name": "CAMIÓN 1"
+            },
+            {
+              "id": "manual:4",
+              "name": 123
+            },
+            null,
+            [
+              "manual:5",
+              "Arreglo"
+            ],
+            "manual:6",
+            {
+              "id": "manual:7",
+              "name": "jumbo 01"
+            },
+            {
+              "id": "manual:8",
+              "name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+            },
+            {
+              "id": "manual:9",
+              "name": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
+            },
+            {
+              "id": "manual:10",
+              "name": "Ñandú"
+            },
+            {
+              "id": "manual:11",
+              "name": "ñandú"
+            },
+            {
+              "id": " manual:12 ",
+              "name": "Espacios"
+            },
+            {
+              "id": "manual:13",
+              "name": " Sin　espacio﻿"
+            },
+            {
+              "id": "manual:14",
+              "name": ""
+            },
+            {
+              "id": 15,
+              "name": "Número"
+            },
+            {
+              "id": "manual:16"
+            },
+            {
+              "id": "MANUAL:17",
+              "name": "Mayúsculas"
+            },
+            {
+              "id": "manual:18",
+              "name": "Último"
+            }
+          ],
+          "fragmentResourceOverrides": {
+            "A1:2026-11-21": "manual:1",
+            "A1:2026-11-22": "manual:3",
+            "A1:2026-11-23": "vgs:Jumbo 01",
+            "A1:2026-11-24": "vgs:Nope",
+            "A2:2026-11-21": "manual:18",
+            "A2:2026-11-22": true
+          },
+          "activityResourceOverrides": {
+            "A1": "manual:10",
+            "A2": 5,
+            "A3": "manual:11"
+          }
+        }
+      },
+      "notice": "",
+      "manualResources": [
+        {
+          "id": "manual:1",
+          "name": "Camión 1"
+        },
+        {
+          "id": "manual:8",
+          "name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        },
+        {
+          "id": "manual:9",
+          "name": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "id": "manual:10",
+          "name": "Ñandú"
+        },
+        {
+          "id": "manual:12",
+          "name": "Espacios"
+        },
+        {
+          "id": "manual:13",
+          "name": "Sin　espacio"
+        },
+        {
+          "id": "manual:18",
+          "name": "Último"
+        }
+      ],
+      "options": [
+        {
+          "id": "vgs:Jumbo 01",
+          "name": "Jumbo 01",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Scoop LH-07",
+          "name": "Scoop LH-07",
+          "source": "vgs"
+        },
+        {
+          "id": "manual:1",
+          "name": "Camión 1",
+          "source": "manual"
+        },
+        {
+          "id": "manual:8",
+          "name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "source": "manual"
+        },
+        {
+          "id": "manual:9",
+          "name": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+          "source": "manual"
+        },
+        {
+          "id": "manual:10",
+          "name": "Ñandú",
+          "source": "manual"
+        },
+        {
+          "id": "manual:12",
+          "name": "Espacios",
+          "source": "manual"
+        },
+        {
+          "id": "manual:13",
+          "name": "Sin　espacio",
+          "source": "manual"
+        },
+        {
+          "id": "manual:18",
+          "name": "Último",
+          "source": "manual"
+        }
+      ],
+      "activityResourceOverrides": {
+        "A1": "manual:10"
+      },
+      "fragmentResourceOverrides": {
+        "A1:2026-11-21": "manual:1",
+        "A1:2026-11-23": "vgs:Jumbo 01",
+        "A2:2026-11-21": "manual:18"
+      }
+    },
+    {
+      "step": {
+        "op": "add"
+      },
+      "notice": "",
+      "manualResources": [
+        {
+          "id": "manual:1",
+          "name": "Camión 1"
+        },
+        {
+          "id": "manual:8",
+          "name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        },
+        {
+          "id": "manual:9",
+          "name": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
+        },
+        {
+          "id": "manual:10",
+          "name": "Ñandú"
+        },
+        {
+          "id": "manual:12",
+          "name": "Espacios"
+        },
+        {
+          "id": "manual:13",
+          "name": "Sin　espacio"
+        },
+        {
+          "id": "manual:18",
+          "name": "Último"
+        },
+        {
+          "id": "manual:2",
+          "name": "Equipo manual 2"
+        }
+      ],
+      "options": [
+        {
+          "id": "vgs:Jumbo 01",
+          "name": "Jumbo 01",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Scoop LH-07",
+          "name": "Scoop LH-07",
+          "source": "vgs"
+        },
+        {
+          "id": "manual:1",
+          "name": "Camión 1",
+          "source": "manual"
+        },
+        {
+          "id": "manual:8",
+          "name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "source": "manual"
+        },
+        {
+          "id": "manual:9",
+          "name": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+          "source": "manual"
+        },
+        {
+          "id": "manual:10",
+          "name": "Ñandú",
+          "source": "manual"
+        },
+        {
+          "id": "manual:12",
+          "name": "Espacios",
+          "source": "manual"
+        },
+        {
+          "id": "manual:13",
+          "name": "Sin　espacio",
+          "source": "manual"
+        },
+        {
+          "id": "manual:18",
+          "name": "Último",
+          "source": "manual"
+        },
+        {
+          "id": "manual:2",
+          "name": "Equipo manual 2",
+          "source": "manual"
+        }
+      ],
+      "activityResourceOverrides": {
+        "A1": "manual:10"
+      },
+      "fragmentResourceOverrides": {
+        "A1:2026-11-21": "manual:1",
+        "A1:2026-11-23": "vgs:Jumbo 01",
+        "A2:2026-11-21": "manual:18"
+      }
+    }
+  ]
+}

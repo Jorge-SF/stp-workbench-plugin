@@ -46,6 +46,8 @@ namespace Maptek.Vulcan.Stp.Planner
         private LocalOverrides overrides = new LocalOverrides();
         private CivilHorizonController controller;
         private PlanHistory history;
+        private CivilHorizon appliedSeed;
+        private IReadOnlyList<PlanOperation> appliedOperations;
         private PlannerView view = new PlannerView();
         private string readyDigest;
         private bool busy;
@@ -390,8 +392,8 @@ namespace Maptek.Vulcan.Stp.Planner
         {
             if (busy) return Report(PlannerOutcome.Failure(PlannerMessages.Busy));
             if (!history.CanUndo) return Report(PlannerOutcome.Failure(PlannerMessages.NothingToUndo));
-            Rebuild(history.Undo());
-            return Report(PlannerOutcome.Success(PlannerMessages.Undone));
+            var saved = Rebuild(history.Undo());
+            return Report(saved.Ok ? PlannerOutcome.Success(PlannerMessages.Undone) : saved);
         }
 
         /// <summary>Repeats the last undone command.</summary>
@@ -400,8 +402,8 @@ namespace Maptek.Vulcan.Stp.Planner
         {
             if (busy) return Report(PlannerOutcome.Failure(PlannerMessages.Busy));
             if (!history.CanRedo) return Report(PlannerOutcome.Failure(PlannerMessages.NothingToRedo));
-            Rebuild(history.Redo());
-            return Report(PlannerOutcome.Success(PlannerMessages.Redone));
+            var saved = Rebuild(history.Redo());
+            return Report(saved.Ok ? PlannerOutcome.Success(PlannerMessages.Redone) : saved);
         }
 
         /// <summary>Back to the snapshot ("Descartar", JS <c>reset</c>); undoable.</summary>
@@ -410,15 +412,29 @@ namespace Maptek.Vulcan.Stp.Planner
         {
             if (busy) return Report(PlannerOutcome.Failure(PlannerMessages.Busy));
             var result = controller.Reset();
-            history.Push(new PlanState(controller.State().Horizon, Array.Empty<PlanOperation>(), "Descartar cambios"));
+            history.Push(new PlanState(controller.State().Horizon, Array.Empty<PlanOperation>(), "Descartar cambios", history.Current.Resources));
+            appliedSeed = history.Current.Seed;
+            appliedOperations = history.Current.Operations;
             RefreshAll();
             return Report(FromEngine(result));
         }
 
         // ------------------------------------------------------------------ local day settings (menu)
 
-        /// <summary>Gets the equipment the "Asignar equipo" picker offers: the project's VGS resources, sorted.</summary>
+        /// <summary>
+        /// Gets the equipment the "Asignar equipo" picker and the Recurso selector offer: the project's VGS resources,
+        /// sorted, then the manual resources (JS <c>combinedResourceOptions</c>).
+        /// </summary>
         public IReadOnlyList<string> ResourceOptions { get; private set; } = Array.Empty<string>();
+
+        /// <summary>Gets the same list with ids and kind (Configuración → Frentes y recursos).</summary>
+        public IReadOnlyList<ResourceDescriptor> ResourceDescriptors { get; private set; } = Array.Empty<ResourceDescriptor>();
+
+        /// <summary>Gets the manual resources ("+ Recurso manual").</summary>
+        public IReadOnlyList<ManualResource> ManualResources => overrides.ManualResources;
+
+        /// <summary>Gets the resource the last <see cref="AddManualResource"/> created, or <c>null</c>.</summary>
+        public ManualResource LastAddedManualResource { get; private set; }
 
         /// <summary>The logical unit of a fragment (the key of its local equipment and exemption), or <c>null</c>.</summary>
         /// <param name="fragmentId">The fragment.</param>
@@ -429,10 +445,19 @@ namespace Maptek.Vulcan.Stp.Planner
             return fragment == null ? null : LocalOverrides.LogicalUnitId(fragment.ActivityId, fragment.LogicalUnitDate);
         }
 
-        /// <summary>The activity's own (VGS) equipment, or <c>null</c> for an unknown activity.</summary>
+        /// <summary>
+        /// The activity's own equipment (the default of its days): the one assigned to the whole activity, else its VGS
+        /// resource; <c>null</c> for an unknown activity.
+        /// </summary>
         /// <param name="activityId">The activity.</param>
         /// <returns>The equipment.</returns>
-        public string ActivityResource(string activityId) => activityId != null && catalog.TryGetValue(activityId, out var info) ? info.Resource : null;
+        public string ActivityResource(string activityId) =>
+            activityId != null && catalog.TryGetValue(activityId, out var info) ? overrides.ActivityResourceOf(activityId) ?? info.Resource : null;
+
+        /// <summary>The activity's VGS resource, or <c>null</c> for an unknown activity.</summary>
+        /// <param name="activityId">The activity.</param>
+        /// <returns>The equipment.</returns>
+        public string VgsResource(string activityId) => activityId != null && catalog.TryGetValue(activityId, out var info) ? info.Resource : null;
 
         /// <summary>The equipment assigned locally to a logical unit, or <c>null</c> (the activity's own).</summary>
         /// <param name="logicalUnitId">The logical unit.</param>
@@ -451,7 +476,7 @@ namespace Maptek.Vulcan.Stp.Planner
 
         /// <summary>
         /// "Asignar equipo": the equipment of one pending day (template <c>setFragmentResourceOverride</c>). Local only,
-        /// saved per project; not a plan step and never sent to VGS.
+        /// saved per project, never sent to VGS; undoable.
         /// </summary>
         /// <param name="logicalUnitId">The day (<see cref="DaySegment.LogicalUnitId"/>).</param>
         /// <param name="resource">One of <see cref="ResourceOptions"/>, or <c>null</c>/empty for the activity's own.</param>
@@ -461,9 +486,86 @@ namespace Maptek.Vulcan.Stp.Planner
             if (busy) return Report(PlannerOutcome.Failure(PlannerMessages.Busy));
             if (!IsPendingUnit(logicalUnitId, out var activity)) return Report(PlannerOutcome.Failure(PlannerMessages.DayNotEditable, "invalid"));
             if (!string.IsNullOrEmpty(resource) && !ResourceOptions.Contains(resource)) return Report(PlannerOutcome.Failure(PlannerMessages.UnknownResource, "invalid"));
-            if (catalog.TryGetValue(activity, out var info) && resource == info.Resource) resource = null;   // the activity's own = no override
-            return ChangeOverrides(() => overrides.SetResource(logicalUnitId, resource),
-                string.IsNullOrEmpty(resource) ? PlannerMessages.ResourceCleared : PlannerMessages.ResourceAssigned);
+            if (resource == ActivityResource(activity)) resource = null;   // the activity's own = no override
+            bool cleared = string.IsNullOrEmpty(resource);
+            return ChangeResources(overrides.ResourceState.WithDay(logicalUnitId, resource),
+                cleared ? $"Quitar el equipo asignado a {logicalUnitId}" : $"Asignar {resource} a {logicalUnitId}",
+                cleared ? PlannerMessages.ResourceCleared : PlannerMessages.ResourceAssigned);
+        }
+
+        /// <summary>
+        /// The Recurso selector of "Actividad seleccionada": the equipment of the whole activity (template
+        /// <c>setActivityResourceOverride</c>); a day's own assignment still wins. Local only; undoable.
+        /// </summary>
+        /// <param name="activityId">The activity.</param>
+        /// <param name="resource">One of <see cref="ResourceOptions"/>; <c>null</c>/empty or its VGS resource clears it.</param>
+        /// <returns>The outcome.</returns>
+        public PlannerOutcome AssignActivityResource(string activityId, string resource)
+        {
+            if (busy) return Report(PlannerOutcome.Failure(PlannerMessages.Busy));
+            if (activityId == null || !catalog.TryGetValue(activityId, out var info)) return Report(PlannerOutcome.Failure(PlannerMessages.UnknownActivity, "invalid"));
+            if (!string.IsNullOrEmpty(resource) && !ResourceOptions.Contains(resource)) return Report(PlannerOutcome.Failure(PlannerMessages.UnknownResource, "invalid"));
+            if (resource == info.Resource) resource = null;
+            bool cleared = string.IsNullOrEmpty(resource);
+            return ChangeResources(overrides.ResourceState.WithActivity(activityId, resource),
+                cleared ? $"Devolver {activityId} a su recurso de VGS" : $"Asignar {resource} a {activityId}",
+                cleared ? PlannerMessages.ActivityResourceCleared : PlannerMessages.ActivityResourceAssigned);
+        }
+
+        /// <summary>
+        /// "+ Recurso manual" (template <c>addManualResource</c>): adds "Equipo manual &lt;n&gt;"; with
+        /// <paramref name="assignToActivityId"/> it also becomes that activity's equipment, in the same undo step.
+        /// </summary>
+        /// <param name="assignToActivityId">An activity to assign it to, or <c>null</c>.</param>
+        /// <returns>The outcome; <see cref="LastAddedManualResource"/> is the new resource.</returns>
+        public PlannerOutcome AddManualResource(string assignToActivityId = null)
+        {
+            if (busy) return Report(PlannerOutcome.Failure(PlannerMessages.Busy));
+            if (assignToActivityId != null && !catalog.ContainsKey(assignToActivityId)) return Report(PlannerOutcome.Failure(PlannerMessages.UnknownActivity, "invalid"));
+            var list = Planner.ManualResources.Add(overrides.ManualResources, VgsResourceNames(), out var added);
+            var next = overrides.ResourceState.WithManual(list);
+            if (assignToActivityId != null) next = next.WithActivity(assignToActivityId, added.Name);
+            LastAddedManualResource = added;
+            return ChangeResources(next, $"Agregar recurso manual {added.Name}", PlannerMessages.ManualResourceAdded);
+        }
+
+        /// <summary>
+        /// Renames a manual resource (template <c>renameManualResource</c>): the trimmed name must be non-blank, at most
+        /// 160 characters and unique, case-insensitively, among VGS and manual resources. Its assignments follow. Undoable.
+        /// </summary>
+        /// <param name="id">The manual resource (<c>manual:&lt;n&gt;</c>).</param>
+        /// <param name="name">The new name.</param>
+        /// <returns>The outcome.</returns>
+        public PlannerOutcome RenameManualResource(string id, string name)
+        {
+            if (busy) return Report(PlannerOutcome.Failure(PlannerMessages.Busy));
+            var current = overrides.ManualResources.FirstOrDefault(r => r.Id == id);
+            if (current == null) return Report(PlannerOutcome.Failure(PlannerMessages.UnknownManualResource, "invalid"));
+            var list = Planner.ManualResources.Rename(overrides.ManualResources, id, name, VgsResourceNames());
+            if (list == null)
+            {
+                OnPropertyChanged(nameof(ManualResources));   // puts an editor back to the stored name
+                return Report(PlannerOutcome.Failure(PlannerMessages.ManualResourceNameInvalid, "invalid"));
+            }
+
+            string renamed = list.First(r => r.Id == id).Name;
+            return ChangeResources(overrides.ResourceState.WithManual(list).Renamed(current.Name, renamed),
+                $"Renombrar {current.Name} a {renamed}", PlannerMessages.ManualResourceRenamed);
+        }
+
+        /// <summary>
+        /// Removes a manual resource (template <c>removeManualResource</c>); the days and activities assigned to it go
+        /// back to their own equipment. Undoable.
+        /// </summary>
+        /// <param name="id">The manual resource.</param>
+        /// <returns>The outcome.</returns>
+        public PlannerOutcome RemoveManualResource(string id)
+        {
+            if (busy) return Report(PlannerOutcome.Failure(PlannerMessages.Busy));
+            var list = Planner.ManualResources.Remove(overrides.ManualResources, id, out var removed);
+            if (removed == null) return Report(PlannerOutcome.Failure(PlannerMessages.UnknownManualResource, "invalid"));
+            return ChangeResources(overrides.ResourceState.WithManual(list).Without(removed.Name),
+                $"Quitar recurso manual {removed.Name}", PlannerMessages.ManualResourceRemoved);
         }
 
         /// <summary>
@@ -488,6 +590,36 @@ namespace Maptek.Vulcan.Stp.Planner
             var fragment = State.Model.Fragments.FirstOrDefault(f => !f.LockedCompleted && LocalOverrides.LogicalUnitId(f.ActivityId, f.LogicalUnitDate) == logicalUnitId);
             activityId = fragment?.ActivityId;
             return fragment != null;
+        }
+
+        private IReadOnlyCollection<string> VgsResourceNames() => ResourceDescriptors.Where(d => !d.IsManual).Select(d => d.Name).ToList();
+
+        // An equipment edit is a plan step: the new settings go on the undo stack with the current plan.
+        private PlannerOutcome ChangeResources(ResourceState next, string description, string message)
+        {
+            if (next.SameAs(overrides.ResourceState)) return Report(PlannerOutcome.Success(message));
+            history.Push(history.Current.With(next, description));
+            return ApplyResources(next, message);
+        }
+
+        // Puts equipment settings in place and saves them (RefreshView included); reports only a storage failure.
+        private PlannerOutcome ApplyResources(ResourceState next, string message)
+        {
+            bool manualChanged = !next.Manual.SequenceEqual(overrides.ManualResources);
+            overrides.SetResourceState(next);
+            if (manualChanged) UpdateResourceOptions();
+            return ChangeOverrides(() => true, message);
+        }
+
+        private void UpdateResourceOptions()
+        {
+            var vgs = catalog.Values.Select(a => a.Resource).Distinct(StringComparer.Ordinal)
+                .OrderBy(r => r, StringComparer.Create(CultureInfo.GetCultureInfo("es-MX"), true)).ToList();
+            ResourceDescriptors = Planner.ManualResources.Options(vgs, overrides.ManualResources);
+            ResourceOptions = ResourceDescriptors.Select(d => d.Name).ToList();
+            OnPropertyChanged(nameof(ResourceDescriptors));
+            OnPropertyChanged(nameof(ResourceOptions));
+            OnPropertyChanged(nameof(ManualResources));
         }
 
         private PlannerOutcome ChangeOverrides(Func<bool> change, string message)
@@ -665,19 +797,19 @@ namespace Maptek.Vulcan.Stp.Planner
             baseModel = model;
             catalog = ActivityCatalog.Build(snapshot, options);
             typeColors = TypePalette.Assign(catalog.Values.Select(a => a.Type));
-            overrides = LocalOverrides.Load(storage, snapshot.ProjectKey);
-            ResourceOptions = catalog.Values.Select(a => a.Resource).Distinct(StringComparer.Ordinal)
-                .OrderBy(r => r, StringComparer.Create(CultureInfo.GetCultureInfo("es-MX"), true)).ToList();
+            overrides = LocalOverrides.Load(storage, snapshot.ProjectKey, catalog.Values.Select(a => a.Resource).Distinct(StringComparer.Ordinal).ToList());
             Attributes = snapshot.Activities.SelectMany(a => a.GridColumns.Select(c => c.Key)).Distinct(StringComparer.Ordinal).ToList();
             controller = next;
             ConflictAssessment = PlannerLogic.AssessPrecedenceConflicts(model, PrecedencePolicy);
-            history = new PlanHistory(new PlanState(next.State().Horizon, Array.Empty<PlanOperation>(), string.Empty), options.UndoLimit);
+            history = new PlanHistory(new PlanState(next.State().Horizon, Array.Empty<PlanOperation>(), string.Empty, overrides.ResourceState), options.UndoLimit);
+            appliedSeed = history.Current.Seed;
+            appliedOperations = history.Current.Operations;
             readyDigest = null;
             LastReceipt = null;
             if (selectedActivityId != null && !catalog.ContainsKey(selectedActivityId)) selectedActivityId = null;
+            UpdateResourceOptions();
             RefreshAll();
             OnPropertyChanged(nameof(Attributes));
-            OnPropertyChanged(nameof(ResourceOptions));
             OnPropertyChanged(nameof(SelectedActivityId));
         }
 
@@ -688,13 +820,24 @@ namespace Maptek.Vulcan.Stp.Planner
             if (result.Ok)
             {
                 history.Push(history.Current.With(operation));
+                appliedSeed = history.Current.Seed;
+                appliedOperations = history.Current.Operations;
                 RefreshAll();
             }
 
             return Report(FromEngine(result));
         }
 
-        private void Rebuild(PlanState state)
+        // Restores a plan state: its equipment settings, then its operations (replayed unless they are the ones applied).
+        private PlannerOutcome Rebuild(PlanState state)
+        {
+            var saved = state.Resources.SameAs(overrides.ResourceState) ? PlannerOutcome.Success(string.Empty) : ApplyResources(state.Resources, string.Empty);
+            if (!ReferenceEquals(state.Operations, appliedOperations) || !ReferenceEquals(state.Seed, appliedSeed)) Replay(state);
+            else RaiseView();
+            return saved;
+        }
+
+        private void Replay(PlanState state)
         {
             var model = baseModel;
             var next = new CivilHorizonController(() => model, Snapshot.ProjectKey, storage, state.Seed);
@@ -705,6 +848,8 @@ namespace Maptek.Vulcan.Stp.Planner
             }
 
             controller = next;
+            appliedSeed = state.Seed;
+            appliedOperations = state.Operations;
             RefreshAll();
         }
 

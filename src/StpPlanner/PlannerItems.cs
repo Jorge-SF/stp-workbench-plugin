@@ -286,8 +286,11 @@ namespace Maptek.Vulcan.Stp.Planner
         /// <summary>Gets the level.</summary>
         public string Level { get; init; }
 
-        /// <summary>Gets the resource.</summary>
+        /// <summary>Gets the activity's equipment: the one assigned to the whole activity, else its VGS resource.</summary>
         public string Resource { get; init; }
+
+        /// <summary>Gets the activity's VGS resource (<c>Sin recurso</c> when the grid has none).</summary>
+        public string VgsResource { get; init; }
 
         /// <summary>Gets the current start (civil text).</summary>
         public string Start { get; init; }

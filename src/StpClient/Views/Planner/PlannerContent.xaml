@@ -154,6 +154,46 @@
       <Border Style="{StaticResource Pill}"><TextBlock Text="{Binding}"/></Border>
     </DataTemplate>
     <ItemsPanelTemplate x:Key="WrapPanelTemplate"><WrapPanel/></ItemsPanelTemplate>
+
+    <!-- Configuración → Frentes y recursos: VGS resources (read-only), manual ones (rename in place, × removes), and
+         "+ Recurso manual" (the browser's resource cards and add button). -->
+    <DataTemplate DataType="{x:Type p:ResourcesConfig}">
+      <StackPanel Margin="0,2,8,2">
+        <ItemsControl ItemsSource="{Binding Items}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <DockPanel Margin="0,1">
+                <Button DockPanel.Dock="Left" Content="×" Width="22" Height="22" Margin="0,0,4,0" Padding="0" FontSize="14"
+                        Foreground="#BC2B2B" BorderBrush="#E28282" Background="Transparent"
+                        Command="{Binding RemoveCommand}" CommandParameter="{Binding}"
+                        ToolTip="{x:Static res:Resources.Planner_RemoveManualResourceTip}"
+                        Visibility="{Binding IsManual, Converter={StaticResource BoolToVisible}}"/>
+                <Grid>
+                  <TextBox Text="{Binding Name, UpdateSourceTrigger=LostFocus}" MaxLength="160" Padding="2,1"
+                           ToolTip="{x:Static res:Resources.Planner_ManualResourceNameTip}"
+                           Visibility="{Binding IsManual, Converter={StaticResource BoolToVisible}}"/>
+                  <TextBlock Text="{Binding Name}" Margin="26,3,0,3" TextTrimming="CharacterEllipsis"
+                             ToolTip="{x:Static res:Resources.Planner_VgsResourceTip}">
+                    <TextBlock.Style>
+                      <Style TargetType="TextBlock">
+                        <Style.Triggers>
+                          <DataTrigger Binding="{Binding IsManual}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                          </DataTrigger>
+                        </Style.Triggers>
+                      </Style>
+                    </TextBlock.Style>
+                  </TextBlock>
+                </Grid>
+              </DockPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <Button Content="{x:Static res:Resources.Planner_AddManualResource}" Command="{Binding AddCommand}" HorizontalAlignment="Left"
+                Margin="0,6,0,0" Padding="8,2" ToolTip="{x:Static res:Resources.Planner_AddManualResourceTip}"/>
+        <TextBlock Text="{x:Static res:Resources.Planner_ResourcesNote}" Foreground="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,6,0,0"/>
+      </StackPanel>
+    </DataTemplate>
   </UserControl.Resources>
 
   <Grid>
@@ -498,7 +538,7 @@
               <TextBlock Grid.Row="4" Style="{StaticResource Key}" Text="{x:Static res:Resources.Planner_SelQuantity}"/>
               <TextBlock Grid.Row="4" Grid.Column="1" Style="{StaticResource Val}" Text="{Binding QuantityText}"/>
               <TextBlock Grid.Row="5" Style="{StaticResource Key}" Text="{x:Static res:Resources.Planner_SelResource}"/>
-              <ComboBox Grid.Row="5" Grid.Column="1" Margin="0,2" ItemsSource="{Binding ResourceOptions}" SelectedItem="{Binding Resource}"/>
+              <ComboBox Grid.Row="5" Grid.Column="1" Margin="0,2" ItemsSource="{Binding ResourceOptions}" SelectedItem="{Binding Resource}" DisplayMemberPath="Label"/>
               <TextBlock Grid.Row="6" Style="{StaticResource Key}" Text="{x:Static res:Resources.Planner_SelPredecessors}"/>
               <ItemsControl Grid.Row="6" Grid.Column="1" Margin="0,2" ItemsSource="{Binding Predecessors}"
                             ItemTemplate="{StaticResource PillTemplate}" ItemsPanel="{StaticResource WrapPanelTemplate}"/>

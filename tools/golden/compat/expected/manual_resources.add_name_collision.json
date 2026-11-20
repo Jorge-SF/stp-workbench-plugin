@@ -1,0 +1,196 @@
+{
+  "case": "add_name_collision",
+  "description": "The new id is the lowest free one; its default name skips names VGS or another manual resource already use.",
+  "vgsResources": [
+    "Equipo manual 1",
+    "Jumbo 01"
+  ],
+  "steps": [
+    {
+      "step": {
+        "op": "load",
+        "preferences": {
+          "manualResources": [
+            {
+              "id": "manual:2",
+              "name": "equipo MANUAL 2"
+            }
+          ]
+        }
+      },
+      "notice": "",
+      "manualResources": [
+        {
+          "id": "manual:2",
+          "name": "equipo MANUAL 2"
+        }
+      ],
+      "options": [
+        {
+          "id": "vgs:Equipo manual 1",
+          "name": "Equipo manual 1",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Jumbo 01",
+          "name": "Jumbo 01",
+          "source": "vgs"
+        },
+        {
+          "id": "manual:2",
+          "name": "equipo MANUAL 2",
+          "source": "manual"
+        }
+      ],
+      "activityResourceOverrides": {},
+      "fragmentResourceOverrides": {}
+    },
+    {
+      "step": {
+        "op": "add"
+      },
+      "notice": "",
+      "manualResources": [
+        {
+          "id": "manual:2",
+          "name": "equipo MANUAL 2"
+        },
+        {
+          "id": "manual:1",
+          "name": "Equipo manual 3"
+        }
+      ],
+      "options": [
+        {
+          "id": "vgs:Equipo manual 1",
+          "name": "Equipo manual 1",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Jumbo 01",
+          "name": "Jumbo 01",
+          "source": "vgs"
+        },
+        {
+          "id": "manual:2",
+          "name": "equipo MANUAL 2",
+          "source": "manual"
+        },
+        {
+          "id": "manual:1",
+          "name": "Equipo manual 3",
+          "source": "manual"
+        }
+      ],
+      "activityResourceOverrides": {},
+      "fragmentResourceOverrides": {}
+    },
+    {
+      "step": {
+        "op": "add"
+      },
+      "notice": "",
+      "manualResources": [
+        {
+          "id": "manual:2",
+          "name": "equipo MANUAL 2"
+        },
+        {
+          "id": "manual:1",
+          "name": "Equipo manual 3"
+        },
+        {
+          "id": "manual:3",
+          "name": "Equipo manual 4"
+        }
+      ],
+      "options": [
+        {
+          "id": "vgs:Equipo manual 1",
+          "name": "Equipo manual 1",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Jumbo 01",
+          "name": "Jumbo 01",
+          "source": "vgs"
+        },
+        {
+          "id": "manual:2",
+          "name": "equipo MANUAL 2",
+          "source": "manual"
+        },
+        {
+          "id": "manual:1",
+          "name": "Equipo manual 3",
+          "source": "manual"
+        },
+        {
+          "id": "manual:3",
+          "name": "Equipo manual 4",
+          "source": "manual"
+        }
+      ],
+      "activityResourceOverrides": {},
+      "fragmentResourceOverrides": {}
+    },
+    {
+      "step": {
+        "op": "add"
+      },
+      "notice": "",
+      "manualResources": [
+        {
+          "id": "manual:2",
+          "name": "equipo MANUAL 2"
+        },
+        {
+          "id": "manual:1",
+          "name": "Equipo manual 3"
+        },
+        {
+          "id": "manual:3",
+          "name": "Equipo manual 4"
+        },
+        {
+          "id": "manual:4",
+          "name": "Equipo manual 5"
+        }
+      ],
+      "options": [
+        {
+          "id": "vgs:Equipo manual 1",
+          "name": "Equipo manual 1",
+          "source": "vgs"
+        },
+        {
+          "id": "vgs:Jumbo 01",
+          "name": "Jumbo 01",
+          "source": "vgs"
+        },
+        {
+          "id": "manual:2",
+          "name": "equipo MANUAL 2",
+          "source": "manual"
+        },
+        {
+          "id": "manual:1",
+          "name": "Equipo manual 3",
+          "source": "manual"
+        },
+        {
+          "id": "manual:3",
+          "name": "Equipo manual 4",
+          "source": "manual"
+        },
+        {
+          "id": "manual:4",
+          "name": "Equipo manual 5",
+          "source": "manual"
+        }
+      ],
+      "activityResourceOverrides": {},
+      "fragmentResourceOverrides": {}
+    }
+  ]
+}

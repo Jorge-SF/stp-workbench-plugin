@@ -175,7 +175,7 @@ namespace Maptek.Vulcan.Stp.Planner
                 Rows = groups.SelectMany(g => g.Rows).ToList(),
                 Counters = counters,
                 Capacity = Capacity(days, chips.Where(c => c.IsVisible).Select(c => c.Type), byType, filter.Objectives, filter.TypeColors),
-                Selected = Details(snapshot, catalog, fragmentsByActivity, moved, filter.SelectedActivityId, activityEligibility),
+                Selected = Details(snapshot, catalog, fragmentsByActivity, moved, filter.SelectedActivityId, activityEligibility, filter.Overrides),
                 PlanTotals = rows.Where(r => r.PlanQuantity.HasValue).GroupBy(r => r.Unit ?? string.Empty)
                     .OrderBy(g => g.Key, StringComparer.Ordinal)
                     .Select(g => new PlanTotal { Unit = g.Key, Quantity = g.Sum(r => r.PlanQuantity.Value) }).ToList(),
@@ -278,7 +278,7 @@ namespace Maptek.Vulcan.Stp.Planner
         {
             double? rate = info.Rate;
             string unit = LocalOverrides.LogicalUnitId(fragment.ActivityId, fragment.LogicalUnitDate);
-            string assigned = fragment.LockedCompleted ? null : overrides?.ResourceOf(unit);
+            string assigned = fragment.LockedCompleted ? null : overrides?.AssignmentOf(fragment.ActivityId, unit);
             bool exempt = info.HasType && !fragment.LockedCompleted && overrides != null && overrides.IsExempt(unit);
             long day = CivilTime.DayMicroseconds;
             long lower = CivilTime.Scalar(horizon.HorizonStart), upper = CivilTime.Scalar(horizon.HorizonFinish);
@@ -420,7 +420,8 @@ namespace Maptek.Vulcan.Stp.Planner
             Dictionary<string, List<PlannerFragment>> fragmentsByActivity,
             IReadOnlyDictionary<string, string> moved,
             string id,
-            Func<string, ActivityEligibility> activityEligibility)
+            Func<string, ActivityEligibility> activityEligibility,
+            LocalOverrides overrides)
         {
             if (id == null || !catalog.TryGetValue(id, out var info)) return null;
             var fragments = fragmentsByActivity.TryGetValue(id, out var list) ? list : new List<PlannerFragment>();
@@ -477,7 +478,8 @@ namespace Maptek.Vulcan.Stp.Planner
                 Name = info.Name,
                 Type = info.Type,
                 Level = info.Level,
-                Resource = info.Resource,
+                Resource = overrides?.ActivityResourceOf(id) ?? info.Resource,
+                VgsResource = info.Resource,
                 Start = fragments.Count == 0 ? string.Empty : fragments.OrderBy(f => CivilTime.Scalar(f.Start)).First().Start,
                 Finish = fragments.Count == 0 ? string.Empty : fragments.OrderByDescending(f => CivilTime.Scalar(f.Finish)).First().Finish,
                 OriginalStart = fragments.Count == 0 ? string.Empty : fragments.OrderBy(f => CivilTime.Scalar(f.OriginalStart)).First().OriginalStart,

@@ -48,11 +48,24 @@ In the plugin, `src/StpClient/Views/Planner/PlannerScreenViewModel.cs` maps this
 (`IPlannerViewModel`) and `PlannerTimelineModel.cs` maps its groups, rows, day segments and precedences to the
 timeline control (`StpTimeline.ITimelineModel`).
 
-Per-day local settings (the browser's compatibility preferences, never sent to VGS, not undoable): `ResourceOptions`,
-`AssignResource(logicalUnitId, resource)` ("Asignar equipo"), `SetCapacityExemption(logicalUnitId, exempt)`
-("Exentar Límite"; only for activities with a VGS type, `IsCapacityExemptible`), saved per project under
-`stp-plugin:overrides:<projectKey>` in the horizon storage. `DaySegment` carries `LogicalUnitId`, `Resource`,
-`HasResourceOverride` and `IsCapacityExempt`; capacity `IsOver` ignores exempt days (`CapacityCell.CapacityValue`).
+Equipment and per-day local settings (the browser's compatibility preferences, never sent to VGS or the apply
+package), saved per project under `stp-plugin:overrides:<projectKey>` in the horizon storage:
+
+* `ResourceOptions` (names) / `ResourceDescriptors` (ids `vgs:<name>` / `manual:<n>`): the VGS resources, sorted,
+  then the manual ones. `ManualResources`, `AddManualResource(assignToActivityId)` ("+ Recurso manual"),
+  `RenameManualResource(id, name)`, `RemoveManualResource(id)`: the rules of `normalizeManualResources` and the
+  template's add/rename/remove (`ManualResources`, golden-tested in `tools/golden/compat`). Names are unique,
+  case-insensitively, among VGS and manual resources; a removed one takes its assignments with it.
+* `AssignResource(logicalUnitId, resource)` ("Asignar equipo", one day) and `AssignActivityResource(activityId,
+  resource)` (the Recurso selector, the whole activity). A day's equipment is its own assignment, else the activity's,
+  else the VGS resource (JS `effectiveResourceFor`). Assignments are stored by name and follow a rename.
+* These equipment edits are undoable plan steps (`ResourceState` in each history state); they never change the plan.
+* `SetCapacityExemption(logicalUnitId, exempt)` ("Exentar Límite"; only for activities with a VGS type,
+  `IsCapacityExemptible`), not undoable.
+
+`DaySegment` carries `LogicalUnitId`, `Resource`, `HasResourceOverride` and `IsCapacityExempt`; capacity `IsOver`
+ignores exempt days (`CapacityCell.CapacityValue`). `ActivityDetails.Resource` is the activity's equipment and
+`VgsResource` its VGS one.
 In the plugin, `PlannerEditRouter` maps every timeline edit request to these and the plan commands below.
 
 Plan commands return a `PlannerOutcome`. `Message` is the Spanish text to show (timeline_logic.js
@@ -63,8 +76,9 @@ Plan commands return a `PlannerOutcome`. `Message` is the Spanish text to show (
 
 * **Undo/redo:** a history state is a seed horizon plus the list of accepted operations. Undo and redo rebuild a
   `CivilHorizonController` from the snapshot and replay the list. The engine is pure, so the replay is exact; the golden
-  tests undo and redo every case to confirm this. Range edits and Discard are undoable. Saving the preference is not a
-  plan step.
+  tests undo and redo every case to confirm this. Range edits, Discard and the equipment edits (manual resources,
+  assignments) are undoable; an equipment-only step restores its `ResourceState` without a replay. Saving the
+  preference is not a plan step.
 * **Rows** are activities with at least one visible segment, as in the browser's `buildTimelineView`. Counters are
   taken before the chip and search filters, as in the browser metrics. Capacity respects the chips.
 * **Grid columns:** by default the type comes only from `Activity Type`, as in the browser. `PlannerOptions` can add
@@ -78,6 +92,6 @@ Plan commands return a `PlannerOutcome`. `Message` is the Spanish text to show (
 
 ## Not yet covered
 
-The resource override selector (manual resources), the reports, charts, actual-progress and print/Excel
+Frentes per day and per resource (`dailyFronts`, `resourceCapacities`), resource colours, the reports, charts, actual-progress and print/Excel
 tabs (v1_compat_logic.js), drag previews and capacity warnings (`previewExcesses`), persisted visual preferences
 (`vgs-stp-v2:visual:`), and `precedenceLines` geometry.

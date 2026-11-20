@@ -176,6 +176,45 @@ namespace Maptek.Vulcan.Stp.Client.Tests
         }
 
         [Fact]
+        public void Assign_resource_offers_manual_resources_and_undo_takes_it_back()
+        {
+            Assert.True(_session.AddManualResource().Ok);
+            Assert.True(_session.RenameManualResource("manual:1", "Scoop LH-09").Ok);
+            _pickAnswer = new PickedResource("Scoop LH-09");
+            Assert.True(_router.Apply(Request(TimelineEditAction.AssignResource, "REZ-1425-01", 11)).Ok);
+
+            Assert.Equal("Scoop LH-09", _picks.Single().Options.Last());
+            var day = (DaySegment)Row("REZ-1425-01").Blocks.Single(b => b.Day == 11).Tag;
+            Assert.Equal("Scoop LH-09", day.Resource);
+
+            Assert.True(_router.Apply(new PlannerEditRequest { Action = TimelineEditAction.Undo }).Ok);   // Ctrl+Z
+            Assert.Null(_session.AssignedResource(day.LogicalUnitId));
+        }
+
+        [Fact]
+        public void Screen_models_route_picks_and_renames_to_the_session()
+        {
+            var picked = new List<ResourceChoice>();
+            var vgs = new ResourceChoice("Scoop LH-07", "Scoop LH-07 (VGS)");
+            var other = new ResourceChoice("Scoop LH-05", "Scoop LH-05");
+            var selected = new SelectedActivity(picked.Add) { ResourceOptions = new[] { vgs, other } };
+            selected.ShowResource(vgs);
+            selected.Resource = null;   // the ComboBox clearing its selection does nothing
+            selected.Resource = vgs;    // nor does the same entry
+            selected.Resource = other;
+            Assert.Equal(new[] { other }, picked);
+            Assert.Same(vgs, selected.Resource);   // shown until the session answers (the panel is rebuilt)
+
+            var renames = new List<string>();
+            var manual = new ResourceItem(new ResourceDescriptor { Id = "manual:1", Name = "Equipo manual 1", IsManual = true }, (i, n) => renames.Add(i.Id + "=" + n), null);
+            var fromVgs = new ResourceItem(new ResourceDescriptor { Id = "vgs:Jumbo 01", Name = "Jumbo 01" }, (i, n) => renames.Add(i.Id + "=" + n), null);
+            manual.Name = "Camión 3";
+            fromVgs.Name = "Otro";
+            Assert.Equal(new[] { "manual:1=Camión 3" }, renames);
+            Assert.Equal("Jumbo 01", fromVgs.Name);
+        }
+
+        [Fact]
         public void Without_a_picker_assign_is_hidden()
         {
             using var router = new PlannerEditRouter(_session, null);

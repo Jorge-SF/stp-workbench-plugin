@@ -84,6 +84,30 @@ namespace Maptek.Vulcan.Stp.Planner
         /// <summary>Plugin: activities without a VGS type cannot be exempted (template <c>capacityExemptible</c>).</summary>
         public const string NotExemptible = "Sólo las actividades con tipo de VGS se pueden exentar del límite de capacidad.";
 
+        /// <summary>Plugin: equipment assigned to a whole activity.</summary>
+        public const string ActivityResourceAssigned = "Equipo de la actividad asignado sólo en la vista local. VGS no fue modificado.";
+
+        /// <summary>Plugin: activity back to its VGS resource.</summary>
+        public const string ActivityResourceCleared = "La actividad vuelve a su recurso de VGS. VGS no fue modificado.";
+
+        /// <summary>Plugin: manual resource added ("+ Recurso manual").</summary>
+        public const string ManualResourceAdded = "Recurso manual agregado sólo en la vista local. VGS no fue modificado.";
+
+        /// <summary>Plugin: manual resource renamed.</summary>
+        public const string ManualResourceRenamed = "Recurso manual renombrado.";
+
+        /// <summary>Plugin: manual resource removed (its assignments go back to the activity's equipment).</summary>
+        public const string ManualResourceRemoved = "Recurso manual quitado; sus días vuelven al equipo de la actividad.";
+
+        /// <summary>Template <c>renameManualResource</c>: a blank or repeated name.</summary>
+        public const string ManualResourceNameInvalid = "El nombre del recurso manual debe ser único y no estar vacío.";
+
+        /// <summary>Plugin: unknown manual resource id.</summary>
+        public const string UnknownManualResource = "El recurso manual no existe.";
+
+        /// <summary>Plugin: unknown activity.</summary>
+        public const string UnknownActivity = "La actividad no existe en el proyecto.";
+
         /// <summary>Plugin: the local setting could not be saved.</summary>
         public const string OverridesNotSaved = "No se pudo guardar el ajuste local: ";
 

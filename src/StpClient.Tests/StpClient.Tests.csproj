@@ -24,6 +24,7 @@
     <Compile Include="..\StpClient\Views\Planner\PlannerTimelineModel.cs" Link="Linked\PlannerTimelineModel.cs" />
     <Compile Include="..\StpClient\Views\Planner\DesignSnapshot.cs" Link="Linked\DesignSnapshot.cs" />
     <Compile Include="..\StpClient\Views\Planner\PlannerEditRouter.cs" Link="Linked\PlannerEditRouter.cs" />
+    <Compile Include="..\StpClient\Views\Planner\PlannerModels.cs" Link="Linked\PlannerModels.cs" />
   </ItemGroup>
   <ItemGroup>
     <!-- StpPlanner/StpBridge do not copy Newtonsoft (the Workbench provides it); the test host needs a copy. -->

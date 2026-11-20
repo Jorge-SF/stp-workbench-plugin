@@ -47,6 +47,9 @@ namespace Maptek.Vulcan.Stp.Views.Planner
         private readonly IPlannerHost _host;
         private readonly PlannerTimelineModel _timeline;
         private readonly RelayCommand[] _commands;
+        private readonly RelayCommand _removeManual;
+        private readonly ResourcesConfig _resources;
+        private readonly ConfigSection _frontsSection;
         private SelectedActivity _selected;
         private bool _showResources = true;
         private bool _showCapacityPanel = true;
@@ -64,6 +67,9 @@ namespace Maptek.Vulcan.Stp.Views.Planner
             var apply = new RelayCommand(() => Run(ApplyAsync), () => Session.CanApply);
             var verify = new RelayCommand(() => _host?.VerifySave?.Invoke(), () => _host?.VerifySave != null && !Session.IsBusy);
             var toggle = new RelayCommand(p => Session.ToggleType(p as string), p => p is string);
+            var addManual = new RelayCommand(() => AddManualResource(null), () => !Session.IsBusy);
+            var removeManual = new RelayCommand(p => Session.RemoveManualResource((p as ResourceItem)?.Id), p => p is ResourceItem item && item.IsManual && !Session.IsBusy);
+            _removeManual = removeManual;
             RefreshCommand = refresh;
             UndoCommand = undo;
             RedoCommand = redo;
@@ -77,16 +83,19 @@ namespace Maptek.Vulcan.Stp.Views.Planner
             ExportExcelCommand = excel;
             ExportPdfCommand = pdf;
             ExportStandaloneCommand = standalone;
-            _commands = new[] { refresh, undo, redo, discard, apply, verify, excel, pdf, standalone };
+            _commands = new[] { refresh, undo, redo, discard, apply, verify, excel, pdf, standalone, addManual, removeManual };
 
             GroupByOptions = new[] { Res.Planner_GroupType, Res.Planner_GroupLevel, Res.Planner_GroupResource, Res.Planner_GroupNone };
             SortOptions = new[] { Res.Planner_SortStart, Res.Planner_SortId, Res.Planner_SortSource };
+            _resources = new ResourcesConfig(addManual);
+            _frontsSection = new ConfigSection(Res.Planner_CfgFronts, _resources);
             ConfigSections = new[]
             {
                 new ConfigSection(Res.Planner_CfgColors), new ConfigSection(Res.Planner_CfgAttributes),
-                new ConfigSection(Res.Planner_CfgReports), new ConfigSection(Res.Planner_CfgFronts),
+                new ConfigSection(Res.Planner_CfgReports), _frontsSection,
                 new ConfigSection(Res.Planner_CfgPrint), new ConfigSection(Res.Planner_CfgGeneral),
             };
+            RebuildResources();
 
             _timeline = new PlannerTimelineModel(session);
             Editor = new PlannerEditRouter(session, host == null ? (Func<ResourcePickRequest, PickedResource>)null : host.PickResource);
@@ -331,13 +340,13 @@ namespace Maptek.Vulcan.Stp.Views.Planner
             return t.TimeOfDay == TimeSpan.Zero ? t.ToString("dd/MM/yyyy", Es) : t.ToString("dd/MM/yyyy HH:mm", Es);
         }
 
-        private static SelectedActivity BuildSelected(ActivityDetails d)
+        private SelectedActivity BuildSelected(ActivityDetails d)
         {
             if (d == null) return null;
-            string resource = string.IsNullOrEmpty(d.Resource) ? "—" : d.Resource;
             IReadOnlyList<string> Pills(IReadOnlyList<LinkInfo> links) =>
                 links == null || links.Count == 0 ? new[] { "—" } : links.Select(l => l.Text).ToArray();
-            return new SelectedActivity
+            var choices = ResourceChoices(Session.ResourceOptions, d.VgsResource);
+            var selected = new SelectedActivity(PickActivityResource)
             {
                 Id = d.ActivityId,
                 Name = d.Name,
@@ -346,13 +355,49 @@ namespace Maptek.Vulcan.Stp.Views.Planner
                 ShiftText = d.ShiftText ?? string.Empty,
                 FinishText = DayText(d.Finish),
                 QuantityText = string.IsNullOrEmpty(d.QuantityText) ? "—" : d.QuantityText,
-                ResourceOptions = new[] { resource },
-                Resource = resource,
+                ResourceOptions = choices,
                 Predecessors = Pills(d.Predecessors),
                 Successors = Pills(d.Successors),
                 StateText = d.StatusText,
             };
+            selected.ShowResource(choices.FirstOrDefault(c => !c.IsAddManual && c.Name == d.Resource));
+            return selected;
         }
+
+        /// <summary>The Recurso selector: every resource (the activity's VGS one marked "(VGS)"), then "+ Recurso manual…".</summary>
+        public static IReadOnlyList<ResourceChoice> ResourceChoices(IEnumerable<string> options, string vgsResource)
+        {
+            var list = (options ?? Enumerable.Empty<string>())
+                .Select(name => new ResourceChoice(name, name == vgsResource ? string.Format(Res.Planner_ResourceVgs, name) : name)).ToList();
+            if (vgsResource != null && list.All(c => c.Name != vgsResource)) list.Insert(0, new ResourceChoice(vgsResource, string.Format(Res.Planner_ResourceVgs, vgsResource)));
+            list.Add(new ResourceChoice(null, Res.Planner_AddManualResourceChoice, true));
+            return list;
+        }
+
+        private void PickActivityResource(ResourceChoice choice)
+        {
+            string activity = Session.SelectedActivityId;
+            if (activity == null || choice == null) return;
+            if (choice.IsAddManual) AddManualResource(activity);
+            else Session.AssignActivityResource(activity, choice.Name);
+        }
+
+        /// <summary>"+ Recurso manual": adds one (assigned to <paramref name="activityId"/> when given) and opens Frentes y recursos to rename it.</summary>
+        private void AddManualResource(string activityId)
+        {
+            if (Session.AddManualResource(activityId).Ok) _frontsSection.IsExpanded = true;
+        }
+
+        private void RenameManualResource(ResourceItem item, string name)
+        {
+            if (!Session.RenameManualResource(item.Id, name).Ok)
+            {
+                item.Reset(Session.ManualResources.FirstOrDefault(r => r.Id == item.Id)?.Name ?? item.Name);
+            }
+        }
+
+        private void RebuildResources() =>
+            _resources.Items = Session.ResourceDescriptors.Select(d => new ResourceItem(d, RenameManualResource, _removeManual)).ToList();
 
         private void OnSessionChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -360,8 +405,13 @@ namespace Maptek.Vulcan.Stp.Views.Planner
             switch (name)
             {
                 case "":
+                    RebuildResources();
                     _selected = BuildSelected(Session.Selected);
                     OnPropertyChanged(string.Empty);
+                    break;
+                case nameof(PlannerSession.ResourceDescriptors):
+                case nameof(PlannerSession.ManualResources):
+                    RebuildResources();
                     break;
                 case nameof(PlannerSession.Counters):
                     Raise(nameof(ActivityCount), nameof(PendingCount), nameof(MovedCount), nameof(CascadeCount));
