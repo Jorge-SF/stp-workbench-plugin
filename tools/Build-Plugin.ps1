@@ -23,7 +23,7 @@
   so every commit gives a higher version and a new MSI replaces the old one.
 
 .PARAMETER Test
-  Also run the C# tests (StpEngine.Tests, StpBridge.Tests), the Python smoke test and the golden check.
+  Also run the C# tests (StpEngine.Tests, StpBridge.Tests, StpTimeline.Tests), the Python smoke test and the golden check.
 
 .PARAMETER Register
   After a successful build, register Deploy\Client as a Workbench plugin search path
@@ -125,7 +125,7 @@ if ($Test) {
     Step 'Running tests'
     $dotnet = Get-Command dotnet -ErrorAction SilentlyContinue
     if ($dotnet) {
-        foreach ($project in 'src\StpEngine.Tests', 'src\StpBridge.Tests') {
+        foreach ($project in 'src\StpEngine.Tests', 'src\StpBridge.Tests', 'src\StpTimeline.Tests') {
             Write-Host "  $project"
             & dotnet test (Join-Path $root $project) --no-build -c $Configuration --nologo -v q
             if ($LASTEXITCODE -ne 0) { $testFailures += $project }

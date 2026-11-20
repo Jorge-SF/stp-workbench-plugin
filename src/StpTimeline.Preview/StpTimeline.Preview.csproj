@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Stand-alone window that shows the timeline control with fake data, so it can be checked without Vulcan.
+       Command-line options: see Options in Program.cs (data, rows, days, screenshot, width, height, scroll-row, day-width). -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>Maptek.Vulcan.Stp.Timeline.Preview</RootNamespace>
+    <AssemblyName>StpTimeline.Preview</AssemblyName>
+    <StartupObject>Maptek.Vulcan.Stp.Timeline.Preview.Program</StartupObject>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\StpTimeline\StpTimeline.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Planner timeline (Gantt) control, as specified by docs/mockups/planner_layout.html.
+       Plain WPF (DrawingVisual): no Workbench, engine or bridge references. It is fed through the small
+       view-model interfaces in Model/ so the planner view-model (or the preview app) can drive it. -->
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>Maptek.Vulcan.Stp.Timeline</RootNamespace>
+    <AssemblyName>StpTimeline</AssemblyName>
+    <Version>1.0.0</Version>
+    <Company>Maptek</Company>
+    <Product>STP UG</Product>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="StpTimeline.Tests" />
+  </ItemGroup>
+</Project>
