@@ -124,7 +124,10 @@ namespace Maptek.Vulcan.Stp.Views.Planner
         /// <summary>Capacidad tab: day headers.</summary>
         IReadOnlyList<HorizonDay> CapacityDays { get; }
 
-        /// <summary>Capacidad tab: daily totals per activity type against the goal.</summary>
+        /// <summary>
+        /// Capacidad tab: daily totals per activity type against the goal. While a block is dragged, the totals of the
+        /// candidate plan, with <see cref="CapacityCell.IsPreviewExcess"/> on the cells the move would take over the goal.
+        /// </summary>
         IReadOnlyList<CapacityRow> CapacityRows { get; }
 
         // ---- Right panel -------------------------------------------------------------------------------------------

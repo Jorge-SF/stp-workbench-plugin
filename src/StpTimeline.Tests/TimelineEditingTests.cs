@@ -124,7 +124,7 @@ namespace Maptek.Vulcan.Stp.Timeline.Tests
     }
 
     /// <summary>Editing on an off-screen control: the input handlers are driven directly.</summary>
-    public class TimelineEditingTests
+    public partial class TimelineEditingTests
     {
         private const double Width = 1200, Height = 700, GridWidth = 440, Dw = 44;
 

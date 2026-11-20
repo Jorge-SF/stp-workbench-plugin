@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using System.Linq;
 using Maptek.Vulcan.Stp.Planner;
 using Maptek.Vulcan.Stp.Timeline;
 
@@ -33,6 +34,16 @@ namespace Maptek.Vulcan.Stp.Views.Planner
 
         /// <summary>Tail moves: where the pressed day lands.</summary>
         public DateTime? TargetDate => Date?.AddDays(DayDelta);
+
+        public static PlannerEditRequest From(TimelineDragPreviewEventArgs e) => new PlannerEditRequest
+        {
+            Action = TimelineEditAction.Move,
+            Scope = e.Scope,
+            ActivityKey = e.ActivityKey,
+            Tag = e.Block?.Tag,
+            Date = e.Date,
+            DayDelta = e.DayDelta,
+        };
 
         public static PlannerEditRequest From(TimelineEditEventArgs e) => new PlannerEditRequest
         {
@@ -171,6 +182,36 @@ namespace Maptek.Vulcan.Stp.Views.Planner
             }
         }
 
+        /// <summary>
+        /// DragPreviewChanged: the capacity preview of the move being dragged (the browser planner's
+        /// <c>previewDailyTail</c> warnings). Plain drag previews the daily tail, Shift+drag the whole activity. The
+        /// session holds the preview (the capacity panel shows the candidate's cells) until the drag ends: pass
+        /// <paramref name="active"/> false on drop / Esc, and a refused or zero move clears it as well.
+        /// </summary>
+        /// <returns>The timeline days (index from the range start) to draw as warnings, and the badge text.</returns>
+        public PlannerDragWarnings PreviewDrag(PlannerEditRequest request, bool active)
+        {
+            CapacityPreview preview = null;
+            if (active && request != null && IsEditable && request.DayDelta != 0 && !string.IsNullOrEmpty(request.ActivityKey))
+            {
+                if (request.Scope == TimelineMoveScope.Activity)
+                    preview = _session.PreviewMoveActivity(request.ActivityKey, request.DayDelta);
+                else if (request.Tag is DaySegment segment && request.TargetDate != null)
+                    preview = _session.PreviewMoveDailyTail(request.ActivityKey, segment.FragmentId, Day(request.TargetDate.Value));
+            }
+
+            if (preview == null)
+            {
+                _session.ClearDragPreview();
+                return PlannerDragWarnings.None;
+            }
+
+            var days = new List<int>();
+            foreach (var day in _session.Days)
+                if (preview.WarningDates.Contains(day.Date)) days.Add(day.Index);
+            return new PlannerDragWarnings(days, preview.HasWarning ? preview.WarningText : null);
+        }
+
         private PlannerOutcome Select(PlannerEditRequest request, PlannerOutcome outcome)
         {
             // The edited activity becomes the selected one, so the side panel shows what just moved.
@@ -187,6 +228,24 @@ namespace Maptek.Vulcan.Stp.Views.Planner
         {
             if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(PlannerSession.IsBusy)) IsEditable = !_session.IsBusy;
         }
+    }
+
+    /// <summary>What a drag preview marks on the timeline.</summary>
+    public sealed class PlannerDragWarnings
+    {
+        public static readonly PlannerDragWarnings None = new PlannerDragWarnings(Array.Empty<int>(), null);
+
+        public PlannerDragWarnings(IReadOnlyList<int> days, string text)
+        {
+            Days = days ?? Array.Empty<int>();
+            Text = text;
+        }
+
+        /// <summary>Day indexes from the range start with an added excess.</summary>
+        public IReadOnlyList<int> Days { get; }
+
+        /// <summary>The excess messages ("Capacidad excedida para Rezagado."), or null.</summary>
+        public string Text { get; }
     }
 
     /// <summary>The picker's answer: <see cref="Resource"/> null = back to the activity's own equipment.</summary>

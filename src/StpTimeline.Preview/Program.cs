@@ -37,7 +37,7 @@ namespace Maptek.Vulcan.Stp.Timeline.Preview
         public double DayWidth = double.NaN;
         public string Bench;
 
-        /// <summary>Screenshot demo: drag, drag-activity, blocked, menu, tooltip, stagger (with --screenshot; captures the screen).</summary>
+        /// <summary>Screenshot demo: drag, drag-activity, blocked, menu, tooltip, stagger, capacity, exempt (with --screenshot; captures the screen).</summary>
         public string Demo;
 
         public static Options Parse(string[] args)
@@ -138,6 +138,7 @@ namespace Maptek.Vulcan.Stp.Timeline.Preview
             _timeline.UndoRequested += edit;
             _timeline.RedoRequested += edit;
             _timeline.BlockMenuOpening += (s, e) => _planner.OnMenuOpening(e);
+            _timeline.DragPreviewChanged += (s, e) => _planner.OnDragPreview(e);
             _timeline.SelectedRowChanged += (s, e) => UpdateStatus();
             _timeline.Rendered += (s, e) => { if (_startupFrames.Count < 5) _startupFrames.Add(_timeline.LastRenderMilliseconds); UpdateStatus(); };
 
@@ -299,6 +300,17 @@ namespace Maptek.Vulcan.Stp.Timeline.Preview
                     break;
                 case "stagger":
                     _timeline.OpenStagger("REZ-1425-01", 11, chart);
+                    break;
+                case "capacity":
+                    // Shift+drag REZ-1400-02 two days onto REZ-1425-01: the simulated preview marks the shared days red.
+                    int rez2 = Row("REZ-1400-02");
+                    chart.Press(At(rez2, 8));
+                    chart.PointerMove(At(rez2, 8) + new Vector(8, 0), ModifierKeys.Shift);
+                    chart.PointerMove(At(rez2, 10), ModifierKeys.Shift);
+                    break;
+                case "exempt":
+                    _timeline.SelectedKey = "REZ-1425-01";
+                    _timeline.RequestEdit(TimelineView.CapacityExemptionRequestedEvent, TimelineEditAction.ToggleCapacityExemption, TimelineEditOrigin.ContextMenu, rez, 0);
                     break;
             }
             UpdateStatus();

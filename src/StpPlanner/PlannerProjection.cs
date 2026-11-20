@@ -28,6 +28,9 @@ namespace Maptek.Vulcan.Stp.Planner
         /// <summary>Gets the capacity rows (types shown by the chips).</summary>
         public IReadOnlyList<CapacityRow> Capacity { get; init; } = Array.Empty<CapacityRow>();
 
+        /// <summary>Gets the rows the capacity rows sum (visible types, before the search filter).</summary>
+        public IReadOnlyList<PlannerRow> CapacitySource { get; init; } = Array.Empty<PlannerRow>();
+
         /// <summary>Gets the selected activity's details, or <c>null</c>.</summary>
         public ActivityDetails Selected { get; init; }
 
@@ -174,6 +177,7 @@ namespace Maptek.Vulcan.Stp.Planner
                 Groups = groups,
                 Rows = groups.SelectMany(g => g.Rows).ToList(),
                 Counters = counters,
+                CapacitySource = byType,
                 Capacity = Capacity(days, chips.Where(c => c.IsVisible).Select(c => c.Type), byType, filter.Objectives, filter.TypeColors),
                 Selected = Details(snapshot, catalog, fragmentsByActivity, moved, filter.SelectedActivityId, activityEligibility, filter.Overrides),
                 PlanTotals = rows.Where(r => r.PlanQuantity.HasValue).GroupBy(r => r.Unit ?? string.Empty)

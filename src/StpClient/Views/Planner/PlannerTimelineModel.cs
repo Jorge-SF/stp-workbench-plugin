@@ -110,7 +110,9 @@ namespace Maptek.Vulcan.Stp.Views.Planner
                 string label = amount.HasValue ? PlannerProjection.CompactQuantity(amount.Value) : null;
                 // Tag: the day's first pending segment (fragment id, logical unit) that PlannerEditRouter edits.
                 var tag = segments.FirstOrDefault(s => s.Status != SegmentStatus.Completed) ?? segments[0];
-                result.Blocks.Add(new TimelineBlock(day.Key, label, completed, tag, BlockDetail(tag, PlannerProjection.QuantityText(amount, row.Unit))));
+                // "Exentar Límite" is per day (logical unit): green when every pending segment of the day is exempt.
+                bool exempt = !completed && segments.Where(s => s.Status != SegmentStatus.Completed).All(s => s.IsCapacityExempt);
+                result.Blocks.Add(new TimelineBlock(day.Key, label, completed, tag, BlockDetail(tag, PlannerProjection.QuantityText(amount, row.Unit)), exempt));
             }
 
             return result;

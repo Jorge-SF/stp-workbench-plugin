@@ -1,0 +1,108 @@
+{
+  "about": "Cases for timeline_logic.js previewExcesses (capacity preview while dragging). Each case: preferences, view (timeline view rows), optional baseline view; the harness records previewExcesses(view) and, with a baseline, the excesses the view adds (previewDailyTail L873-877). Synthetic data.",
+  "cases": [
+    {
+      "name": "type_over_objective",
+      "preferences": { "typeObjectives": { "Rezagado": 2500, "Barrenación": 600 } },
+      "view": { "rows": [
+        { "activityId": "R1", "activityType": "Rezagado", "resource": "LHD-01", "days": [
+          { "date": "2026-11-16", "segments": [ { "status": "pending", "scheduledAmount": 1700, "widthRatio": 1 } ] },
+          { "date": "2026-11-17", "segments": [ { "status": "pending", "scheduledAmount": 1700, "widthRatio": 1 } ] } ] },
+        { "activityId": "R2", "activityType": "Rezagado", "resource": "LHD-02", "days": [
+          { "date": "2026-11-17", "segments": [ { "status": "direct", "scheduledAmount": 900, "widthRatio": 0.5 } ] },
+          { "date": "2026-11-18", "segments": [ { "status": "pending", "scheduledAmount": 900, "widthRatio": 0.5 } ] } ] },
+        { "activityId": "B1", "activityType": "Barrenación", "resource": "JUMBO-1", "days": [
+          { "date": "2026-11-16", "segments": [ { "status": "pending", "scheduledAmount": 300, "widthRatio": 0.5 }, { "status": "pending", "scheduledAmount": 301, "widthRatio": 0.5 } ] } ] }
+      ] }
+    },
+    {
+      "name": "completed_ignored_and_width_fallback",
+      "preferences": { "typeObjectives": { "Servicios": 1, "Relleno": 400 } },
+      "view": { "rows": [
+        { "activityId": "S1", "activityType": "Servicios", "resource": "Cuadrilla", "days": [
+          { "date": "2026-11-16", "segments": [ { "status": "completed", "widthRatio": 1 }, { "status": "pending", "widthRatio": 0.75 } ] },
+          { "date": "2026-11-17", "segments": [ { "status": "pending", "widthRatio": 0.75 } ] } ] },
+        { "activityId": "S2", "activityType": "Servicios", "resource": "Cuadrilla", "days": [
+          { "date": "2026-11-16", "segments": [ { "status": "pending", "widthRatio": 0.5 } ] },
+          { "date": "2026-11-18", "segments": [ { "status": "completed", "widthRatio": 1 } ] } ] },
+        { "activityId": "F1", "activityType": "Relleno", "resource": "Planta", "days": [
+          { "date": "2026-11-16", "segments": [ { "status": "completed", "scheduledAmount": 900, "widthRatio": 1 } ] },
+          { "date": "2026-11-17", "segments": [ { "status": "cascade", "scheduledAmount": 400, "widthRatio": 1 } ] } ] }
+      ] }
+    },
+    {
+      "name": "zero_objective_and_missing_type",
+      "preferences": { "typeObjectives": { "Desarrollo": 0 } },
+      "view": { "rows": [
+        { "activityId": "D1", "activityType": "Desarrollo", "resource": "J1", "days": [
+          { "date": "2026-11-20", "segments": [ { "status": "pending", "scheduledAmount": 0, "widthRatio": 1 } ] },
+          { "date": "2026-11-21", "segments": [ { "status": "pending", "scheduledAmount": 0.5, "widthRatio": 1 } ] } ] },
+        { "activityId": "V1", "activityType": "Voladura", "resource": "J1", "days": [
+          { "date": "2026-11-21", "segments": [ { "status": "pending", "scheduledAmount": 99999, "widthRatio": 1 } ] } ] }
+      ] }
+    },
+    {
+      "name": "float_sum_order",
+      "preferences": { "typeObjectives": { "Sostenimiento": 0.6, "Rezagado": 0.3 } },
+      "view": { "rows": [
+        { "activityId": "A", "activityType": "Sostenimiento", "resource": "X", "days": [
+          { "date": "2026-11-16", "segments": [ { "status": "pending", "scheduledAmount": 0.1, "widthRatio": 1 }, { "status": "pending", "scheduledAmount": 0.2, "widthRatio": 1 } ] } ] },
+        { "activityId": "B", "activityType": "Sostenimiento", "resource": "Y", "days": [
+          { "date": "2026-11-16", "segments": [ { "status": "pending", "scheduledAmount": 0.3, "widthRatio": 1 } ] } ] },
+        { "activityId": "C", "activityType": "Rezagado", "resource": "Z", "days": [
+          { "date": "2026-11-16", "segments": [ { "status": "pending", "scheduledAmount": 0.1, "widthRatio": 1 }, { "status": "pending", "scheduledAmount": 0.2, "widthRatio": 1 } ] } ] }
+      ] }
+    },
+    {
+      "name": "fronts_daily_and_per_resource",
+      "preferences": { "typeObjectives": {}, "dailyFronts": 1, "resourceCapacities": { "LHD-02": 2 }, "resourceFronts": { "LHD-03": 3, "LHD-02": 1 } },
+      "view": { "rows": [
+        { "activityId": "A1", "activityType": "Rezagado", "resource": "LHD-01", "days": [
+          { "date": "2026-11-16", "segments": [ { "status": "pending", "scheduledAmount": 10, "widthRatio": 1 } ] },
+          { "date": "2026-11-17", "segments": [ { "status": "pending", "scheduledAmount": 10, "widthRatio": 1 } ] } ] },
+        { "activityId": "A2", "activityType": "Rezagado", "resource": "LHD-01", "days": [
+          { "date": "2026-11-17", "segments": [ { "status": "pending", "scheduledAmount": 10, "widthRatio": 1 } ] } ] },
+        { "activityId": "A3", "activityType": "Rezagado", "resource": "LHD-02", "days": [
+          { "date": "2026-11-16", "segments": [ { "status": "pending", "scheduledAmount": 10, "widthRatio": 1 } ] } ] },
+        { "activityId": "A4", "activityType": "Relleno", "resource": "LHD-02", "days": [
+          { "date": "2026-11-16", "segments": [ { "status": "pending", "scheduledAmount": 10, "widthRatio": 1 } ] } ] },
+        { "activityId": "A5", "activityType": "Relleno", "resource": "LHD-03", "days": [
+          { "date": "2026-11-16", "segments": [ { "status": "pending", "scheduledAmount": 10, "widthRatio": 1 } ] } ] },
+        { "activityId": "A6", "activityType": "Relleno", "resource": "LHD-01", "days": [
+          { "date": "2026-11-18", "segments": [ { "status": "completed", "scheduledAmount": 10, "widthRatio": 1 } ] } ] },
+        { "activityId": "A7", "activityType": "Relleno", "resource": "LHD-01", "days": [
+          { "date": "2026-11-18", "segments": [ { "status": "pending", "scheduledAmount": 10, "widthRatio": 1 } ] } ] }
+      ] }
+    },
+    {
+      "name": "no_front_preferences",
+      "preferences": { "typeObjectives": { "Rezagado": 5 } },
+      "view": { "rows": [
+        { "activityId": "A1", "activityType": "Rezagado", "resource": "LHD-01", "days": [
+          { "date": "2026-11-16", "segments": [ { "status": "pending", "scheduledAmount": 3, "widthRatio": 1 } ] } ] },
+        { "activityId": "A2", "activityType": "Rezagado", "resource": "LHD-01", "days": [
+          { "date": "2026-11-16", "segments": [ { "status": "pending", "scheduledAmount": 3, "widthRatio": 1 } ] } ] }
+      ] }
+    },
+    {
+      "name": "drag_adds_excess_against_baseline",
+      "preferences": { "typeObjectives": { "Rezagado": 2500 }, "dailyFronts": 1 },
+      "baseline": { "rows": [
+        { "activityId": "R1", "activityType": "Rezagado", "resource": "LHD-01", "days": [
+          { "date": "2026-11-16", "segments": [ { "status": "pending", "scheduledAmount": 3000, "widthRatio": 1 } ] },
+          { "date": "2026-11-17", "segments": [ { "status": "pending", "scheduledAmount": 1700, "widthRatio": 1 } ] } ] },
+        { "activityId": "R2", "activityType": "Rezagado", "resource": "LHD-02", "days": [
+          { "date": "2026-11-18", "segments": [ { "status": "pending", "scheduledAmount": 1700, "widthRatio": 1 } ] },
+          { "date": "2026-11-19", "segments": [ { "status": "pending", "scheduledAmount": 1700, "widthRatio": 1 } ] } ] }
+      ] },
+      "view": { "rows": [
+        { "activityId": "R1", "activityType": "Rezagado", "resource": "LHD-01", "days": [
+          { "date": "2026-11-16", "segments": [ { "status": "pending", "scheduledAmount": 3000, "widthRatio": 1 } ] },
+          { "date": "2026-11-18", "segments": [ { "status": "direct", "scheduledAmount": 1700, "widthRatio": 1 } ] } ] },
+        { "activityId": "R2", "activityType": "Rezagado", "resource": "LHD-01", "days": [
+          { "date": "2026-11-18", "segments": [ { "status": "pending", "scheduledAmount": 1700, "widthRatio": 1 } ] },
+          { "date": "2026-11-19", "segments": [ { "status": "pending", "scheduledAmount": 1700, "widthRatio": 1 } ] } ] }
+      ] }
+    }
+  ]
+}

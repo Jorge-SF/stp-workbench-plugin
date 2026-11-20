@@ -1,0 +1,134 @@
+{
+  "source": "reference/web/timeline_logic.js previewExcesses",
+  "functionSha256": "020b34dba9eb5048ae961840197d604302738aa960dabee95ea8eb60111b3727",
+  "cases": [
+    {
+      "name": "type_over_objective",
+      "excesses": [
+        {
+          "kind": "capacity",
+          "date": "2026-11-17",
+          "label": "Rezagado",
+          "blocking": false,
+          "message": "Capacidad excedida para Rezagado."
+        },
+        {
+          "kind": "capacity",
+          "date": "2026-11-16",
+          "label": "Barrenación",
+          "blocking": false,
+          "message": "Capacidad excedida para Barrenación."
+        }
+      ]
+    },
+    {
+      "name": "completed_ignored_and_width_fallback",
+      "excesses": [
+        {
+          "kind": "capacity",
+          "date": "2026-11-16",
+          "label": "Servicios",
+          "blocking": false,
+          "message": "Capacidad excedida para Servicios."
+        }
+      ]
+    },
+    {
+      "name": "zero_objective_and_missing_type",
+      "excesses": [
+        {
+          "kind": "capacity",
+          "date": "2026-11-21",
+          "label": "Desarrollo",
+          "blocking": false,
+          "message": "Capacidad excedida para Desarrollo."
+        }
+      ]
+    },
+    {
+      "name": "float_sum_order",
+      "excesses": [
+        {
+          "kind": "capacity",
+          "date": "2026-11-16",
+          "label": "Sostenimiento",
+          "blocking": false,
+          "message": "Capacidad excedida para Sostenimiento."
+        },
+        {
+          "kind": "capacity",
+          "date": "2026-11-16",
+          "label": "Rezagado",
+          "blocking": false,
+          "message": "Capacidad excedida para Rezagado."
+        }
+      ]
+    },
+    {
+      "name": "fronts_daily_and_per_resource",
+      "excesses": [
+        {
+          "kind": "fronts",
+          "date": "2026-11-17",
+          "label": "LHD-01",
+          "blocking": false,
+          "message": "Frentes excedidos para LHD-01."
+        }
+      ]
+    },
+    {
+      "name": "no_front_preferences",
+      "excesses": [
+        {
+          "kind": "capacity",
+          "date": "2026-11-16",
+          "label": "Rezagado",
+          "blocking": false,
+          "message": "Capacidad excedida para Rezagado."
+        }
+      ]
+    },
+    {
+      "name": "drag_adds_excess_against_baseline",
+      "excesses": [
+        {
+          "kind": "capacity",
+          "date": "2026-11-16",
+          "label": "Rezagado",
+          "blocking": false,
+          "message": "Capacidad excedida para Rezagado."
+        },
+        {
+          "kind": "capacity",
+          "date": "2026-11-18",
+          "label": "Rezagado",
+          "blocking": false,
+          "message": "Capacidad excedida para Rezagado."
+        },
+        {
+          "kind": "fronts",
+          "date": "2026-11-18",
+          "label": "LHD-01",
+          "blocking": false,
+          "message": "Frentes excedidos para LHD-01."
+        }
+      ],
+      "added": [
+        {
+          "kind": "capacity",
+          "date": "2026-11-18",
+          "label": "Rezagado",
+          "blocking": false,
+          "message": "Capacidad excedida para Rezagado."
+        },
+        {
+          "kind": "fronts",
+          "date": "2026-11-18",
+          "label": "LHD-01",
+          "blocking": false,
+          "message": "Frentes excedidos para LHD-01."
+        }
+      ]
+    }
+  ]
+}

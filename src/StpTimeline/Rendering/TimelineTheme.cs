@@ -29,9 +29,17 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
 
         public static readonly Brush Hatch = MakeHatch();
 
+        /// <summary>Capacity-exempt blocks (short_term_planner_template_v2.html <c>--exempt-color</c>).</summary>
+        public static readonly Color ExemptColor = Color.FromRgb(0x68, 0xBD, 0x79);
+        public static readonly Brush Exempt = Solid(0x68, 0xBD, 0x79);
+
         // Editing overlay (reference .drag-preview-segment: #b9daf6 fill, 2px dashed #0b66c3, opacity .62).
         public static readonly Brush GhostFill = Solid(0xB9, 0xDA, 0xF6, 0xA0);
         public static readonly Pen GhostPen = MakePen(Solid(0x0B, 0x66, 0xC3), 2, 3, 2);
+        // Capacity preview (reference .drag-preview-segment.drag-preview-warning: #ffe2df fill, dashed #b42318).
+        public static readonly Brush GhostWarnFill = Solid(0xFF, 0xE2, 0xDF, 0xE0);
+        public static readonly Pen GhostWarnPen = MakePen(Solid(0xB4, 0x23, 0x18), 2, 3, 2);
+        public static readonly Brush BadgeWarnBack = Solid(0xB4, 0x23, 0x18);
         public static readonly Brush DragOrigin = Solid(0xFF, 0xFF, 0xFF, 0x99);   // fades the blocks being moved
         public static readonly Brush BadgeBack = Solid(0x1F, 0x29, 0x33);
         public static readonly Brush BadgeText = Solid(0xFF, 0xFF, 0xFF);

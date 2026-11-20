@@ -67,6 +67,9 @@ namespace Maptek.Vulcan.Stp.Timeline
         public static readonly RoutedEvent UndoRequestedEvent = Register(nameof(UndoRequested));
         public static readonly RoutedEvent RedoRequestedEvent = Register(nameof(RedoRequested));
 
+        public static readonly RoutedEvent DragPreviewChangedEvent = EventManager.RegisterRoutedEvent(
+            nameof(DragPreviewChanged), RoutingStrategy.Bubble, typeof(TimelineDragPreviewEventHandler), typeof(TimelineView));
+
         public static readonly RoutedEvent BlockMenuOpeningEvent = EventManager.RegisterRoutedEvent(
             nameof(BlockMenuOpening), RoutingStrategy.Bubble, typeof(TimelineMenuEventHandler), typeof(TimelineView));
 
@@ -99,6 +102,14 @@ namespace Maptek.Vulcan.Stp.Timeline
         /// <summary>Ctrl+Y or Ctrl+Shift+Z.</summary>
         public event TimelineEditEventHandler RedoRequested { add => AddHandler(RedoRequestedEvent, value); remove => RemoveHandler(RedoRequestedEvent, value); }
 
+        /// <summary>
+        /// While dragging (plain drag and Shift+drag): raised when the target day or the scope changes, and once with
+        /// <see cref="TimelineDragPreviewEventArgs.IsActive"/> false when the drag ends (drop, Esc, lost capture). The
+        /// host previews the move and calls <see cref="TimelineDragPreviewEventArgs.SetWarnings"/> (or later
+        /// <see cref="SetDragWarnings"/>) with the days that would exceed capacity.
+        /// </summary>
+        public event TimelineDragPreviewEventHandler DragPreviewChanged { add => AddHandler(DragPreviewChangedEvent, value); remove => RemoveHandler(DragPreviewChangedEvent, value); }
+
         /// <summary>The block context menu is about to open: hide, disable or relabel entries, or set Handled to suppress it.</summary>
         public event TimelineMenuEventHandler BlockMenuOpening { add => AddHandler(BlockMenuOpeningEvent, value); remove => RemoveHandler(BlockMenuOpeningEvent, value); }
 
@@ -119,6 +130,28 @@ namespace Maptek.Vulcan.Stp.Timeline
 
         /// <summary>A drag preview is showing.</summary>
         public bool IsDragging => _chart.IsDragging;
+
+        /// <summary>Days marked by the current drag's capacity preview (empty when not dragging).</summary>
+        public IReadOnlyCollection<int> DragWarningDays => _chart.DragWarningDays;
+
+        /// <summary>Badge text of the current drag's capacity preview, or null.</summary>
+        public string DragWarningText => _chart.DragWarningText;
+
+        /// <summary>
+        /// Marks the days where the current drag would exceed capacity (for hosts that compute the preview after the
+        /// <see cref="DragPreviewChanged"/> handler returned). Ignored when no drag is showing.
+        /// </summary>
+        public void SetDragWarnings(IEnumerable<int> days, string text = null) => _chart.SetDragWarnings(days, text);
+
+        /// <summary>Raise <see cref="DragPreviewChanged"/> and return the args (warnings set by handlers).</summary>
+        internal TimelineDragPreviewEventArgs RaiseDragPreview(bool active, int row, int block, TimelineMoveScope scope, int delta)
+        {
+            var r = active && row >= 0 && row < _rows.Count ? _rows[row] : null;
+            DateTime? date = r != null && block >= 0 && block < r.Blocks.Count ? (Model?.StartDate.Date ?? DateTime.MinValue).AddDays(r.Blocks[block].Day) : (DateTime?)null;
+            var args = new TimelineDragPreviewEventArgs(DragPreviewChangedEvent, this, r != null, r, r == null ? -1 : row, r == null ? -1 : block, date, scope, r == null ? 0 : delta);
+            RaiseEvent(args);
+            return args;
+        }
 
         /// <summary>Last reason shown by blocked feedback (for hosts and tests), or null.</summary>
         public string LastBlockedReason { get; private set; }

@@ -156,6 +156,46 @@ namespace Maptek.Vulcan.Stp.Client.Tests
         }
 
         [Fact]
+        public void Exempt_days_are_green_blocks_until_the_exemption_is_removed()
+        {
+            Assert.False(Row("REZ-1425-01").Blocks.Single(b => b.Day == 10).IsCapacityExempt);
+            Assert.True(_router.Apply(Request(TimelineEditAction.ToggleCapacityExemption, "REZ-1425-01", 10)).Ok);
+            Assert.True(Row("REZ-1425-01").Blocks.Single(b => b.Day == 10).IsCapacityExempt);
+            Assert.All(Row("REZ-1425-01").Blocks.Where(b => b.Day != 10), b => Assert.False(b.IsCapacityExempt));
+            Assert.True(_router.Apply(Request(TimelineEditAction.ToggleCapacityExemption, "REZ-1425-01", 10)).Ok);
+            Assert.False(Row("REZ-1425-01").Blocks.Single(b => b.Day == 10).IsCapacityExempt);
+        }
+
+        [Fact]
+        public void Drag_preview_marks_the_days_the_move_would_take_over_capacity()
+        {
+            // Rezagado goal 2,500 t: REZ-1400-02 (1,220 t/day, days 7..11) dragged +3 lands on REZ-1425-01 (1,700 t/day).
+            // Days 10 and 11 are over already; 12 and 13 are new (on 14 REZ-1425-01 has only a partial day).
+            Assert.Equal(new[] { 7, 8, 9, 10, 11 }, Days("REZ-1400-02"));
+            var before = _session.State.Model;
+            var request = Request(TimelineEditAction.Move, "REZ-1400-02", 7, 3);
+            var warned = _router.PreviewDrag(request, true);
+            Assert.Equal(new[] { 12, 13 }, warned.Days);
+
+            var preview = _session.DragPreview;
+            Assert.NotNull(preview);
+            Assert.Equal("Capacidad excedida para Rezagado.", warned.Text);
+            var expected = _session.Days.Where(d => preview.WarningDates.Contains(d.Date)).Select(d => d.Index).ToArray();
+            Assert.Equal(expected, warned.Days);
+            Assert.Contains(preview.Capacity.SelectMany(r => r.Cells), c => c.IsPreviewExcess);
+            Assert.Same(before, _session.State.Model);   // only a preview
+            Assert.Equal(new[] { 7, 8, 9, 10, 11 }, Days("REZ-1400-02"));
+
+            // Drop / Esc: the drag ends and the preview goes.
+            Assert.Same(PlannerDragWarnings.None, _router.PreviewDrag(request, false));
+            Assert.Null(_session.DragPreview);
+
+            // A move the engine refuses (out of the horizon) has no preview.
+            Assert.Empty(_router.PreviewDrag(Request(TimelineEditAction.Move, "REZ-1400-02", 7, 400, TimelineMoveScope.Activity), true).Days);
+            Assert.Null(_session.DragPreview);
+        }
+
+        [Fact]
         public void Assign_resource_asks_the_picker_and_applies_its_answer()
         {
             _pickAnswer = new PickedResource("Scoop LH-05");

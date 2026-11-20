@@ -63,6 +63,8 @@ namespace Maptek.Vulcan.Stp.Planner
         private bool showCompleted = true;
         private bool showPrecedences = true;
         private string selectedActivityId;
+        private CapacityPreview dragPreview;
+        private string dragPreviewKey;
 
         /// <summary>Initializes a new instance of the <see cref="PlannerSession"/> class.</summary>
         /// <param name="snapshot">The snapshot.</param>
@@ -642,6 +644,75 @@ namespace Maptek.Vulcan.Stp.Planner
             return Report(PlannerOutcome.Success(message));
         }
 
+        // ------------------------------------------------------------------ drag capacity preview
+
+        /// <summary>
+        /// Gets the capacity preview of the move being dragged, or <c>null</c> when nothing is dragged (or the move
+        /// would be refused). The capacity panel shows <see cref="CapacityPreview.Capacity"/> while it is set.
+        /// </summary>
+        public CapacityPreview DragPreview => dragPreview;
+
+        /// <summary>Gets or sets the front limits per resource; <c>null</c> (the default) skips the fronts check of the preview.</summary>
+        public FrontLimits FrontLimits { get; set; }
+
+        /// <summary>
+        /// Capacity preview of a whole-activity move (Shift+drag) without changing the plan: the excesses it would
+        /// add (timeline_logic.js <c>previewExcesses</c> against the current plan). Sets <see cref="DragPreview"/>.
+        /// </summary>
+        /// <param name="activityId">The activity.</param>
+        /// <param name="days">Day shift (0 clears the preview).</param>
+        /// <returns>The preview, or <c>null</c> when the engine would refuse the move.</returns>
+        public CapacityPreview PreviewMoveActivity(string activityId, long days) =>
+            Preview(activityId, "a\u0000" + activityId + "\u0000" + days, days == 0, model => PlannerLogic.MoveActivity(model, activityId, days, State.Horizon));
+
+        /// <summary>Capacity preview of a daily-tail move (drag), like <see cref="PreviewMoveActivity"/>.</summary>
+        /// <param name="activityId">The activity.</param>
+        /// <param name="fragmentId">A fragment of the dragged day.</param>
+        /// <param name="targetDate">Target day <c>YYYY-MM-DD</c>.</param>
+        /// <returns>The preview, or <c>null</c> when the engine would refuse the move.</returns>
+        public CapacityPreview PreviewMoveDailyTail(string activityId, string fragmentId, string targetDate) =>
+            Preview(activityId, "t\u0000" + activityId + "\u0000" + fragmentId + "\u0000" + targetDate, string.IsNullOrEmpty(targetDate), model =>
+            {
+                // CivilHorizonController.MoveDailyTail: the target must be a visible day.
+                long target = CivilTime.Scalar(targetDate + "T00:00:00");
+                if (target < CivilTime.Scalar(State.Horizon.HorizonStart) || target >= CivilTime.Scalar(State.Horizon.HorizonFinish))
+                    throw new EngineException("fecha destino fuera del horizonte visible");
+                return PlannerLogic.MoveDailyTail(model, new DailyTailMoveRequest { ActivityId = activityId, FragmentId = fragmentId, TargetDate = targetDate });
+            });
+
+        /// <summary>Drops the drag preview (drop, Esc, refused move).</summary>
+        public void ClearDragPreview()
+        {
+            dragPreviewKey = null;
+            if (dragPreview == null) return;
+            dragPreview = null;
+            OnPropertyChanged(nameof(DragPreview));
+        }
+
+        private CapacityPreview Preview(string activityId, string key, bool none, Func<PlannerModel, PlannerModel> move)
+        {
+            if (none || busy || State.Horizon == null || activityId == null) { ClearDragPreview(); return null; }
+            if (key == dragPreviewKey && dragPreview != null) return dragPreview;
+            PlannerModel candidate;
+            try
+            {
+                candidate = move(State.Model);
+            }
+            catch (EngineException)
+            {
+                ClearDragPreview();
+                return null;
+            }
+
+            // Only the rows and capacity matter: no eligibility, no selected details.
+            var candidateView = PlannerProjection.Build(Snapshot, catalog, new ControllerState { Model = candidate, Horizon = State.Horizon },
+                _ => new FragmentEligibility(), _ => new ActivityEligibility(), Filter(null));
+            dragPreview = CapacityPreview.Build(activityId, view, candidateView, objectives, FrontLimits);
+            dragPreviewKey = key;
+            OnPropertyChanged(nameof(DragPreview));
+            return dragPreview;
+        }
+
         // ------------------------------------------------------------------ VGS
 
         /// <summary>Gets a value indicating whether "Aplicar a VGS" is enabled.</summary>
@@ -914,22 +985,25 @@ namespace Maptek.Vulcan.Stp.Planner
 
         private void RefreshView()
         {
-            view = PlannerProjection.Build(Snapshot, catalog, State, controller.FragmentEligibility, controller.ActivityEligibility, new PlannerFilter
-            {
-                HiddenTypes = hiddenTypes.ToList(),
-                Grouping = grouping,
-                Sort = sort,
-                SortAttribute = sortAttribute,
-                Descending = descending,
-                Search = search,
-                ShowCompleted = showCompleted,
-                SelectedActivityId = selectedActivityId,
-                Objectives = objectives,
-                TypeColors = typeColors,
-                Overrides = overrides,
-            });
+            ClearDragPreview();
+            view = PlannerProjection.Build(Snapshot, catalog, State, controller.FragmentEligibility, controller.ActivityEligibility, Filter(selectedActivityId));
             RaiseView();
         }
+
+        private PlannerFilter Filter(string selected) => new PlannerFilter
+        {
+            HiddenTypes = hiddenTypes.ToList(),
+            Grouping = grouping,
+            Sort = sort,
+            SortAttribute = sortAttribute,
+            Descending = descending,
+            Search = search,
+            ShowCompleted = showCompleted,
+            SelectedActivityId = selected,
+            Objectives = objectives,
+            TypeColors = typeColors,
+            Overrides = overrides,
+        };
 
         private void RaiseView()
         {

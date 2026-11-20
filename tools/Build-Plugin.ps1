@@ -157,6 +157,8 @@ if ($Test) {
         Write-Host '  compat golden check'
         & node (Join-Path $root 'tools\golden\compat\run.mjs') --check
         if ($LASTEXITCODE -ne 0) { $testFailures += 'compat golden check' }
+        & node (Join-Path $root 'tools\golden\excesses\run.mjs') --check
+        if ($LASTEXITCODE -ne 0) { $testFailures += 'excesses golden check' }
     } else {
         Write-Host '  node not found: golden check skipped' -ForegroundColor Yellow
     }

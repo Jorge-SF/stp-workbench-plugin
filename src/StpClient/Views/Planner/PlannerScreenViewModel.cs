@@ -208,7 +208,7 @@ namespace Maptek.Vulcan.Stp.Views.Planner
         }
 
         public IReadOnlyList<HorizonDay> CapacityDays => Session.Days;
-        public IReadOnlyList<CapacityRow> CapacityRows => Session.Capacity;
+        public IReadOnlyList<CapacityRow> CapacityRows => Session.DragPreview?.Capacity ?? Session.Capacity;
 
         // ---- Right panel -------------------------------------------------------------------------------------------
         public SelectedActivity Selected => _selected;
@@ -419,6 +419,7 @@ namespace Maptek.Vulcan.Stp.Views.Planner
                 case nameof(PlannerSession.TypeChips): Raise(nameof(ActivityTypes)); break;
                 case nameof(PlannerSession.Days): Raise(nameof(CapacityDays)); break;
                 case nameof(PlannerSession.Capacity): Raise(nameof(CapacityRows)); break;
+                case nameof(PlannerSession.DragPreview): Raise(nameof(CapacityRows)); break;
                 case nameof(PlannerSession.RangeStart): Raise(nameof(RangeStart)); break;
                 case nameof(PlannerSession.RangeFinish): Raise(nameof(RangeEnd)); break;
                 case nameof(PlannerSession.DurationDays): Raise(nameof(RangeDays)); break;
