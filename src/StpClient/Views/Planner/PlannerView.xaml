@@ -1,0 +1,18 @@
+<!-- Workbench document that hosts the planner screen (PlannerContent). Opened by STP UG > Abrir planificador
+     (StpClientPlugin.OpenPlannerView). -->
+<wb:WorkbenchViewBase
+        x:Class="Maptek.Vulcan.Stp.Views.Planner.PlannerView"
+        x:ClassModifier="internal"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:m="http://schemas.maptek.com/XAML/WPFSupport"
+        xmlns:wb="clr-namespace:Maptek.Workbench.Client;assembly=WorkbenchInterfacesClient"
+        xmlns:p="clr-namespace:Maptek.Vulcan.Stp.Views.Planner"
+        m:Localization.ResourceDictionary="StpClient:Resources"
+        WindowTitle="{m:Loc Planner_Title}"
+        WindowIcon="/StpClient;component/Resources/Icons/Step2.ico"
+        ViewType="Document"
+        MinWidth="900"
+        MinHeight="500">
+    <p:PlannerContent DataContext="{Binding Planner}"/>
+</wb:WorkbenchViewBase>

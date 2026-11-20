@@ -13,7 +13,7 @@
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <LangVersion>7.3</LangVersion>
-    <NoWarn>$(NoWarn);SA1009;SA1107;SA1117;SA1118;SA1122;SA1128;SA1132;SA1312;SA1401;SA1402;SA1403;SA1407;SA1500;SA1503;SA1520</NoWarn>
+    <NoWarn>$(NoWarn);SA1009;SA1107;SA1117;SA1118;SA1122;SA1128;SA1132;SA1312;SA1401;SA1402;SA1403;SA1407;SA1500;SA1503;SA1520;CA1052</NoWarn>
     <!-- F5 launches the debug Workbench (with the debugger attached) -->
     <StartAction>Program</StartAction>
     <StartProgram>$(WorkbenchExeOutputDirClient)WorkbenchClient.exe</StartProgram>
@@ -75,6 +75,27 @@
     <Compile Include="Bridge\StpSettings.cs" />
     <Compile Include="StpClientPlugin.cs" />
     <Compile Include="Views\SettingsWindow.cs" />
+    <Compile Include="Views\Planner\IPlannerViewModel.cs" />
+    <Compile Include="Views\Planner\PlannerModels.cs" />
+    <Compile Include="Views\Planner\PlannerConverters.cs" />
+    <Compile Include="Views\Planner\DesignPlannerViewModel.cs" />
+    <Compile Include="Views\Planner\PlannerDocumentViewModel.cs" />
+    <Compile Include="Views\Planner\PlannerContent.xaml.cs">
+      <DependentUpon>PlannerContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Planner\PlannerView.xaml.cs">
+      <DependentUpon>PlannerView.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Views\Planner\PlannerContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Planner\PlannerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <!-- The generated Resources class is how Workbench finds "StpClient:Resources:<key>"; without it every label is blank -->
@@ -82,6 +103,8 @@
       <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
       <StronglyTypedNamespace>$(RootNamespace).Resources</StronglyTypedNamespace>
       <StronglyTypedClassName>Resources</StronglyTypedClassName>
+      <!-- Public so the planner XAML can read labels with {x:Static res:Resources.Key} (internal members throw at load) -->
+      <PublicClass>true</PublicClass>
       <StronglyTypedFileName>$(IntermediateOutputPath)Resources.Designer.g.cs</StronglyTypedFileName>
     </EmbeddedResource>
     <EmbeddedResource Include="Menus\Commands.xml" />
@@ -93,6 +116,14 @@
     <Resource Include="Resources\Icons\Step2.ico" />
     <Resource Include="Resources\Icons\Step3.ico" />
     <Resource Include="Resources\Icons\Step4.ico" />
+  </ItemGroup>
+
+  <!-- XAML that names this assembly's own types (Views\Planner) is compiled first into a temporary assembly
+       (StpClient_*_wpftmp.csproj), which re-reads this file and never runs ResGen: without the two parts below it
+       cannot see the generated Resources class (CS0234 on Maptek.Vulcan.Stp.Resources). -->
+  <Target Name="StpResGenBeforeMarkup" BeforeTargets="MarkupCompilePass1" DependsOnTargets="PrepareResourceNames;ResGen" />
+  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('_wpftmp'))">
+    <Compile Include="$(IntermediateOutputPath)Resources.Designer.g.cs" />
   </ItemGroup>
 
   <!-- Friendly error instead of cryptic reference failures when the runtime folder is missing -->
