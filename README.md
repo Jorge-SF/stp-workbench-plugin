@@ -16,6 +16,8 @@ See `docs/STP_Workbench_Plugin_Design.md` for the architecture and phase plan.
 | `src/StpClient/` | Workbench client plugin (.NET Framework 4.8, WPF): menus, commands, views |
 | `src/StpEngine/` | Planning-rules engine, C# port of `planner_logic.js`. No Workbench/WPF/JSON dependencies |
 | `src/StpBridge/` | Wire models, canonical JSON + SHA-256, HTTP client for the Python loopback server |
+| `src/StpTimeline/` | Planner timeline (Gantt) WPF control, per `docs/mockups/planner_layout.html`. No Workbench refs |
+| `src/StpTimeline.Preview/` | Small WPF app showing the timeline with fake data (no Vulcan needed) |
 | `src/*.Tests/` | xUnit tests (net48) |
 
 ## Building
@@ -46,7 +48,7 @@ Requirements: Visual Studio 2026 (MSBuild 18) with .NET Framework 4.8 targeting,
    Same thing by hand: `MSBuild StpWorkbench.sln -restore -p:Configuration=Debug`.
    No Vulcan assembly is referenced: `StpClient` reaches Vulcan's `IEnvisageInterface` by name
    (`src/StpClient/Bridge/EnvisageProxy.cs`), so one build runs in every Vulcan 2024.2 or later.
-3. Tests: `dotnet test src/StpEngine.Tests` and `dotnet test src/StpBridge.Tests`;
+3. Tests: `dotnet test src/StpEngine.Tests`, `dotnet test src/StpBridge.Tests` and `dotnet test src/StpTimeline.Tests`;
    `python -I python/tests/smoke_test.py`; `node tools/golden/run.mjs --check`.
 4. Load in Vulcan: `tools\Register-PluginSearchPath.ps1` registers `Deploy\Client` (value name `StpUG.Dev`), then
    restart Vulcan. Close Vulcan before rebuilding: Workbench locks the DLLs.
