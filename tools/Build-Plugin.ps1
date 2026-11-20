@@ -4,7 +4,7 @@
 
 .DESCRIPTION
   Finds MSBuild with vswhere, restores and builds StpWorkbench.sln, and copies the plugin's own files
-  (StpClient, StpEngine, StpBridge) to Deploy\Client - the folder Vulcan loads the plugin from.
+  (StpClient, StpEngine, StpBridge, StpPlanner, StpTimeline) to Deploy\Client - the folder Vulcan loads the plugin from.
   Stops early, with a clear message, when:
     - Visual Studio / MSBuild is not installed,
     - the Workbench runtime is missing (run tools\Setup-WorkbenchRuntime.ps1 or create WorkbenchRuntimeOverride.props),
@@ -91,7 +91,7 @@ if (-not (Test-Path (Join-Path $runtime 'Build\MSBuild\Maptek.Build.ExternalPlug
 # 3. Locked DLLs -----------------------------------------------------------------------------------------------------
 Step 'Checking that Vulcan / Workbench is not holding the plugin'
 $locked = @()
-foreach ($name in 'StpClient.dll', 'StpEngine.dll', 'StpBridge.dll') {
+foreach ($name in 'StpClient.dll', 'StpEngine.dll', 'StpBridge.dll', 'StpPlanner.dll', 'StpTimeline.dll') {
     $file = Join-Path $deploy $name
     if (-not (Test-Path $file)) { continue }
     try {
@@ -116,7 +116,7 @@ Step "Building ($Configuration, $target)"
 & $msbuild $solution -restore "-t:$target" "-p:Configuration=$Configuration" -m -nologo -v:minimal
 if ($LASTEXITCODE -ne 0) { Fail "MSBuild failed (exit code $LASTEXITCODE). The errors are above." }
 
-$missing = 'StpClient.dll', 'StpEngine.dll', 'StpBridge.dll' | Where-Object { -not (Test-Path (Join-Path $deploy $_)) }
+$missing = 'StpClient.dll', 'StpEngine.dll', 'StpBridge.dll', 'StpPlanner.dll', 'StpTimeline.dll' | Where-Object { -not (Test-Path (Join-Path $deploy $_)) }
 if ($missing) { Fail "the build finished but Deploy\Client is missing: $($missing -join ', ')" }
 
 # 5. Tests (optional) ------------------------------------------------------------------------------------------------
@@ -232,7 +232,7 @@ if (-not $NoMsi) {
     Set-Content -Path (Join-Path $payload 'VERSION.txt') -Encoding ASCII -Value @("STP UG $ver", "commit $commit", "built $(Get-Date -Format 'yyyy-MM-dd HH:mm')")
     $dlls = (Get-ChildItem $client -Filter *.dll | Select-Object -ExpandProperty Name) -join ', '
     Write-Host "  payload: $dlls; $($pyFiles.Count) Python files; $($webFiles.Count) web files"
-    foreach ($need in 'StpClient.dll', 'StpEngine.dll', 'StpBridge.dll') {
+    foreach ($need in 'StpClient.dll', 'StpEngine.dll', 'StpBridge.dll', 'StpPlanner.dll', 'StpTimeline.dll') {
         if (-not (Test-Path (Join-Path $client $need))) { Fail "the Release build left no $need" }
     }
 

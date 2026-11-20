@@ -3,7 +3,7 @@
   The STP UG MSI (WiX 5). Built by tools\Build-Plugin.ps1, which passes:
     -d Version=x.y.z          -d PayloadDir=<staged payload folder>
   Payload layout (what the plugin expects, see src\StpClient\Bridge\StpScripts.cs):
-    Client\StpClient.dll, StpEngine.dll, StpBridge.dll (+pdb)
+    Client\StpClient.dll, StpEngine.dll, StpBridge.dll, StpPlanner.dll, StpTimeline.dll (+pdb)
     Client\Python\scripts\*.py      the entry scripts the STP UG menu runs inside Vulcan
     Client\Python\stp_core\*.py     the Python core they import
     Client\Python\web\*             the planner's HTML/JS (reference/web; + assets\Maptek_highres.jpg when the

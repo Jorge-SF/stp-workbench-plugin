@@ -1,21 +1,22 @@
 // The contract between the planner document view (PlannerContent.xaml) and whatever drives it.
 //
-// The view binds only to this interface. Today DesignPlannerViewModel (fake data from docs/mockups/planner_layout.html)
-// implements it, so the screen can be built and checked before the real pieces land:
-//   - StpPlanner (view model over StpEngine's CivilHorizonController + StpBridge) implements IPlannerViewModel;
-//   - StpTimeline (the Gantt control) is handed to the view through TimelineContent.
-// Keep it small: anything the view does not show does not belong here.
+// The view binds only to this interface. PlannerScreenViewModel implements it over StpPlanner's PlannerSession (the
+// real project, and the design data of DesignPlannerViewModel for the preview). The display types come from StpPlanner
+// (TypeChip, HorizonDay, CapacityRow/Cell) and StpTimeline (ITimelineModel); SelectedActivity and ConfigSection are
+// the only screen-only models (PlannerModels.cs).
 //
 // Rules for implementers:
 //   - Raise PropertyChanged for every property below that can change (null/empty name = "everything changed").
 //   - Raise it on the UI thread (the view does not marshal).
-//   - Commands decide their own CanExecute; the view only binds Command="...".
+//   - Commands decide their own CanExecute and raise CanExecuteChanged; the view only binds Command="...".
 //   - Texts are already localized (Spanish); the view adds only the fixed labels from Resources.resx.
 
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Input;
+using Maptek.Vulcan.Stp.Planner;
+using Maptek.Vulcan.Stp.Timeline.Model;
 
 namespace Maptek.Vulcan.Stp.Views.Planner
 {
@@ -29,8 +30,11 @@ namespace Maptek.Vulcan.Stp.Views.Planner
         /// <summary>True when the live bridge answers; drives the green "En vivo" indicator.</summary>
         bool IsLive { get; }
 
-        /// <summary>Indicator text, e.g. "En vivo" or "Sin conexión" (BridgeConfig.Message in the tooltip is fine).</summary>
+        /// <summary>Indicator text, e.g. "En vivo" or "Sin conexión".</summary>
         string ConnectionText { get; }
+
+        /// <summary>Indicator tooltip (the bridge's own message).</summary>
+        string ConnectionTip { get; }
 
         // ---- Command bar: Plan -------------------------------------------------------------------------------------
         ICommand UndoCommand { get; }
@@ -39,9 +43,17 @@ namespace Maptek.Vulcan.Stp.Views.Planner
         /// <summary>Descartar: drop every change not applied to VGS.</summary>
         ICommand DiscardCommand { get; }
 
+        /// <summary>What Deshacer / Rehacer would do (tooltips); empty when nothing.</summary>
+        string UndoTip { get; }
+        string RedoTip { get; }
+
         // ---- Command bar: VGS --------------------------------------------------------------------------------------
         /// <summary>Aplicar a VGS: the only primary button.</summary>
         ICommand ApplyToVgsCommand { get; }
+
+        /// <summary>Why Aplicar a VGS is disabled, or its normal tooltip.</summary>
+        string ApplyTip { get; }
+
         ICommand VerifySaveCommand { get; }
 
         // ---- Command bar: Exportar ---------------------------------------------------------------------------------
@@ -70,14 +82,22 @@ namespace Maptek.Vulcan.Stp.Views.Planner
         int CascadeCount { get; }
 
         // ---- Filter strip (two-way) --------------------------------------------------------------------------------
-        DateTime RangeStart { get; set; }
-        DateTime RangeEnd { get; set; }
+        DateTime? RangeStart { get; set; }
+        DateTime? RangeEnd { get; set; }
 
         /// <summary>Number of days in the range, shown after the dates.</summary>
         int RangeDays { get; }
 
-        /// <summary>One chip per activity type; clicking a chip toggles <see cref="ActivityTypeFilter.IsVisible"/>.</summary>
-        IReadOnlyList<ActivityTypeFilter> ActivityTypes { get; }
+        /// <summary>False while there are local moves (the engine locks the horizon); see <see cref="RangeTip"/>.</summary>
+        bool CanEditRange { get; }
+
+        /// <summary>Why the range is locked, or empty.</summary>
+        string RangeTip { get; }
+
+        /// <summary>One chip per activity type; <see cref="ToggleTypeCommand"/> (parameter: <see cref="TypeChip.Type"/>) hides/shows it.</summary>
+        IReadOnlyList<TypeChip> ActivityTypes { get; }
+
+        ICommand ToggleTypeCommand { get; }
 
         IReadOnlyList<string> GroupByOptions { get; }
         string GroupBy { get; set; }
@@ -86,14 +106,17 @@ namespace Maptek.Vulcan.Stp.Views.Planner
         string SearchText { get; set; }
 
         // ---- Centre ------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The timeline (StpTimeline control, or a view model the host maps to it with a DataTemplate).
-        /// Null shows the placeholder.
-        /// </summary>
-        object TimelineContent { get; }
+        /// <summary>What the timeline control draws; null shows the placeholder.</summary>
+        ITimelineModel Timeline { get; }
+
+        /// <summary>Selected activity id, two-way with the timeline's SelectedKey; null when none.</summary>
+        string SelectedKey { get; set; }
+
+        /// <summary>Capacidad tab: day headers.</summary>
+        IReadOnlyList<HorizonDay> CapacityDays { get; }
 
         /// <summary>Capacidad tab: daily totals per activity type against the goal.</summary>
-        CapacityTable Capacity { get; }
+        IReadOnlyList<CapacityRow> CapacityRows { get; }
 
         // ---- Right panel -------------------------------------------------------------------------------------------
         /// <summary>Actividad seleccionada; null when nothing is selected.</summary>
@@ -114,5 +137,11 @@ namespace Maptek.Vulcan.Stp.Views.Planner
 
         /// <summary>e.g. "Plan total 26 150 t · 1 434 m".</summary>
         string TotalsText { get; }
+
+        /// <summary>The last command's message (Spanish); empty when none.</summary>
+        string StatusMessage { get; }
+
+        /// <summary>True when <see cref="StatusMessage"/> is an error or a warning (drawn orange).</summary>
+        bool StatusIsError { get; }
     }
 }

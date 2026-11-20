@@ -1,9 +1,10 @@
 <#
 .SYNOPSIS
-  Shows the planner screen (Views\Planner\PlannerContent) outside Workbench, on the design-time view model.
+  Shows the planner screen (Views\Planner\PlannerContent) outside Workbench, on the design data.
 
 .DESCRIPTION
-  Loads the built StpClient.dll, hosts PlannerContent in a plain WPF window with DesignPlannerViewModel and either
+  Loads the built StpClient.dll, hosts PlannerContent in a plain WPF window with DesignPlannerViewModel (the real
+  PlannerScreenViewModel and timeline adapter over a PlannerSession of the mockup's invented project) and either
   shows it (-Show) or saves a PNG of it. No Workbench or Vulcan needed. Build first with tools\Build-Plugin.ps1.
 
 .PARAMETER Png
@@ -31,10 +32,24 @@ if ([Threading.Thread]::CurrentThread.ApartmentState -ne 'STA') { throw 'Run wit
 
 Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase
 $asm = [Reflection.Assembly]::LoadFrom($dll)
-# The XAML pack URI (/StpClient;component/...) asks for StpClient by name; hand back the copy just loaded.
+# Newtonsoft.Json is the Workbench's own copy (never copied next to the plugin): take it from the Workbench runtime.
+$runtime = Join-Path $root 'WorkbenchRuntime'
+$override = Join-Path $root 'WorkbenchRuntimeOverride.props'
+if (Test-Path $override) {
+    $text = Get-Content $override -Raw
+    if ($text -match '<WorkbenchRuntime[^>]*>\s*([^<]+?)\s*</WorkbenchRuntime>') { $runtime = $Matches[1] }
+}
+$newtonsoft = Join-Path $runtime 'SDK\Third\Newtonsoft.Json\Newtonsoft.Json.dll'
+$binDir = Split-Path $dll
+# The XAML pack URI (/StpClient;component/...) asks for StpClient by name; hand back the copy just loaded. The other
+# Stp* libraries load from the same folder; Newtonsoft.Json from the runtime.
 [AppDomain]::CurrentDomain.add_AssemblyResolve({
     param($sender, $e)
-    if ($e.Name -like 'StpClient,*') { return $asm }
+    $name = ($e.Name -split ',')[0]
+    if ($name -eq 'StpClient') { return $asm }
+    if ($name -eq 'Newtonsoft.Json' -and (Test-Path $newtonsoft)) { return [Reflection.Assembly]::LoadFrom($newtonsoft) }
+    $local = Join-Path $binDir ($name + '.dll')
+    if (Test-Path $local) { return [Reflection.Assembly]::LoadFrom($local) }
     return $null
 })
 $vm = [Activator]::CreateInstance($asm.GetType('Maptek.Vulcan.Stp.Views.Planner.DesignPlannerViewModel'))

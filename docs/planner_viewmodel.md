@@ -39,6 +39,15 @@ using (var session = PlannerSession.Open(plugin, storage, new PlannerOptions()))
 | 6 Selected activity | `SelectedActivityId`, `Selected` (dates, shift pill, quantity, resource, predecessors/successors, `StatusText` explaining direct/cascade, ±day eligibility) |
 | 8 Status bar | `SnapshotText`, `PolicyText`, `PendingChangesText`, `PlanTotalText`, `StatusMessage`/`StatusIsError`, `ConflictNotice` |
 
+Display fields for the screen: `TypeColors`/`TypeColor(type)` (`TypePalette`: the mockup colours for its types, then a
+fixed palette by name), `TypeChip.Color`/`Name`, `CapacityRow.Color`/`ObjectiveText`, `CapacityCell.Text` (`1.7k`, `·`),
+`HorizonDay.DayOfMonth`, and `PlannerProjection.CompactQuantity`. The MVVM helpers of the whole planner are here too
+(`Mvvm.cs`: `ObservableObject`, `RelayCommand`, no WPF types).
+
+In the plugin, `src/StpClient/Views/Planner/PlannerScreenViewModel.cs` maps this session to the screen
+(`IPlannerViewModel`) and `PlannerTimelineModel.cs` maps its groups, rows, day segments and precedences to the
+timeline control (`StpTimeline.ITimelineModel`).
+
 Plan commands return a `PlannerOutcome`. `Message` is the Spanish text to show (timeline_logic.js
 `humanPlannerOutcome`), `Code` is the engine outcome code and `Detail` is the engine's own message. The commands are
 `MoveActivity`, `MoveSelected`, `MoveDailyTail`, `DeferDailyTail`, `SplitAndStagger` and the range edits.

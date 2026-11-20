@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -107,31 +105,6 @@ namespace Maptek.Vulcan.Stp.Planner
             {
                 return new JObject();
             }
-        }
-    }
-
-    /// <summary>INotifyPropertyChanged base without WPF types.</summary>
-    public abstract class ObservableObject : INotifyPropertyChanged
-    {
-        /// <inheritdoc/>
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        /// <summary>Raises <see cref="PropertyChanged"/>.</summary>
-        /// <param name="name">The property.</param>
-        protected void OnPropertyChanged([CallerMemberName] string name = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-
-        /// <summary>Sets a field and raises the change when it differs.</summary>
-        /// <typeparam name="T">Field type.</typeparam>
-        /// <param name="field">The field.</param>
-        /// <param name="value">The value.</param>
-        /// <param name="name">The property.</param>
-        /// <returns>Whether it changed.</returns>
-        protected bool Set<T>(ref T field, T value, [CallerMemberName] string name = null)
-        {
-            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-            field = value;
-            OnPropertyChanged(name);
-            return true;
         }
     }
 }
