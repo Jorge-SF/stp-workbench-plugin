@@ -11,7 +11,7 @@
   <!-- Menu and toolbar -->
   <data name="Menu_Stp" xml:space="preserve"><value>STP UG</value></data>
   <data name="Menu_Prepare" xml:space="preserve"><value>Preparar proyecto</value></data>
-  <data name="Menu_Planner" xml:space="preserve"><value>Abrir planificador</value></data>
+  <data name="Menu_Planner" xml:space="preserve"><value>Planificador HTML (script 2)</value></data>
   <data name="Menu_Apply" xml:space="preserve"><value>Aplicar STP a VGS</value></data>
   <data name="Menu_Verify" xml:space="preserve"><value>Verificar guardado</value></data>
   <data name="Menu_Settings" xml:space="preserve"><value>Configuración y acerca de…</value></data>
@@ -67,4 +67,88 @@ Este complemento necesita Vulcan 2024.2 o posterior.</value></data>
   <data name="About_Running" xml:space="preserve"><value>Script en ejecución: {0}</value></data>
   <data name="About_Logs" xml:space="preserve"><value>Registros de ejecución: {0}</value></data>
   <data name="About_Settings" xml:space="preserve"><value>Archivo de configuración: {0}</value></data>
+
+  <!-- Planner document (Views/Planner) -->
+  <data name="Menu_PlannerView" xml:space="preserve"><value>Abrir planificador</value></data>
+  <data name="Tip_PlannerView" xml:space="preserve"><value>Abre el planificador de corto plazo como documento de Workbench.</value></data>
+  <data name="Planner_Title" xml:space="preserve"><value>Planificador STP</value></data>
+  <data name="Planner_GroupData" xml:space="preserve"><value>DATOS</value></data>
+  <data name="Planner_GroupPlan" xml:space="preserve"><value>PLAN</value></data>
+  <data name="Planner_GroupVgs" xml:space="preserve"><value>VGS</value></data>
+  <data name="Planner_GroupExport" xml:space="preserve"><value>EXPORTAR</value></data>
+  <data name="Planner_GroupView" xml:space="preserve"><value>VISTA</value></data>
+  <data name="Planner_GroupSummary" xml:space="preserve"><value>RESUMEN</value></data>
+  <data name="Planner_Refresh" xml:space="preserve"><value>Actualizar</value></data>
+  <data name="Planner_RefreshTip" xml:space="preserve"><value>Vuelve a leer la instantánea del proyecto VGS.</value></data>
+  <data name="Planner_Live" xml:space="preserve"><value>En vivo</value></data>
+  <data name="Planner_Offline" xml:space="preserve"><value>Sin conexión</value></data>
+  <data name="Planner_Undo" xml:space="preserve"><value>Deshacer</value></data>
+  <data name="Planner_Redo" xml:space="preserve"><value>Rehacer</value></data>
+  <data name="Planner_Discard" xml:space="preserve"><value>Descartar</value></data>
+  <data name="Planner_DiscardTip" xml:space="preserve"><value>Descarta todos los cambios no aplicados a VGS.</value></data>
+  <data name="Planner_Apply" xml:space="preserve"><value>Aplicar
+a VGS</value></data>
+  <data name="Planner_ApplyTip" xml:space="preserve"><value>Aplica el plan al proyecto VGS abierto.</value></data>
+  <data name="Planner_Verify" xml:space="preserve"><value>Verificar
+guardado</value></data>
+  <data name="Planner_ExportExcel" xml:space="preserve"><value>Excel</value></data>
+  <data name="Planner_ExportPdf" xml:space="preserve"><value>PDF</value></data>
+  <data name="Planner_ExportStandalone" xml:space="preserve"><value>STP suelto</value></data>
+  <data name="Planner_ExportStandaloneTip" xml:space="preserve"><value>Exporta el planificador HTML independiente.</value></data>
+  <data name="Planner_ViewPrecedences" xml:space="preserve"><value>Precedencias</value></data>
+  <data name="Planner_ViewCompleted" xml:space="preserve"><value>Avance completado</value></data>
+  <data name="Planner_ViewResources" xml:space="preserve"><value>Recursos</value></data>
+  <data name="Planner_ViewCapacity" xml:space="preserve"><value>Panel de capacidad</value></data>
+  <data name="Planner_KpiActivities" xml:space="preserve"><value>actividades</value></data>
+  <data name="Planner_KpiPending" xml:space="preserve"><value>con pendiente</value></data>
+  <data name="Planner_KpiMoved" xml:space="preserve"><value>movidas</value></data>
+  <data name="Planner_KpiCascade" xml:space="preserve"><value>en cascada</value></data>
+  <data name="Planner_Range" xml:space="preserve"><value>Rango</value></data>
+  <data name="Planner_Days" xml:space="preserve"><value>días</value></data>
+  <data name="Planner_ChipsTip" xml:space="preserve"><value>Clic en un tipo para ocultarlo o mostrarlo.</value></data>
+  <data name="Planner_GroupBy" xml:space="preserve"><value>Agrupar</value></data>
+  <data name="Planner_SortBy" xml:space="preserve"><value>Ordenar</value></data>
+  <data name="Planner_Search" xml:space="preserve"><value>Buscar…</value></data>
+  <data name="Planner_GroupType" xml:space="preserve"><value>Tipo de actividad</value></data>
+  <data name="Planner_GroupLevel" xml:space="preserve"><value>Nivel</value></data>
+  <data name="Planner_GroupResource" xml:space="preserve"><value>Recurso</value></data>
+  <data name="Planner_GroupNone" xml:space="preserve"><value>Ninguno</value></data>
+  <data name="Planner_SortStart" xml:space="preserve"><value>Inicio</value></data>
+  <data name="Planner_SortId" xml:space="preserve"><value>ID</value></data>
+  <data name="Planner_SortAttribute" xml:space="preserve"><value>Atributo…</value></data>
+  <data name="Planner_TimelinePlaceholder" xml:space="preserve"><value>Línea de tiempo</value></data>
+  <data name="Planner_TimelinePlaceholderHint" xml:space="preserve"><value>Aquí va el control de Gantt (StpTimeline).</value></data>
+  <data name="Planner_SplitterTip" xml:space="preserve"><value>Arrastrar para cambiar el alto</value></data>
+  <data name="Planner_TabCapacity" xml:space="preserve"><value>Capacidad</value></data>
+  <data name="Planner_TabReports" xml:space="preserve"><value>Reportes</value></data>
+  <data name="Planner_TabCharts" xml:space="preserve"><value>Gráficos</value></data>
+  <data name="Planner_TabActuals" xml:space="preserve"><value>Avance real</value></data>
+  <data name="Planner_CapDaily" xml:space="preserve"><value>Capacidad diaria</value></data>
+  <data name="Planner_CapGoal" xml:space="preserve"><value>meta</value></data>
+  <data name="Planner_ComingSoon" xml:space="preserve"><value>Próximamente.</value></data>
+  <data name="Planner_Selected" xml:space="preserve"><value>Actividad seleccionada</value></data>
+  <data name="Planner_NoSelection" xml:space="preserve"><value>Seleccione una actividad en la línea de tiempo.</value></data>
+  <data name="Planner_SelName" xml:space="preserve"><value>Nombre</value></data>
+  <data name="Planner_SelType" xml:space="preserve"><value>Tipo</value></data>
+  <data name="Planner_SelStart" xml:space="preserve"><value>Inicio</value></data>
+  <data name="Planner_SelFinish" xml:space="preserve"><value>Fin</value></data>
+  <data name="Planner_SelQuantity" xml:space="preserve"><value>Cantidad</value></data>
+  <data name="Planner_SelResource" xml:space="preserve"><value>Recurso</value></data>
+  <data name="Planner_SelPredecessors" xml:space="preserve"><value>Predecesoras</value></data>
+  <data name="Planner_SelSuccessors" xml:space="preserve"><value>Sucesoras</value></data>
+  <data name="Planner_SelState" xml:space="preserve"><value>Estado</value></data>
+  <data name="Planner_ManualResource" xml:space="preserve"><value>+ Recurso manual…</value></data>
+  <data name="Planner_Config" xml:space="preserve"><value>Configuración</value></data>
+  <data name="Planner_CfgColors" xml:space="preserve"><value>Colores y metas por tipo</value></data>
+  <data name="Planner_CfgAttributes" xml:space="preserve"><value>Atributos visibles</value></data>
+  <data name="Planner_CfgReports" xml:space="preserve"><value>Reportes</value></data>
+  <data name="Planner_CfgFronts" xml:space="preserve"><value>Frentes y recursos</value></data>
+  <data name="Planner_CfgPrint" xml:space="preserve"><value>Impresión</value></data>
+  <data name="Planner_CfgGeneral" xml:space="preserve"><value>General</value></data>
+  <data name="Planner_ConfigNote" xml:space="preserve"><value>Los valores se guardan por proyecto.</value></data>
+  <data name="Planner_SnapshotFormat" xml:space="preserve"><value>Instantánea {0}</value></data>
+  <data name="Planner_PolicyFormat" xml:space="preserve"><value>Política de precedencias: {0}</value></data>
+  <data name="Planner_PendingFormat" xml:space="preserve"><value>{0} cambios sin aplicar a VGS</value></data>
+  <data name="Planner_TotalsFormat" xml:space="preserve"><value>Plan total {0}</value></data>
+  <data name="Msg_PlannerFailed" xml:space="preserve"><value>No se pudo abrir el planificador: {0}</value></data>
 </root>
