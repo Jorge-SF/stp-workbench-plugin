@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Maptek.Vulcan.Stp.Bridge;
@@ -40,8 +41,9 @@ namespace Maptek.Vulcan.Stp.Planner
         /// </summary>
         /// <param name="title">Report title, or the default.</param>
         /// <param name="cancellationToken">Cancellation.</param>
+        /// <param name="chartImages">The "Gráficos" cards as PNG (the client renders them), or none.</param>
         /// <returns>The outcome, and the workbook bytes when it succeeded.</returns>
-        public async Task<(PlannerOutcome Outcome, byte[] Workbook)> ExportExcelAsync(string title = null, CancellationToken cancellationToken = default)
+        public async Task<(PlannerOutcome Outcome, byte[] Workbook)> ExportExcelAsync(string title = null, CancellationToken cancellationToken = default, IReadOnlyList<ExcelExportChartImage> chartImages = null)
         {
             string blocked = ExportExcelBlockedReason;
             if (blocked.Length > 0) return (PlannerOutcome.Failure(blocked, "blocked"), null);
@@ -52,7 +54,7 @@ namespace Maptek.Vulcan.Stp.Planner
             ExcelExportRequest request;
             try
             {
-                request = export.ToExcelRequest();
+                request = export.ToExcelRequest(chartImages);
                 request.Validate();
             }
             catch (WireFormatException error)

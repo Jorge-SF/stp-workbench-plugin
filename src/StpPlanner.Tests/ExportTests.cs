@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using Maptek.Vulcan.Stp.Bridge;
 using Maptek.Vulcan.Stp.Bridge.Contracts;
 using Maptek.Vulcan.Stp.Bridge.Json;
+using ActualProgress = Maptek.Vulcan.Stp.Engine.ActualProgress;
+using ActualProgressState = Maptek.Vulcan.Stp.Engine.ActualProgressState;
 using Maptek.Vulcan.Stp.Planner.Export;
 using Newtonsoft.Json.Linq;
 using Xunit;
@@ -96,7 +98,8 @@ namespace Maptek.Vulcan.Stp.Planner.Tests
             StringAssert.StartsWith("Capacidad · ", (string)aggregate["label"]);
             Assert.Equal(export.Days.Count, ((JArray)aggregate["values"]).Count);
             Assert.Equal(export.Days.Count, ((JArray)aggregate["states"]).Count);
-            Assert.Empty((JArray)json["chartTypes"]);
+            Assert.Equal(session.ActualProgressSummary.Types.Select(t => t.Type), json["chartTypes"].Select(t => (string)t["type"]));
+            Assert.DoesNotContain(json["aggregates"], a => ((string)a["label"]).StartsWith("Avance real", StringComparison.Ordinal));
             Assert.Empty((JArray)json["chartImages"]);
             Assert.NotEmpty((JArray)json["legend"]);
         }
@@ -267,7 +270,7 @@ namespace Maptek.Vulcan.Stp.Planner.Tests
             Assert.Equal(session.PrecedencePolicy, (string)bridge["precedenceConflictPolicy"]);
             Assert.Equal(session.Snapshot.ProjectKey, (string)bootstrap["snapshot"]["projectKey"]);
             Assert.Equal(session.Horizon.HorizonStart, (string)bootstrap["plannerState"]["horizon"]["horizonStart"]);
-            Assert.Equal(new JObject(), bootstrap["localState"]);
+            Assert.True(JToken.DeepEquals(ActualProgressStore.ToJson(ActualProgressState.Empty), bootstrap["localState"]));
 
             // The moved plan travels: fragment positions and provenance as the engine has them.
             var fragments = (JArray)bootstrap["plannerState"]["model"]["fragments"];
@@ -325,6 +328,160 @@ namespace Maptek.Vulcan.Stp.Planner.Tests
             Assert.False(outcome.Ok);
             Assert.Equal(string.Format(ExportMessages.StandaloneNoTemplate, folder), outcome.Message);
             Assert.False(File.Exists(path));
+        }
+
+        // ------------------------------------------------------------------ "Avance real"
+
+        private static readonly byte[] Png = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 1, 2, 3 };
+
+        // A100: 7.5 on its first planned day, 2 on an added box of a free day.
+        private static (string Planned, string Free) EnterProgress(PlannerSession session)
+        {
+            session.ShowActualProgress = true;
+            var row = session.Rows.First(r => r.ActivityId == "A100");
+            string planned = row.Segments.First(s => s.Status != SegmentStatus.Completed).Date;
+            string free = session.Days.Select(d => d.Date).Last(d => row.Segments.All(s => s.Date != d));
+            Assert.True(session.SetActualProgress("A100", planned, 7.5).Ok);
+            Assert.True(session.AddActualProgress("A100", free).Ok);
+            Assert.True(session.SetActualProgress("A100", free, 2).Ok);
+            return (planned, free);
+        }
+
+        [Fact]
+        public void ExcelCarriesActualProgress()
+        {
+            var (session, _) = Live();
+            var (planned, free) = EnterProgress(session);
+            var export = session.CreateExport();
+            Assert.True(export.ShowActualProgress);
+            var json = export.ToExcelRequest(new[] { new ExcelExportChartImage("Desarrollo", Png) }).ToJson();
+            Assert.True((bool)json["actualProgressMode"]);
+
+            // activities[].actual: the entered value of each day, null elsewhere
+            var dates = export.Days.Select(d => d.Date).ToList();
+            var actual = (JArray)json["activities"].First(a => (string)a["id"] == "A100")["actual"];
+            Assert.Equal(7.5, (double)actual[dates.IndexOf(planned)]);
+            Assert.Equal(2, (double)actual[dates.IndexOf(free)]);
+            Assert.Equal(dates.Count - 2, actual.Count(v => v.Type == JTokenType.Null));
+            Assert.All(json["activities"].Where(a => (string)a["id"] != "A100"), a => Assert.All(a["actual"], v => Assert.Equal(JTokenType.Null, v.Type)));
+
+            // "Avance real · tipo" after the capacity rows: real/plan, under-progress / met-progress
+            var aggregates = json["aggregates"].ToList();
+            int firstActual = aggregates.FindIndex(a => ((string)a["label"]).StartsWith("Avance real · ", StringComparison.Ordinal));
+            Assert.Equal(export.Capacity.Count, firstActual);
+            Assert.Equal(session.ActualProgressRows.Select(r => r.Label), aggregates.Skip(firstActual).Select(a => (string)a["label"]));
+            string type = session.Rows.First(r => r.ActivityId == "A100").Type;
+            var mine = aggregates.Single(a => (string)a["label"] == "Avance real · " + type);
+            var day = session.ActualProgressSummary.Types.Single(t => t.Type == type).Day(planned);
+            Assert.Equal(PlanExport.Number(day.Actual.Value) + "/" + PlanExport.Number(day.Scheduled), (string)mine["values"][dates.IndexOf(planned)]);
+            Assert.Equal(day.Actual < day.Scheduled ? "under-progress" : "met-progress", (string)mine["states"][dates.IndexOf(planned)]);
+            var tab = session.ActualProgressRows.Single(r => r.Type == type).Cells;
+            for (int i = 0; i < dates.Count; i++)
+            {
+                string state = tab[i].IsUnder ? "under-progress" : tab[i].IsMet ? "met-progress" : string.Empty;
+                Assert.Equal(state, (string)mine["states"][i]);
+                if (tab[i].IsEmpty) Assert.Equal("—", (string)mine["values"][i]);
+            }
+
+            // chartTypes: planned per day and actual per equipment, as the charts have them
+            var chart = json["chartTypes"].Single(c => (string)c["type"] == type);
+            var progress = session.ActualProgressSummary.Types.Single(t => t.Type == type);
+            Assert.Equal(dates.Select(d => progress.Day(d)?.Scheduled ?? 0), chart["planned"].Select(v => (double)v));
+            var byResource = (JObject)chart["actualByResource"];
+            Assert.Equal(progress.ActualByResource.Select(p => p.Key), byResource.Properties().Select(p => p.Name));
+            Assert.Equal(9.5, byResource.Properties().SelectMany(p => p.Value).Where(v => v.Type != JTokenType.Null).Sum(v => (double)v));
+            Assert.Equal(9.5, ((JObject)chart["actualTotalsByResource"]).Properties().Sum(p => (double)p.Value));
+            Assert.Equal(progress.PlannedByResource.Sum(p => p.Value), ((JObject)chart["plannedByResource"]).Properties().Sum(p => (double)p.Value));
+
+            var image = (JObject)json["chartImages"].Single();
+            Assert.Equal("Desarrollo", (string)image["title"]);
+            StringAssert.StartsWith("data:image/png;base64,", (string)image["pngDataUrl"]);
+        }
+
+        [Fact]
+        public void ExcelWithTheModeOffKeepsValuesButNoRows()
+        {
+            var (session, _) = Live();
+            var (planned, _) = EnterProgress(session);
+            session.ShowActualProgress = false;
+            var export = session.CreateExport();
+            Assert.Empty(export.ActualProgress);
+            var json = export.ToExcelRequest().ToJson();
+            Assert.False((bool)json["actualProgressMode"]);
+            int at = export.Days.Select(d => d.Date).ToList().IndexOf(planned);
+            Assert.Equal(7.5, (double)json["activities"].First(a => (string)a["id"] == "A100")["actual"][at]);   // template: read whatever the mode
+            Assert.DoesNotContain(json["aggregates"], a => ((string)a["label"]).StartsWith("Avance real", StringComparison.Ordinal));
+            Assert.All(json["chartTypes"], c => Assert.Empty((JObject)c["actualByResource"]));
+        }
+
+        [Fact]
+        public async Task ExcelSendsTheChartImages()
+        {
+            var (session, bridge) = Live();
+            EnterProgress(session);
+            var images = Enumerable.Range(0, 40).Select(i => new ExcelExportChartImage("T" + i.ToString(CultureInfo.InvariantCulture), Png)).ToList();
+            var outcome = await PlannerExports.ExcelAsync(session, Path.Combine(folder, "STP.xlsx"), chartImages: images);
+            Assert.True(outcome.Ok, outcome.Message);
+            var request = bridge.Requests.Single();
+            Assert.True(request.ActualProgressMode);
+            Assert.Equal(ExcelExportRequest.MaxChartImages, request.ChartImages.Count);   // the bridge takes 32
+            Assert.Equal("T0", request.ChartImages[0].Title);
+        }
+
+        [Fact]
+        public void PdfDrawsActualProgressWithTheModeOn()
+        {
+            var session = ProjectionTests.Session();
+            Assert.DoesNotContain("Avance real", Encoding.GetEncoding(1252).GetString(PdfPlanReport.Render(session.CreateExport(), DateTime.Now)));
+
+            EnterProgress(session);
+            var export = session.CreateExport();
+            var bytes = PdfPlanReport.Render(export, DateTime.Now);
+            var text = Encoding.GetEncoding(1252).GetString(bytes);
+            AssertXrefPointsAtObjects(bytes, text);
+            foreach (var row in session.ActualProgressRows) Assert.Contains("(Avance real \xB7 " + row.Type + ")", text);
+            Assert.Contains("(7.5)", text);                                   // value boxes
+            Assert.Contains("(Real: 9.5 / Plan: ", text);                     // period total of A100's type
+            Assert.Contains("(Avance real)", text);                           // legend
+            string type = session.Rows.First(r => r.ActivityId == "A100").Type;
+            var cell = session.ActualProgressRows.Single(r => r.Type == type).Cells.First(c => !c.IsEmpty);
+            Assert.Contains("(" + cell.Text + ")", text);
+
+            // Off again: the boxes and rows go, the plan stays.
+            session.ShowActualProgress = false;
+            text = Encoding.GetEncoding(1252).GetString(PdfPlanReport.Render(session.CreateExport(), DateTime.Now));
+            Assert.DoesNotContain("Avance real", text);
+            Assert.DoesNotContain("(7.5)", text);
+        }
+
+        [Fact]
+        public void PdfWithProgressStillPaginates()
+        {
+            var session = ProjectionTests.Session();
+            EnterProgress(session);
+            Assert.True(session.SetDuration(40).Ok);
+            var bytes = PdfPlanReport.Render(session.CreateExport(), DateTime.Now);
+            var text = Encoding.GetEncoding(1252).GetString(bytes);
+            Assert.Equal(2, Regex.Matches(text, "/Type /Page ").Count);
+            Assert.Equal(2 * session.ActualProgressRows.Count, Regex.Matches(text, "\\(Avance real \xB7 ").Count);   // each block has the rows
+            AssertXrefPointsAtObjects(bytes, text);
+        }
+
+        [Fact]
+        public void StandaloneCarriesTheActualProgress()
+        {
+            var session = ProjectionTests.Session();
+            var (planned, free) = EnterProgress(session);
+            string path = Path.Combine(folder, StandalonePlanner.DefaultFileName);
+            Assert.True(PlannerExports.Standalone(session, WebFolder, path).Ok);
+            var local = (JObject)InlineJson(File.ReadAllText(path, Encoding.UTF8), "const standaloneBootstrap = ")["localState"];
+            Assert.True(JToken.DeepEquals(ActualProgressStore.ToJson(session.ActualProgressState), local), local.ToString());
+            Assert.Equal(7.5, (double)local["actualProgressByDay"][ActualProgress.Key("A100", planned)]);
+            Assert.Equal(2, (double)local["actualProgressByDay"][ActualProgress.Key("A100", free)]);
+            Assert.True((bool)local["actualProgressSlotsByDay"][ActualProgress.Key("A100", free)]);
+
+            // what the page reads back is the same progress
+            Assert.True(ActualProgressStore.FromJson(local).SameContent(session.ActualProgressState));
         }
 
         // ------------------------------------------------------------------ file writing

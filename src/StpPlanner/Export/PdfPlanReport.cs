@@ -3,13 +3,16 @@
 // heading (title, project, range), the "Actividad" + day header, one row per visible activity (a bar coloured by type
 // with the day's scheduled amount; completed work grey; moved work outlined orange), the "Capacidad · tipo" rows
 // and the type legend. Rows that do not fit continue on the next page under a repeated header.
-// Not yet: the actual-progress rows and chart pages (renderPrintProgressChartPages); they need the "Avance real"
-// mode, which the plugin does not have yet.
+// With "Avance real" on, each day with a value gets a value box under its bar (print-report-actual-box) and one
+// "Avance real · tipo" row per type follows the capacity rows (real/plan, red under plan, green at or over it).
+// Not drawn: the chart pages (renderPrintProgressChartPages); the template prints them only when its print settings
+// ask for them, and both settings are off by default.
 
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Maptek.Vulcan.Stp.Engine;
 
 namespace Maptek.Vulcan.Stp.Planner.Export
 {
@@ -28,6 +31,7 @@ namespace Maptek.Vulcan.Stp.Planner.Export
         private const double FooterHeight = 14;
         private const double HeaderRowHeight = 18;
         private const double RowHeight = 13;
+        private const double ProgressRowHeight = 23;   // bar + value box (template print-report-actual-box, 3.4 mm)
 
         private static readonly CultureInfo Es = CultureInfo.GetCultureInfo("es-MX");
         private static readonly PdfColor Ink = new PdfColor(0x17, 0x34, 0x5B);
@@ -40,6 +44,11 @@ namespace Maptek.Vulcan.Stp.Planner.Export
         private static readonly PdfColor OverInk = new PdfColor(0xB0, 0x2A, 0x22);
         private static readonly PdfColor Completed = new PdfColor(0x9A, 0xA5, 0xB1);
         private static readonly PdfColor Moved = new PdfColor(0xE0, 0x7B, 0x00);
+        private static readonly PdfColor ActualBorder = new PdfColor(0x6B, 0x9D, 0xD0);
+        private static readonly PdfColor ActualInk = new PdfColor(0x17, 0x20, 0x33);
+        private static readonly PdfColor UnderFill = new PdfColor(0xD0, 0x57, 0x50);   // --capacity-color
+        private static readonly PdfColor MetFill = new PdfColor(0x68, 0xBD, 0x79);     // --exempt-color
+        private static readonly PdfColor MetInk = new PdfColor(0x10, 0x2A, 0x43);
 
         /// <summary>Template <c>printOrientationForDayCount</c>.</summary>
         public static bool IsLandscape(int dayCount) => dayCount >= 15;
@@ -111,12 +120,14 @@ namespace Maptek.Vulcan.Stp.Planner.Export
 
             private IEnumerable<int> DayIndexes => Enumerable.Range(first, count);
 
+            private double ActivityHeight => export.ShowActualProgress ? ProgressRowHeight : RowHeight;
+
             public void Draw()
             {
                 NewPage(true);
                 foreach (var row in export.Rows)
                 {
-                    EnsureRoom(RowHeight);
+                    EnsureRoom(ActivityHeight);
                     DrawActivity(row);
                 }
 
@@ -124,6 +135,12 @@ namespace Maptek.Vulcan.Stp.Planner.Export
                 {
                     EnsureRoom(RowHeight);
                     DrawCapacity(capacity);
+                }
+
+                foreach (var progress in export.ActualProgress)
+                {
+                    EnsureRoom(RowHeight);
+                    DrawActualProgress(progress);
                 }
 
                 DrawLegend();
@@ -189,7 +206,8 @@ namespace Maptek.Vulcan.Stp.Planner.Export
 
             private void DrawActivity(PlanExportRow row)
             {
-                DrawWeekends(y, RowHeight);
+                double rowHeight = ActivityHeight;
+                DrawWeekends(y, rowHeight);
                 double total = Enumerable.Range(first, count).Sum(i => row.Cells[i].Planned ?? 0);
                 string totalText = total > 0 ? PlannerProjection.CompactQuantity(total) + (string.IsNullOrEmpty(row.Unit) ? string.Empty : " " + row.Unit) : string.Empty;
                 double totalWidth = PdfWriter.MeasureText(totalText, 6);
@@ -201,6 +219,7 @@ namespace Maptek.Vulcan.Stp.Planner.Export
                 foreach (int i in DayIndexes)
                 {
                     var cell = row.Cells[i];
+                    if (export.ShowActualProgress && cell.Actual.HasValue) DrawActualBox(i, cell.Actual.Value);
                     if (!cell.HasSegment) continue;
                     double x = DayX(i) + 1;
                     double w = dayWidth - 2;
@@ -217,8 +236,52 @@ namespace Maptek.Vulcan.Stp.Planner.Export
                     }
                 }
 
+                DrawRowGrid(y, rowHeight);
+                y += rowHeight;
+            }
+
+            // template print-report-actual-box: a white box with a blue border under the bar, the value in bold
+            private void DrawActualBox(int index, double value)
+            {
+                double x = DayX(index) + 1;
+                double w = dayWidth - 2;
+                double top = y + RowHeight - 1;
+                double h = ProgressRowHeight - RowHeight - 1;
+                pdf.FillRect(x, top, w, h, PdfColor.White);
+                pdf.StrokeRect(x, top, w, h, ActualBorder, 0.7);
+                double size = Math.Min(6.5, dayFont);
+                pdf.TextCentered(x + w / 2, top + h - 2.6, PdfWriter.Fit(ActualProgressMessages.CompactNumber(value), w - 1, size, true), size, ActualInk, true);
+            }
+
+            private void DrawActualProgress(ActualProgressRow progress)
+            {
+                pdf.FillRect(Margin, y, width - 2 * Margin, RowHeight, AggregateFill);
+                pdf.FillRect(Margin + 2, y + 3, 6, RowHeight - 6, PdfColor.Parse(progress.Color, Completed));
+                string total = BlockTotalText(progress.Type);
+                double totalWidth = PdfWriter.MeasureText(total, 6);
+                pdf.Text(Margin + 11, y + 9, PdfWriter.Fit(progress.Label, activityWidth - totalWidth - 17, 7, true), 7, Ink, true);
+                pdf.TextRight(Margin + activityWidth - 3, y + 9, total, 6, Muted);
+                foreach (int i in DayIndexes)
+                {
+                    var cell = progress.Cells[i];
+                    bool marked = cell.State != ActualProgressLevel.None;
+                    if (marked) pdf.FillRect(DayX(i), y, dayWidth, RowHeight, cell.IsUnder ? UnderFill : MetFill);
+                    var ink = cell.IsUnder ? PdfColor.White : cell.IsMet ? MetInk : Ink;
+                    string text = PdfWriter.Fit(cell.Text, dayWidth - 1, Math.Min(6, dayFont), marked);
+                    pdf.TextCentered(DayX(i) + dayWidth / 2, y + 9, text, Math.Min(6, dayFont), ink, marked);
+                }
+
                 DrawRowGrid(y, RowHeight);
                 y += RowHeight;
+            }
+
+            // template formatActualProgressPeriodTotal over the block's days
+            private string BlockTotalText(string type)
+            {
+                var progress = export.ProgressSummary?.Types.FirstOrDefault(t => t.Type == type);
+                if (progress == null) return string.Empty;
+                var totals = ActualProgress.TypePeriodTotals(progress, DayIndexes.Select(i => export.Days[i].Date));
+                return "Real: " + ActualProgressMessages.CompactNumber(totals.Actual) + " / Plan: " + ActualProgressMessages.CompactNumber(totals.Scheduled);
             }
 
             private void DrawCapacity(PlanExportCapacity capacity)
@@ -248,11 +311,12 @@ namespace Maptek.Vulcan.Stp.Planner.Export
                 x += PdfWriter.MeasureText("Leyenda:", 7, true) + 6;
                 DrawLegendItem(ref x, "Completado", Completed, false);
                 DrawLegendItem(ref x, "Movido", PdfColor.White, true);
+                if (export.ShowActualProgress) DrawLegendItem(ref x, "Avance real", PdfColor.White, false, ActualBorder);
                 foreach (var (label, color) in export.Legend) DrawLegendItem(ref x, label, PdfColor.Parse(color, Completed), false);
                 y += 12;
             }
 
-            private void DrawLegendItem(ref double x, string label, PdfColor color, bool moved)
+            private void DrawLegendItem(ref double x, string label, PdfColor color, bool moved, PdfColor? border = null)
             {
                 double itemWidth = 13 + PdfWriter.MeasureText(label, 7) + 10;
                 if (x + itemWidth > width - Margin)
@@ -263,7 +327,7 @@ namespace Maptek.Vulcan.Stp.Planner.Export
                 }
 
                 pdf.FillRect(x, y + 2, 10, 7, color);
-                pdf.StrokeRect(x, y + 2, 10, 7, moved ? Moved : Ink, moved ? 1.2 : 0.4);
+                pdf.StrokeRect(x, y + 2, 10, 7, border ?? (moved ? Moved : Ink), moved ? 1.2 : border.HasValue ? 0.7 : 0.4);
                 pdf.Text(x + 13, y + 8, label, 7, Muted);
                 x += itemWidth;
             }

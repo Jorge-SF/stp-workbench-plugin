@@ -27,6 +27,7 @@
     <Compile Include="..\StpClient\Views\Planner\PlannerModels.cs" Link="Linked\PlannerModels.cs" />
     <Compile Include="..\StpClient\Views\Planner\ActualProgressRouter.cs" Link="Linked\ActualProgressRouter.cs" />
     <Compile Include="..\StpClient\Views\Planner\ProgressCharts.cs" Link="Linked\ProgressCharts.cs" />
+    <Compile Include="..\StpClient\Views\Planner\ProgressChartImages.cs" Link="Linked\ProgressChartImages.cs" />
   </ItemGroup>
   <ItemGroup>
     <!-- StpPlanner/StpBridge do not copy Newtonsoft (the Workbench provides it); the test host needs a copy. -->

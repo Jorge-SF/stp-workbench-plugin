@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Maptek.Vulcan.Stp.Bridge.Contracts;
 
 namespace Maptek.Vulcan.Stp.Planner.Export
 {
@@ -20,15 +22,15 @@ namespace Maptek.Vulcan.Stp.Planner.Export
         public const string PdfFileName = "STP.pdf";
 
         /// <summary>Excel through the bridge's Python exporter.</summary>
-        public static async Task<PlannerOutcome> ExcelAsync(PlannerSession session, string path, string title = null, CancellationToken cancellationToken = default)
+        public static async Task<PlannerOutcome> ExcelAsync(PlannerSession session, string path, string title = null, CancellationToken cancellationToken = default, IReadOnlyList<ExcelExportChartImage> chartImages = null)
         {
             if (session == null) throw new ArgumentNullException(nameof(session));
-            var (outcome, workbook) = await session.ExportExcelAsync(title, cancellationToken);
+            var (outcome, workbook) = await session.ExportExcelAsync(title, cancellationToken, chartImages);
             if (!outcome.Ok) return outcome;
             return Write(path, workbook, ExportMessages.ExcelSaved, ExportMessages.ExcelFailed);
         }
 
-        /// <summary>PDF of the plan (template print report, without the actual-progress pages).</summary>
+        /// <summary>PDF of the plan (template print report; "Avance real" rows and boxes with the mode on).</summary>
         public static PlannerOutcome Pdf(PlannerSession session, string path, string title = null, DateTime? generatedAt = null)
         {
             if (session == null) throw new ArgumentNullException(nameof(session));
