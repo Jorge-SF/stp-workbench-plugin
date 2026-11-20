@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Maptek.Vulcan.Stp.Bridge.Contracts;
 using Maptek.Vulcan.Stp.Planner;
 using Maptek.Vulcan.Stp.Planner.Export;
 using Maptek.Vulcan.Stp.Timeline.Model;
@@ -272,12 +273,26 @@ namespace Maptek.Vulcan.Stp.Views.Planner
             SetExporting(true);
             try
             {
-                var outcome = await PlannerExports.ExcelAsync(Session, path);
+                var outcome = await PlannerExports.ExcelAsync(Session, path, chartImages: ChartImages());
                 _host?.Notify(outcome.Message, !outcome.Ok);
             }
             finally
             {
                 SetExporting(false);
+            }
+        }
+
+        // template captureProgressChartImages: the "Gráficos" cards for the workbook's "Gráficas" sheet; a card that
+        // cannot be drawn leaves the sheet without pictures rather than failing the export
+        private IReadOnlyList<ExcelExportChartImage> ChartImages()
+        {
+            try
+            {
+                return ProgressChartImages.Render(global::Maptek.Vulcan.Stp.Views.Planner.ProgressCharts.Build(Session.ActualProgressSummary, Session.ShowActualProgress));
+            }
+            catch (Exception error) when (error is InvalidOperationException || error is ArgumentException || error is System.Runtime.InteropServices.COMException || error is OutOfMemoryException)
+            {
+                return Array.Empty<ExcelExportChartImage>();
             }
         }
 

@@ -1,13 +1,15 @@
 // The command bar's Exportar group: what Excel, PDF and STP suelto export from the current planner view.
 // Mirrors the template's buildExcelExportPayload / renderPrintReport (reference/web/short_term_planner_template_v2.html):
 // the visible rows (filters, search and sort applied), one column per visible civil day, the planned amount of each
-// day's pending segments, and one "Capacidad · <tipo>" aggregate row per type.
+// day's pending segments, one "Capacidad · <tipo>" aggregate row per type and, with "Avance real" on, the actual
+// value per activity and day plus one "Avance real · <tipo>" row per type.
 
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Maptek.Vulcan.Stp.Bridge.Contracts;
+using Maptek.Vulcan.Stp.Engine;
 using Newtonsoft.Json.Linq;
 
 namespace Maptek.Vulcan.Stp.Planner.Export
@@ -72,6 +74,9 @@ namespace Maptek.Vulcan.Stp.Planner.Export
 
         /// <summary>Gets the dominant segment's amount (completed included), or <c>null</c>.</summary>
         public double? Shown { get; init; }
+
+        /// <summary>Gets the entered "Avance real" value of the day, or <c>null</c> (read whatever the mode).</summary>
+        public double? Actual { get; init; }
     }
 
     /// <summary>One exported activity row.</summary>
@@ -137,6 +142,15 @@ namespace Maptek.Vulcan.Stp.Planner.Export
 
         public IReadOnlyList<PlanExportCapacity> Capacity { get; private set; }
 
+        /// <summary>Gets a value indicating whether the "Avance real" mode was on (template <c>actualProgressMode</c>).</summary>
+        public bool ShowActualProgress { get; private set; }
+
+        /// <summary>Gets the "Avance real · tipo" rows (empty while the mode is off).</summary>
+        public IReadOnlyList<ActualProgressRow> ActualProgress { get; private set; }
+
+        /// <summary>Gets planned vs actual per type of the rows (actual values only with the mode on).</summary>
+        public ActualProgressSummary ProgressSummary { get; private set; }
+
         /// <summary>Gets the type legend (types present in the rows, Spanish order).</summary>
         public IReadOnlyList<(string Label, string Color)> Legend { get; private set; }
 
@@ -179,6 +193,9 @@ namespace Maptek.Vulcan.Stp.Planner.Export
                 Days = days,
                 Rows = rows,
                 Capacity = capacity,
+                ShowActualProgress = session.ShowActualProgress,
+                ActualProgress = session.ShowActualProgress ? session.ActualProgressRows.ToList() : new List<ActualProgressRow>(),
+                ProgressSummary = session.ActualProgressSummary,
                 Legend = legend,
             };
         }
@@ -194,11 +211,13 @@ namespace Maptek.Vulcan.Stp.Planner.Export
 
             var cells = new List<PlanExportCell>(days.Count);
             double total = 0;
-            foreach (var segments in byDay)
+            for (int d = 0; d < days.Count; d++)
             {
+                var segments = byDay[d];
+                double? actual = session.ActualProgressValue(row.ActivityId, days[d].Date);
                 if (segments == null)
                 {
-                    cells.Add(new PlanExportCell());
+                    cells.Add(new PlanExportCell { Actual = actual });
                     continue;
                 }
 
@@ -220,7 +239,7 @@ namespace Maptek.Vulcan.Stp.Planner.Export
                 }
 
                 double? shown = segments.Any(s => s.Amount.HasValue) ? segments.Where(s => s.Amount.HasValue).Sum(s => s.Amount.Value) : (double?)null;
-                cells.Add(new PlanExportCell { Planned = planned, HasSegment = true, Status = dominant.Status, Shown = shown });
+                cells.Add(new PlanExportCell { Planned = planned, HasSegment = true, Status = dominant.Status, Shown = shown, Actual = actual });
             }
 
             return new PlanExportRow
@@ -253,11 +272,13 @@ namespace Maptek.Vulcan.Stp.Planner.Export
         }
 
         /// <summary>
-        /// The <c>vgs-stp-excel-export/1</c> body (template <c>buildExcelExportPayload</c>) without actual progress:
-        /// <c>actualProgressMode</c> false, <c>actual</c> all null, no chart types or chart images.
+        /// The <c>vgs-stp-excel-export/1</c> body (template <c>buildExcelExportPayload</c>): the planned and actual value
+        /// of every activity and day, the "Capacidad · tipo" rows, the "Avance real · tipo" rows with the mode on, one
+        /// chart series per type and the chart pictures of the "Gráficos" tab.
         /// </summary>
+        /// <param name="chartImages">The chart cards as PNG (template <c>captureProgressChartImages</c>), or none.</param>
         /// <exception cref="InvalidOperationException"><see cref="ExcelBlockedReason"/> is not empty.</exception>
-        public ExcelExportRequest ToExcelRequest()
+        public ExcelExportRequest ToExcelRequest(IEnumerable<ExcelExportChartImage> chartImages = null)
         {
             string blocked = ExcelBlockedReason();
             if (blocked.Length > 0) throw new InvalidOperationException(blocked);
@@ -266,7 +287,7 @@ namespace Maptek.Vulcan.Stp.Planner.Export
                 ProjectKey = ProjectKey,
                 Title = Clip(Title, 160),
                 RangeLabel = Clip(RangeLabel, 160),
-                ActualProgressMode = false,
+                ActualProgressMode = ShowActualProgress,
             };
             foreach (var day in Days) request.Days.Add(new ExcelExportDay(day.Date, day.Label));
             foreach (var row in Rows)
@@ -278,7 +299,7 @@ namespace Maptek.Vulcan.Stp.Planner.Export
                     Type = Clip(row.Type, 160),
                     Resource = Clip(row.Resource, 160),
                     Planned = row.Cells.Select(c => c.Planned).ToList(),
-                    Actual = row.Cells.Select(_ => (double?)null).ToList(),
+                    Actual = row.Cells.Select(c => c.Actual).ToList(),
                     Color = row.Color,
                 });
             }
@@ -289,9 +310,66 @@ namespace Maptek.Vulcan.Stp.Planner.Export
                 ["values"] = new JArray(Enumerable.Range(0, Days.Count).Select(c.CellText)),
                 ["states"] = new JArray(c.Cells.Select(x => x.Over ? "under-progress" : string.Empty)),
             }));
+            var types = ProgressSummary?.Types ?? Array.Empty<TypeProgress>();
+            if (ShowActualProgress)
+            {
+                // template actualAggregates: "real/plan" with excelNumber, red under plan, green at or over it
+                foreach (var type in types)
+                {
+                    var cells = Days.Select(d => type.Day(d.Date)).ToList();
+                    request.Aggregates.Add(new JObject
+                    {
+                        ["label"] = "Avance real · " + type.Type,
+                        ["values"] = new JArray(cells.Select(c => c?.Actual is double a ? Number(a) + "/" + Number(c.Scheduled) : "—")),
+                        ["states"] = new JArray(cells.Select(c => c?.Actual is double a ? (a < c.Scheduled ? "under-progress" : "met-progress") : string.Empty)),
+                    });
+                }
+            }
+
+            foreach (var type in types)
+            {
+                var actualByResource = new Dictionary<string, IList<double?>>(StringComparer.Ordinal);
+                foreach (var resource in type.ActualByResource)
+                {
+                    actualByResource[resource.Key] = Days.Select(d =>
+                    {
+                        var onDay = type.ActualByResourceOn(d.Date);
+                        int at = IndexOf(onDay, resource.Key);
+                        return at < 0 ? (double?)null : onDay[at].Value;
+                    }).ToList();
+                }
+
+                request.ChartTypes.Add(new ExcelExportChartType
+                {
+                    Type = type.Type,
+                    Planned = Days.Select(d => (double?)(type.Day(d.Date)?.Scheduled ?? 0)).ToList(),
+                    ActualByResource = actualByResource,
+                    PlannedByResource = Totals(type.PlannedByResource),
+                    ActualTotalsByResource = Totals(type.ActualByResource),
+                });
+            }
+
+            foreach (var image in (chartImages ?? Enumerable.Empty<ExcelExportChartImage>()).Where(i => i != null).Take(ExcelExportRequest.MaxChartImages))
+            {
+                request.ChartImages.Add(image);
+            }
+
             request.Legend = new JArray(Legend.Select(l => new JObject { ["label"] = l.Label, ["color"] = l.Color }));
             return request;
         }
+
+        private static int IndexOf(IReadOnlyList<KeyValuePair<string, double>> pairs, string key)
+        {
+            for (int i = 0; i < pairs.Count; i++)
+            {
+                if (pairs[i].Key == key) return i;
+            }
+
+            return -1;
+        }
+
+        private static JObject Totals(IReadOnlyList<KeyValuePair<string, double>> pairs) =>
+            new JObject((pairs ?? Array.Empty<KeyValuePair<string, double>>()).Select(p => new JProperty(p.Key, p.Value)));
 
         // The server blanks any text longer than its limit (stp_v2_excel_export._text); cut it instead.
         private static string Clip(string text, int maximum)

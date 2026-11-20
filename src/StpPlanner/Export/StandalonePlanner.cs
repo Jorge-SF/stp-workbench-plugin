@@ -4,8 +4,10 @@
 // filled as render_planner does (2. VGS_ShortTermPlanner.py), and its STANDALONE_BOOTSTRAP block is replaced with
 // { snapshot, plannerState: { model, horizon }, localState } and a static bridge, so the page opens on this plan and
 // can never apply to VGS.
-// Not carried (yet): the plugin's local resource assignments / capacity exemptions and actual progress
-// (localState stays empty); the page uses its own saved preferences.
+// localState carries the "Avance real" values and boxes (ActualProgressStore.ToJson, the template's
+// standaloneLocalState shape), so the page opens with the same boxes; its mode starts on when there are any.
+// Not carried (yet): the plugin's local resource assignments / capacity exemptions; the page uses its own saved
+// preferences.
 
 using System;
 using System.Collections.Generic;
@@ -94,7 +96,7 @@ namespace Maptek.Vulcan.Stp.Planner.Export
                     ["model"] = ModelJson(session.State.Model),
                     ["horizon"] = HorizonJson(session.Horizon),
                 },
-                ["localState"] = new JObject(),
+                ["localState"] = ActualProgressStore.ToJson(session.ActualProgressState),
             };
             var bridge = new JObject
             {
