@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Planner view-model tests: snapshot mapping and golden replays through PlannerSession (tools/golden), apply
+       packages byte-equal to Python's normalized canonical JSON (StpBridge.Tests/TestData/python_vectors.json),
+       projection (rows, filters, counters, capacity, details), undo/redo, and bridge outcomes with a fake bridge. -->
+  <Import Project="..\..\WorkbenchRuntime.props" />
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>Maptek.Vulcan.Stp.Planner.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Net.Http" />
+    <ProjectReference Include="..\StpPlanner\StpPlanner.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- StpPlanner/StpBridge do not copy Newtonsoft (the Workbench provides it); the test host needs a copy. -->
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(WorkbenchRuntime)\SDK\Third\Newtonsoft.Json\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>
