@@ -30,12 +30,13 @@ namespace Maptek.Vulcan.Stp.Timeline.Model
     /// <summary>One day of work of an activity.</summary>
     public readonly struct TimelineBlock
     {
-        public TimelineBlock(int day, string label, bool isCompleted = false, object tag = null)
+        public TimelineBlock(int day, string label, bool isCompleted = false, object tag = null, string toolTip = null)
         {
             Day = day;
             Label = label;
             IsCompleted = isCompleted;
             Tag = tag;
+            ToolTip = toolTip;
         }
 
         /// <summary>Day index from <see cref="ITimelineModel.StartDate"/> (0 = first column). May be outside the range.</summary>
@@ -44,11 +45,17 @@ namespace Maptek.Vulcan.Stp.Timeline.Model
         /// <summary>Text inside the block, usually the day's quantity ("300", "1.7k"). Null for none.</summary>
         public string Label { get; }
 
-        /// <summary>Locked completed work: drawn hatched, without the move outline.</summary>
+        /// <summary>Locked completed work: drawn hatched, without the move outline; it can't be dragged or moved.</summary>
         public bool IsCompleted { get; }
 
         /// <summary>Caller data handed back in block events (e.g. the fragment id).</summary>
         public object Tag { get; }
+
+        /// <summary>
+        /// Hover tooltip detail under the activity and date lines, e.g. the full quantity and the fragment's start
+        /// and finish ("300 m · 16/11 07:00 — 16/11 19:00"). Null shows "Cantidad: <see cref="Label"/>".
+        /// </summary>
+        public string ToolTip { get; }
     }
 
     /// <summary>A grid row and its chart lane.</summary>

@@ -121,8 +121,9 @@ namespace Maptek.Vulcan.Stp.Timeline.Preview
                         Move = a.Move == 1 ? TimelineMoveKind.Direct : a.Move == 2 ? TimelineMoveKind.Cascade : TimelineMoveKind.None,
                     };
                     string label = TimelineLabels.CompactQuantity(a.Qty);
+                    string tip = "Cantidad: " + a.Qty.ToString("#,0", Mx) + " " + a.Unit + " · turno 07:00 — 19:00";
                     for (int k = 0; k < a.Days; k++)
-                        row.Blocks.Add(new TimelineBlock(a.Start + k, label, k < a.Done, tag: $"{a.Id}#{k}"));
+                        row.Blocks.Add(new TimelineBlock(a.Start + k, label, k < a.Done, $"{a.Id}#{k}", tip));
                     model.Rows.Add(row);
                 }
             }

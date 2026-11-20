@@ -1,13 +1,16 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using Maptek.Vulcan.Stp.Timeline.Layout;
 using Maptek.Vulcan.Stp.Timeline.Model;
 
 namespace Maptek.Vulcan.Stp.Timeline.Preview
@@ -34,6 +37,9 @@ namespace Maptek.Vulcan.Stp.Timeline.Preview
         public double DayWidth = double.NaN;
         public string Bench;
 
+        /// <summary>Screenshot demo: drag, drag-activity, blocked, menu, tooltip, stagger (with --screenshot; captures the screen).</summary>
+        public string Demo;
+
         public static Options Parse(string[] args)
         {
             var o = new Options();
@@ -51,6 +57,7 @@ namespace Maptek.Vulcan.Stp.Timeline.Preview
                     case "--scroll-row": o.ScrollRow = int.Parse(v, CultureInfo.InvariantCulture); break;
                     case "--bench": o.Bench = Path.GetFullPath(v); break;
                     case "--day-width": o.DayWidth = double.Parse(v, CultureInfo.InvariantCulture); break;
+                    case "--demo": o.Demo = v; break;
                 }
             }
             return o;
@@ -64,6 +71,7 @@ namespace Maptek.Vulcan.Stp.Timeline.Preview
         private readonly TextBlock _status = new TextBlock { Margin = new Thickness(12, 3, 12, 3), Foreground = new SolidColorBrush(Color.FromRgb(0x3D, 0x48, 0x52)) };
         private readonly ComboBox _data = new ComboBox { Width = 170, Margin = new Thickness(4, 0, 12, 0) };
         private string _lastEvent = "—";
+        private FakePlanner _planner;
         private readonly System.Collections.Generic.List<double> _startupFrames = new System.Collections.Generic.List<double>();
 
         public PreviewWindow(Options options)
@@ -93,7 +101,15 @@ namespace Maptek.Vulcan.Stp.Timeline.Preview
             bar.Children.Add(zoom);
             bar.Children.Add(links);
             bar.Children.Add(done);
-            bar.Children.Add(new TextBlock { Text = "Rueda: desplazar · Mayús+rueda: horizontal · Ctrl+rueda: zoom · ↑/↓: selección", Foreground = Brushes.Gray, VerticalAlignment = VerticalAlignment.Center });
+            bar.Children.Add(new TextBlock
+            {
+                Text = "Arrastrar: mover desde este día · Mayús+arrastrar: actividad · Esc: cancelar · flechas: selección · " +
+                       "Ctrl+←/→: ±1 día (Ctrl+Mayús: actividad) · Ctrl+Z / Ctrl+Y · clic derecho: menú",
+                Foreground = Brushes.Gray,
+                VerticalAlignment = VerticalAlignment.Center,
+                TextWrapping = TextWrapping.Wrap,
+                MaxWidth = 560,
+            });
 
             var root = new DockPanel();
             var top = new Border { Background = Brushes.White, BorderBrush = new SolidColorBrush(Color.FromRgb(0xD5, 0xD9, 0xE0)), BorderThickness = new Thickness(0, 0, 0, 1), Child = bar };
@@ -107,6 +123,21 @@ namespace Maptek.Vulcan.Stp.Timeline.Preview
 
             _timeline.BlockClick += (s, e) => { _lastEvent = $"clic {e.Row.Id} {e.Date:dd/MM} ({e.Block.Tag})"; UpdateStatus(); };
             _timeline.BlockDragStarted += (s, e) => { _lastEvent = $"arrastre iniciado {e.Row.Id} {e.Date:dd/MM}"; UpdateStatus(); };
+            // Fake host: every request goes to the fake planner, which applies it or rejects it (red flash).
+            TimelineEditEventHandler edit = (s, e) =>
+            {
+                _planner.Handle(e);
+                _lastEvent = Describe(e) + " → " + _planner.LastOutcome;
+                UpdateStatus();
+            };
+            _timeline.MoveRequested += edit;
+            _timeline.DeferRequested += edit;
+            _timeline.StaggerRequested += edit;
+            _timeline.AssignResourceRequested += edit;
+            _timeline.CapacityExemptionRequested += edit;
+            _timeline.UndoRequested += edit;
+            _timeline.RedoRequested += edit;
+            _timeline.BlockMenuOpening += (s, e) => _planner.OnMenuOpening(e);
             _timeline.SelectedRowChanged += (s, e) => UpdateStatus();
             _timeline.Rendered += (s, e) => { if (_startupFrames.Count < 5) _startupFrames.Add(_timeline.LastRenderMilliseconds); UpdateStatus(); };
 
@@ -128,9 +159,28 @@ namespace Maptek.Vulcan.Stp.Timeline.Preview
             TimelineModel model = _data.SelectedIndex == 1
                 ? FakeData.Stress(_options.Rows, _options.Days, out selected)
                 : FakeData.Mockup(out selected);
+            _planner = new FakePlanner(model);
             _timeline.Model = model;
             _timeline.SelectedKey = selected;
             UpdateStatus();
+        }
+
+        private static string Describe(TimelineEditEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case TimelineEditAction.Move:
+                    string what = e.Scope == TimelineMoveScope.Tail ? "desde " + e.Date?.ToString("dd/MM", CultureInfo.InvariantCulture) : "actividad";
+                    return $"Mover {what} {e.ActivityKey} {TimelineEditMath.DeltaText(e.DayDelta)}";
+                case TimelineEditAction.SplitAndStagger:
+                    return $"Dividir y desfasar {e.ActivityKey} ({e.Divisions} × {e.GapDays} d)";
+                case TimelineEditAction.Undo:
+                    return "Deshacer";
+                case TimelineEditAction.Redo:
+                    return "Rehacer";
+                default:
+                    return $"{e.Action} {e.ActivityKey} {e.Date:dd/MM}";
+            }
         }
 
         private void UpdateStatus()
@@ -138,7 +188,7 @@ namespace Maptek.Vulcan.Stp.Timeline.Preview
             var model = _timeline.Model;
             int rows = model?.Rows.Count ?? 0;
             _status.Text = $"{rows:N0} filas · {model?.Links.Count ?? 0:N0} precedencias · seleccionada {_timeline.SelectedKey ?? "—"} · " +
-                           $"último evento: {_lastEvent} · dibujo {_timeline.LastRenderMilliseconds:0.0} ms " +
+                           $"último: {_lastEvent} · dibujo {_timeline.LastRenderMilliseconds:0.0} ms " +
                            $"({_timeline.DrawnRowCount} filas, {_timeline.DrawnBlockCount} bloques, {_timeline.DrawnLinkCount} líneas visibles)";
         }
 
@@ -156,6 +206,13 @@ namespace Maptek.Vulcan.Stp.Timeline.Preview
                 return;
             }
             if (_options.Screenshot == null) return;
+            if (_options.Demo != null)
+            {
+                _timeline.IsHitTestVisible = false; // the real pointer must not disturb the staged state
+                Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() =>
+                    Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(StageDemo))));
+                return;
+            }
             // Let layout and the coalesced redraw run, then capture and exit.
             Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() =>
                 Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(Capture))));
@@ -175,6 +232,20 @@ namespace Maptek.Vulcan.Stp.Timeline.Preview
             _timeline.DayWidth = 10; // all 90 days on screen: worst case for blocks
             Measure("vertical scroll, all 90 days visible (300 x 6 rows)", report, i => _timeline.SetVerticalOffset(i * 30.0 * 6));
             Measure("selection change (300)", report, i => _timeline.SelectedKey = _timeline.Model.Rows[(i * 7) % _timeline.Model.Rows.Count].Key);
+            // Drag preview: press a pending block of a visible row, then move the pointer across 12 days back and forth.
+            _timeline.DayWidth = 44;
+            _timeline.SetVerticalOffset(30.0 * 1000);
+            _timeline.UpdateNow();
+            var chart = _timeline.ChartPanel;
+            int row = _timeline.Layout.RowAt(_timeline.OffsetY + 200);
+            var pending = _timeline.Model.Rows[row].Blocks.FirstOrDefault(b => !b.IsCompleted);
+            double y = TimelineLayout.HeaderHeight + _timeline.Layout.RowTop(row) - _timeline.OffsetY + 15;
+            double x = pending.Day * _timeline.DayWidth + 20 - _timeline.OffsetX;
+            _timeline.IsHitTestVisible = false;
+            chart.Press(new Point(x, y));
+            chart.PointerMove(new Point(x + 10, y), System.Windows.Input.ModifierKeys.None);
+            Measure("drag preview frame (300 pointer moves over 12 days)", report, i => chart.PointerMove(new Point(x + (i % 12) * _timeline.DayWidth, y), System.Windows.Input.ModifierKeys.None));
+            chart.CancelDrag();
             File.WriteAllText(_options.Bench, report.ToString());
             Close();
         }
@@ -193,14 +264,73 @@ namespace Maptek.Vulcan.Stp.Timeline.Preview
                               $"(last frame: {_timeline.DrawnRowCount} rows, {_timeline.DrawnBlockCount} blocks, {_timeline.DrawnLinkCount} links)");
         }
 
+        /// <summary>Put the control in an editing state for a screenshot, then capture the screen area of the window.</summary>
+        private void StageDemo()
+        {
+            var chart = _timeline.ChartPanel;
+            var model = (TimelineModel)_timeline.Model;
+            int Row(string key) => model.Rows.FindIndex(r => r.Key == key);
+            Point At(int row, int day) => new Point(day * _timeline.DayWidth + _timeline.DayWidth / 2 - _timeline.OffsetX,
+                TimelineLayout.HeaderHeight + _timeline.Layout.RowTop(row) - _timeline.OffsetY + 15);
+            int rez = Row("REZ-1425-01");
+            switch (_options.Demo)
+            {
+                case "drag":
+                    chart.Press(At(rez, 11));
+                    chart.PointerMove(At(rez, 11) + new Vector(8, 0), ModifierKeys.None);
+                    chart.PointerMove(At(rez, 13), ModifierKeys.None);
+                    break;
+                case "drag-activity":
+                    chart.Press(At(rez, 11));
+                    chart.PointerMove(At(rez, 11) + new Vector(8, 0), ModifierKeys.Shift);
+                    chart.PointerMove(At(rez, 12), ModifierKeys.Shift);
+                    break;
+                case "blocked":
+                    _timeline.Focus();
+                    _timeline.FocusBlock("REZ-1425-01", 10);
+                    _timeline.HandleKey(Key.Left, ModifierKeys.Control | ModifierKeys.Shift); // VOL-1425-01 ends on day 9
+                    break;
+                case "menu":
+                    _timeline.Focus();
+                    _timeline.OpenBlockMenu(rez, 0, chart, At(rez, 10) + new Vector(4, 6));
+                    break;
+                case "tooltip":
+                    _timeline.ShowHoverNow(rez, 1, At(rez, 11));
+                    break;
+                case "stagger":
+                    _timeline.OpenStagger("REZ-1425-01", 11, chart);
+                    break;
+            }
+            UpdateStatus();
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(_options.Demo == "blocked" ? 60 : 500) };
+            timer.Tick += (s, e) => { timer.Stop(); Capture(); };
+            timer.Start();
+        }
+
+        /// <summary>Render the window, plus any open popup of the timeline (menu, popover, tooltip) at its place.</summary>
         private void Capture()
         {
             var element = (FrameworkElement)Content;
             var dpi = VisualTreeHelper.GetDpi(this);
+            var visual = new DrawingVisual();
+            using (var dc = visual.RenderOpen())
+            {
+                dc.DrawRectangle(new VisualBrush(element), null, new Rect(0, 0, element.ActualWidth, element.ActualHeight));
+                foreach (var (popup, offset) in _timeline.OpenPopups())
+                {
+                    var at = _timeline.ChartPanel.TranslatePoint(offset, element);
+                    var size = new Size(popup.ActualWidth, popup.ActualHeight);
+                    if (size.Width <= 0 || size.Height <= 0) continue;
+                    double x = Math.Max(0, Math.Min(element.ActualWidth - size.Width, at.X));
+                    double y = Math.Max(0, Math.Min(element.ActualHeight - size.Height, at.Y));
+                    dc.DrawRectangle(new VisualBrush(popup) { Stretch = Stretch.None, AlignmentX = AlignmentX.Left, AlignmentY = AlignmentY.Top },
+                        null, new Rect(new Point(x, y), size));
+                }
+            }
             var bitmap = new RenderTargetBitmap(
                 (int)Math.Ceiling(element.ActualWidth * dpi.DpiScaleX), (int)Math.Ceiling(element.ActualHeight * dpi.DpiScaleY),
                 dpi.PixelsPerInchX, dpi.PixelsPerInchY, PixelFormats.Pbgra32);
-            bitmap.Render(element);
+            bitmap.Render(visual);
             var encoder = new PngBitmapEncoder();
             encoder.Frames.Add(BitmapFrame.Create(bitmap));
             Directory.CreateDirectory(Path.GetDirectoryName(_options.Screenshot));

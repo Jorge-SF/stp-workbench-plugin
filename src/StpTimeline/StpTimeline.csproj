@@ -14,5 +14,7 @@
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="StpTimeline.Tests" />
+    <!-- The preview drives the editing input directly to stage its screenshot demos (Program.cs, demo option). -->
+    <InternalsVisibleTo Include="StpTimeline.Preview" />
   </ItemGroup>
 </Project>

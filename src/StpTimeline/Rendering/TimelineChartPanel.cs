@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using Maptek.Vulcan.Stp.Timeline.Layout;
 using Maptek.Vulcan.Stp.Timeline.Model;
 using T = Maptek.Vulcan.Stp.Timeline.Rendering.TimelineTheme;
@@ -11,20 +12,21 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
 {
     /// <summary>
     /// The chart: day header, weekend shading, row bands, precedence links, day blocks and the "completado hasta"
-    /// line. Four DrawingVisual layers (back, links, blocks, front) so a selection change or the links toggle only
-    /// redraws its own layer. Every layer draws only the visible rows x visible days.
+    /// line. Five DrawingVisual layers (back, links, blocks, editing overlay, front) so a selection change, the links
+    /// toggle or a drag frame only redraws its own layer. Every layer draws only the visible rows x visible days.
+    /// Editing input (drag, right-click) lives here too; it only expresses intent through the owner's events.
     /// </summary>
     internal sealed class TimelineChartPanel : LayeredPanel
     {
-        internal const int BackLayer = 0, LinkLayer = 1, BlockLayer = 2, FrontLayer = 3;
-        private const double BlockInset = 6; // mockup: y + 6, height RH - 12
+        internal const int BackLayer = 0, LinkLayer = 1, BlockLayer = 2, OverlayLayer = 3, FrontLayer = 4;
+        private const double BlockInset = TimelineEditMath.BlockInset; // mockup: y + 6, height RH - 12
 
         private readonly TimelineView _owner;
         private Point _pressPoint;
         private TimelineHit _pressHit;
         private bool _pressed, _dragStarted;
 
-        public TimelineChartPanel(TimelineView owner) : base(4)
+        public TimelineChartPanel(TimelineView owner) : base(5)
         {
             _owner = owner;
         }
@@ -41,6 +43,7 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
             if ((layers & TimelineLayers.ChartBack) != 0) DrawBack();
             if ((layers & TimelineLayers.Links) != 0) DrawLinks();
             if ((layers & TimelineLayers.Blocks) != 0) DrawBlocks();
+            if ((layers & TimelineLayers.Overlay) != 0) DrawOverlay();
             if ((layers & TimelineLayers.Front) != 0) DrawFront();
         }
 
@@ -174,7 +177,7 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
                     var fill = T.ForColor(row.Color);
                     Pen movePen = row.Move == TimelineMoveKind.Direct ? T.DirectMove
                         : row.Move == TimelineMoveKind.Cascade ? T.CascadeMove : null;
-                    for (int k = FirstBlockAtOrAfter(blocks, days.First); k < blocks.Count; k++)
+                    for (int k = TimelineEditMath.FirstBlockAtOrAfter(blocks, days.First); k < blocks.Count; k++)
                     {
                         var b = blocks[k];
                         if (b.Day >= days.End) break;
@@ -261,41 +264,119 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
             }
         }
 
-        /// <summary>Index of the first block with Day &gt;= day (blocks are sorted by day).</summary>
-        internal static int FirstBlockAtOrAfter(System.Collections.Generic.IReadOnlyList<TimelineBlock> blocks, int day)
+        #region Editing overlay
+
+        /// <summary>
+        /// Overlay layer: the focused block's ring, the drag ghost (moved blocks faded in place, dashed ghosts at the
+        /// target, offset badge) and the red "blocked" flashes. Only one activity's blocks, so a drag frame costs the
+        /// same with 20 or 2,000 rows.
+        /// </summary>
+        private void DrawOverlay()
         {
-            int lo = 0, hi = blocks.Count;
-            while (lo < hi)
+            using (var dc = Layers[OverlayLayer].RenderOpen())
             {
-                int mid = (lo + hi) >> 1;
-                if (blocks[mid].Day < day) lo = mid + 1; else hi = mid;
+                var layout = _owner.Layout;
+                var model = _owner.Model;
+                if (layout == null || model == null || BodyHeight <= 0) return;
+                dc.PushClip(new RectangleGeometry(BodyRect));
+                var rows = layout.VisibleRows(_owner.OffsetY, BodyHeight);
+
+                int sel = _owner.SelectedRowIndex, focus = _owner.FocusedBlockIndex;
+                if (_drag == null && sel >= 0 && focus >= 0 && rows.Contains(sel) && _owner.IsKeyboardFocusWithin)
+                {
+                    var b = _owner.Rows[sel].Blocks[focus];
+                    var r = BlockRect(sel, b.Day);
+                    r.Inflate(1.5, 1.5);
+                    dc.DrawRoundedRectangle(null, T.FocusPen, r, 3, 3);
+                }
+
+                int dayCount = model.DayCount;
+                bool InHorizon(int day) => day >= 0 && day < dayCount; // like the browser, nothing past the horizon
+                foreach (var flash in _owner.Flashes)
+                {
+                    if (!rows.Contains(flash.Row)) continue;
+                    double a = flash.Alpha;
+                    if (a <= 0) continue;
+                    var fill = new SolidColorBrush(Color.FromArgb((byte)(200 * a), T.BlockedColor.R, T.BlockedColor.G, T.BlockedColor.B));
+                    var pen = new Pen(new SolidColorBrush(Color.FromArgb((byte)(255 * Math.Min(1, a * 1.5)), T.BlockedColor.R, T.BlockedColor.G, T.BlockedColor.B)), 2);
+                    foreach (int day in flash.Days)
+                        if (InHorizon(day)) dc.DrawRoundedRectangle(fill, pen, BlockRect(flash.Row, day), 2, 2);
+                }
+
+                if (_drag != null && rows.Contains(_drag.Row) && _drag.Row < _owner.Rows.Count)
+                {
+                    var blocks = _owner.Rows[_drag.Row].Blocks;
+                    foreach (int k in _drag.Moved)
+                        if (k < blocks.Count) dc.DrawRoundedRectangle(T.DragOrigin, null, BlockRect(_drag.Row, blocks[k].Day), 2, 2);
+                    if (_drag.Delta != 0)
+                    {
+                        foreach (int k in _drag.Moved)
+                            if (k < blocks.Count && InHorizon(blocks[k].Day + _drag.Delta)) dc.DrawRoundedRectangle(T.GhostFill, T.GhostPen, BlockRect(_drag.Row, blocks[k].Day + _drag.Delta), 2, 2);
+                    }
+                    DrawBadge(dc, _drag);
+                }
+                dc.Pop();
             }
-            return lo;
         }
+
+        private Rect BlockRect(int row, int day)
+        {
+            var layout = _owner.Layout;
+            double top = RowScreenTop(row), rh = layout.RowHeight(row);
+            return new Rect(DayScreenX(day) + 1, top + TimelineEditMath.BlockInset, Math.Max(1, layout.DayWidth - 2), Math.Max(2, rh - TimelineEditMath.BlockInset * 2));
+        }
+
+        /// <summary>"+3 días · jue 19/11" above the ghost of the pressed block (below the row near the header).</summary>
+        private void DrawBadge(DrawingContext dc, DragState drag)
+        {
+            var model = _owner.Model;
+            var layout = _owner.Layout;
+            DateTime target = model.StartDate.Date.AddDays(drag.OriginDay + drag.Delta);
+            string text = TimelineEditMath.DeltaText(drag.Delta) + " · " + TimelineLabels.Weekday(target) + " " + target.ToString("dd/MM", CultureInfo.InvariantCulture)
+                          + (drag.Scope == TimelineMoveScope.Activity ? " · actividad completa" : string.Empty);
+            var ft = _owner.Text.Get(text, T.Bold, T.ChartFontSize, T.BadgeText);
+            double w = ft.Width + 12, h = ft.Height + 4;
+            double top = RowScreenTop(drag.Row);
+            double y = top - h - 1;
+            if (y < TimelineLayout.HeaderHeight + 1) y = top + layout.RowHeight(drag.Row) + 1;
+            double x = DayScreenX(drag.OriginDay + drag.Delta);
+            x = Math.Max(2, Math.Min(ActualWidth - w - 2, x));
+            dc.DrawRoundedRectangle(T.BadgeBack, null, new Rect(x, y, w, h), 3, 3);
+            dc.DrawText(ft, new Point(x + 6, y + 2));
+        }
+
+        #endregion
+
+        #region Input
+
+        private sealed class DragState
+        {
+            public int Row, Block, OriginDay, Delta;
+            public TimelineMoveScope Scope;
+            public System.Collections.Generic.List<int> Moved;
+        }
+
+        private DragState _drag;
+        private bool _pressBlocked;
+        private DispatcherTimer _autoScroll;
+
+        /// <summary>A drag preview is showing.</summary>
+        internal bool IsDragging => _drag != null;
+
+        /// <summary>Current drag offset in days (0 when not dragging).</summary>
+        internal int DragDelta => _drag?.Delta ?? 0;
+
+        internal TimelineMoveScope DragScope => _drag?.Scope ?? TimelineMoveScope.Tail;
+
+        /// <summary>Blocks the current drag carries.</summary>
+        internal System.Collections.Generic.IReadOnlyList<int> DragMovedBlocks => _drag?.Moved ?? new System.Collections.Generic.List<int>();
 
         /// <summary>Row and block under a point of this panel.</summary>
         internal TimelineHit HitTest(Point p)
         {
             var layout = _owner.Layout;
             if (layout == null || p.Y < TimelineLayout.HeaderHeight) return TimelineHit.None;
-            double y = p.Y - TimelineLayout.HeaderHeight + _owner.OffsetY;
-            int row = layout.RowAt(y);
-            if (row < 0) return TimelineHit.None;
-            var r = _owner.Rows[row];
-            int blockIndex = -1;
-            if (r.Kind == TimelineRowKind.Activity && r.Blocks != null && r.Blocks.Count > 0)
-            {
-                double inRow = y - layout.RowTop(row);
-                double inset = BlockInset - 2; // a little forgiving
-                if (inRow >= inset && inRow <= layout.RowHeight(row) - inset)
-                {
-                    int day = layout.XToDay(p.X + _owner.OffsetX);
-                    int k = FirstBlockAtOrAfter(r.Blocks, day);
-                    if (k < r.Blocks.Count && r.Blocks[k].Day == day && (_owner.ShowCompleted || !r.Blocks[k].IsCompleted))
-                        blockIndex = k;
-                }
-            }
-            return new TimelineHit(row, blockIndex);
+            return TimelineEditMath.HitTest(layout, _owner.Rows, p.X + _owner.OffsetX, p.Y - TimelineLayout.HeaderHeight + _owner.OffsetY, _owner.ShowCompleted);
         }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
@@ -307,74 +388,205 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
             base.OnMouseLeftButtonDown(e);
-            _owner.Focus();
-            var p = e.GetPosition(this);
-            var hit = HitTest(p);
-            if (hit.Row >= 0) _owner.SelectRowFromInput(hit.Row, p, this);
-            if (hit.Block >= 0)
-            {
-                _pressed = true;
-                _dragStarted = false;
-                _pressHit = hit;
-                _pressPoint = p;
-                CaptureMouse();
-            }
+            Press(e.GetPosition(this));
             e.Handled = true;
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
-            var p = e.GetPosition(this);
-            if (_pressed && !_dragStarted)
-            {
-                if (Math.Abs(p.X - _pressPoint.X) >= SystemParameters.MinimumHorizontalDragDistance ||
-                    Math.Abs(p.Y - _pressPoint.Y) >= SystemParameters.MinimumVerticalDragDistance)
-                {
-                    _dragStarted = true;
-                    _owner.RaiseBlockEvent(TimelineView.BlockDragStartedEvent, _pressHit, _pressPoint, this);
-                }
-                return;
-            }
-            if (!_pressed) Cursor = HitTest(p).Block >= 0 ? Cursors.Hand : null;
+            PointerMove(e.GetPosition(this), Keyboard.Modifiers);
         }
 
         protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
         {
             base.OnMouseLeftButtonUp(e);
-            if (_pressed && !_dragStarted) _owner.RaiseBlockEvent(TimelineView.BlockClickEvent, _pressHit, _pressPoint, this);
-            EndPress();
+            Release(e.GetPosition(this));
             e.Handled = true;
+        }
+
+        protected override void OnMouseLeave(MouseEventArgs e)
+        {
+            base.OnMouseLeave(e);
+            if (!_pressed) _owner.HideHover();
+        }
+
+        protected override void OnMouseRightButtonDown(MouseButtonEventArgs e)
+        {
+            base.OnMouseRightButtonDown(e);
+            if (_pressed) { e.Handled = true; return; }
+            var p = e.GetPosition(this);
+            var hit = HitTest(p);
+            _owner.Focus();
+            if (hit.Row >= 0) _owner.SelectRowFromInput(hit.Row, hit.Block);
+            e.Handled = true;
+        }
+
+        protected override void OnMouseRightButtonUp(MouseButtonEventArgs e)
+        {
+            base.OnMouseRightButtonUp(e);
+            if (_pressed) { e.Handled = true; return; }
+            var p = e.GetPosition(this);
+            var hit = HitTest(p);
+            if (hit.Block >= 0) _owner.OpenBlockMenu(hit.Row, hit.Block, this, p);
+            e.Handled = true;
+        }
+
+        /// <summary>Left button down (also driven directly by tests).</summary>
+        internal void Press(Point p)
+        {
+            _owner.Focus();
+            _owner.HideHover();
+            _owner.HideReason();
+            var hit = HitTest(p);
+            if (hit.Row >= 0) _owner.SelectRowFromInput(hit.Row, hit.Block);
+            if (hit.Block >= 0)
+            {
+                _pressed = true;
+                _dragStarted = false;
+                _pressBlocked = false;
+                _pressHit = hit;
+                _pressPoint = p;
+                CaptureMouse();
+            }
+        }
+
+        /// <summary>Mouse move: drag threshold, drag update, or hover (cursor and tooltip).</summary>
+        internal void PointerMove(Point p, ModifierKeys mods)
+        {
+            if (_pressed && !_dragStarted)
+            {
+                if (Math.Abs(p.X - _pressPoint.X) < SystemParameters.MinimumHorizontalDragDistance &&
+                    Math.Abs(p.Y - _pressPoint.Y) < SystemParameters.MinimumVerticalDragDistance) return;
+                _dragStarted = true;
+                _owner.RaiseBlockEvent(TimelineView.BlockDragStartedEvent, _pressHit, _pressPoint, this);
+                var scope = Scope(mods);
+                var row = _pressHit.Row < _owner.Rows.Count ? _owner.Rows[_pressHit.Row] : null;
+                if (!_owner.IsEditable || !TimelineEditMath.CanMove(row, _pressHit.Block, scope, out _))
+                {
+                    _pressBlocked = _owner.IsEditable;
+                    Cursor = _owner.IsEditable ? Cursors.No : null;
+                    return;
+                }
+                _drag = new DragState
+                {
+                    Row = _pressHit.Row,
+                    Block = _pressHit.Block,
+                    OriginDay = row.Blocks[_pressHit.Block].Day,
+                    Scope = scope,
+                    Moved = TimelineEditMath.MovedBlocks(row.Blocks, _pressHit.Block, scope),
+                };
+                Cursor = Cursors.SizeWE;
+                StartAutoScroll();
+            }
+            if (_drag != null)
+            {
+                UpdateDrag(p, mods);
+                return;
+            }
+            if (_pressed) return;
+            var hit = HitTest(p);
+            Cursor = HoverCursor(hit);
+            _owner.UpdateHover(hit, this, p);
+        }
+
+        private static TimelineMoveScope Scope(ModifierKeys mods) =>
+            (mods & ModifierKeys.Shift) != 0 ? TimelineMoveScope.Activity : TimelineMoveScope.Tail;
+
+        private Cursor HoverCursor(TimelineHit hit)
+        {
+            if (hit.Block < 0) return null;
+            if (!_owner.IsEditable) return Cursors.Hand;
+            var row = _owner.Rows[hit.Row];
+            return row.IsLocked || row.Blocks[hit.Block].IsCompleted ? Cursors.No : Cursors.Hand;
+        }
+
+        private void UpdateDrag(Point p, ModifierKeys mods)
+        {
+            var model = _owner.Model;
+            var layout = _owner.Layout;
+            if (model == null || layout == null) { CancelDrag(); return; }
+            var scope = Scope(mods);
+            bool changed = false;
+            if (scope != _drag.Scope)
+            {
+                _drag.Scope = scope;
+                _drag.Moved = TimelineEditMath.MovedBlocks(_owner.Rows[_drag.Row].Blocks, _drag.Block, scope);
+                changed = true;
+            }
+            int delta = TimelineEditMath.DayDelta(_drag.OriginDay, p.X + _owner.OffsetX, layout.DayWidth, model.DayCount);
+            if (delta != _drag.Delta) { _drag.Delta = delta; changed = true; }
+            if (changed) _owner.RequestRedraw(TimelineLayers.Overlay);
+        }
+
+        /// <summary>Left button up: raise the move (drag), the click (no drag), or flash a locked block.</summary>
+        internal void Release(Point p)
+        {
+            var drag = _drag;
+            bool click = _pressed && !_dragStarted, blocked = _pressBlocked;
+            var hit = _pressHit;
+            EndPress();
+            if (click) _owner.RaiseBlockEvent(TimelineView.BlockClickEvent, hit, _pressPoint, this);
+            else if (blocked) _owner.ShowBlocked(hit.Row, new[] { _owner.Rows[hit.Row].Blocks[hit.Block].Day }, TimelineEditMath.CompletedWorkReason);
+            else if (drag != null && drag.Delta != 0)
+                _owner.RequestMove(drag.Row, drag.Block, drag.Scope, drag.Delta, TimelineEditOrigin.Drag, drag.Moved);
+        }
+
+        /// <summary>Escape or lost capture: drop the drag without raising anything.</summary>
+        internal void CancelDrag()
+        {
+            if (!_pressed && _drag == null) return;
+            EndPress();
         }
 
         protected override void OnLostMouseCapture(MouseEventArgs e)
         {
             base.OnLostMouseCapture(e);
-            _pressed = false;
-            _dragStarted = false;
+            if (_pressed || _drag != null) EndPress();
         }
 
         private void EndPress()
         {
+            bool hadDrag = _drag != null;
             _pressed = false;
             _dragStarted = false;
+            _pressBlocked = false;
+            _drag = null;
+            _autoScroll?.Stop();
+            Cursor = null;
             if (IsMouseCaptured) ReleaseMouseCapture();
+            if (hadDrag) _owner.RequestRedraw(TimelineLayers.Overlay);
         }
-    }
 
-    /// <summary>Result of a chart hit test: row index (-1 none) and block index in that row (-1 none).</summary>
-    internal readonly struct TimelineHit
-    {
-        public static readonly TimelineHit None = new TimelineHit(-1, -1);
-
-        public TimelineHit(int row, int block)
+        /// <summary>While dragging near the left or right edge, scroll the days (faster closer to the edge).</summary>
+        private void StartAutoScroll()
         {
-            Row = row;
-            Block = block;
+            if (_autoScroll == null)
+            {
+                _autoScroll = new DispatcherTimer(DispatcherPriority.Input, Dispatcher) { Interval = TimeSpan.FromMilliseconds(30) };
+                _autoScroll.Tick += (s, e) =>
+                {
+                    if (_drag == null || !IsMouseCaptured) { _autoScroll.Stop(); return; }
+                    var p = Mouse.GetPosition(this);
+                    const double edge = 32;
+                    double step = 0;
+                    if (p.X < edge) step = -(edge - Math.Max(-edge, p.X)) / edge;
+                    else if (p.X > ActualWidth - edge) step = (Math.Min(ActualWidth + edge, p.X) - (ActualWidth - edge)) / edge;
+                    if (step == 0) return;
+                    _owner.SetHorizontalOffset(_owner.OffsetX + step * Math.Max(6, _owner.DayWidth / 3));
+                    UpdateDrag(p, Keyboard.Modifiers);
+                };
+            }
+            _autoScroll.Start();
         }
 
-        public int Row { get; }
-        public int Block { get; }
+        /// <summary>Shift pressed or released mid-drag switches between tail and whole activity.</summary>
+        internal void RefreshDragScope()
+        {
+            if (_drag != null) UpdateDrag(Mouse.GetPosition(this), Keyboard.Modifiers);
+        }
+
+        #endregion
     }
 
     [Flags]
@@ -386,7 +598,8 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
         Blocks = 4,
         Front = 8,
         Grid = 16,
-        Selection = ChartBack | Grid,
-        All = ChartBack | Links | Blocks | Front | Grid,
+        Overlay = 32,
+        Selection = ChartBack | Grid | Overlay,
+        All = ChartBack | Links | Blocks | Front | Grid | Overlay,
     }
 }

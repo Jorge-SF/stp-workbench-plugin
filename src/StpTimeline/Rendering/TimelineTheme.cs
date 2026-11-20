@@ -29,6 +29,19 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
 
         public static readonly Brush Hatch = MakeHatch();
 
+        // Editing overlay (reference .drag-preview-segment: #b9daf6 fill, 2px dashed #0b66c3, opacity .62).
+        public static readonly Brush GhostFill = Solid(0xB9, 0xDA, 0xF6, 0xA0);
+        public static readonly Pen GhostPen = MakePen(Solid(0x0B, 0x66, 0xC3), 2, 3, 2);
+        public static readonly Brush DragOrigin = Solid(0xFF, 0xFF, 0xFF, 0x99);   // fades the blocks being moved
+        public static readonly Brush BadgeBack = Solid(0x1F, 0x29, 0x33);
+        public static readonly Brush BadgeText = Solid(0xFF, 0xFF, 0xFF);
+        public static readonly Pen FocusPen = MakePen(Solid(0x0B, 0x66, 0xC3), 2);
+        public static readonly Color BlockedColor = Color.FromRgb(0xB4, 0x23, 0x18);  // reference .drag-preview-warning
+        public static readonly Brush BlockedBack = Solid(0xFF, 0xE2, 0xDF);
+        public static readonly Brush BlockedText = Solid(0x8A, 0x1C, 0x14);
+        public static readonly Brush TipBack = Solid(0xFF, 0xFF, 0xFF);
+        public static readonly Brush TipBorder = Solid(0xC9, 0xCF, 0xD8);
+
         public static readonly Typeface Regular = new Typeface(new FontFamily("Segoe UI"), FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
         public static readonly Typeface Bold = new Typeface(new FontFamily("Segoe UI"), FontStyles.Normal, FontWeights.SemiBold, FontStretches.Normal);
         public static readonly Typeface Icons = new Typeface(new FontFamily("Segoe MDL2 Assets"), FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
@@ -49,9 +62,9 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
             return brush;
         }
 
-        private static Brush Solid(byte r, byte g, byte b)
+        private static Brush Solid(byte r, byte g, byte b, byte a = 0xFF)
         {
-            var brush = new SolidColorBrush(Color.FromRgb(r, g, b));
+            var brush = new SolidColorBrush(Color.FromArgb(a, r, g, b));
             brush.Freeze();
             return brush;
         }
