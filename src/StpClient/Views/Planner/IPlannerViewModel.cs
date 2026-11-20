@@ -109,6 +109,9 @@ namespace Maptek.Vulcan.Stp.Views.Planner
         /// <summary>What the timeline control draws; null shows the placeholder.</summary>
         ITimelineModel Timeline { get; }
 
+        /// <summary>Applies the timeline's edit requests (drag, keys, menu) to the plan; its IsEditable feeds the control.</summary>
+        PlannerEditRouter Editor { get; }
+
         /// <summary>Selected activity id, two-way with the timeline's SelectedKey; null when none.</summary>
         string SelectedKey { get; set; }
 

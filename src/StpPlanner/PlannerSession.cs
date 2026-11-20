@@ -43,6 +43,7 @@ namespace Maptek.Vulcan.Stp.Planner
         private PlannerModel baseModel;
         private IReadOnlyDictionary<string, ActivityInfo> catalog;
         private IReadOnlyDictionary<string, string> typeColors = new Dictionary<string, string>();
+        private LocalOverrides overrides = new LocalOverrides();
         private CivilHorizonController controller;
         private PlanHistory history;
         private PlannerView view = new PlannerView();
@@ -414,6 +415,101 @@ namespace Maptek.Vulcan.Stp.Planner
             return Report(FromEngine(result));
         }
 
+        // ------------------------------------------------------------------ local day settings (menu)
+
+        /// <summary>Gets the equipment the "Asignar equipo" picker offers: the project's VGS resources, sorted.</summary>
+        public IReadOnlyList<string> ResourceOptions { get; private set; } = Array.Empty<string>();
+
+        /// <summary>The logical unit of a fragment (the key of its local equipment and exemption), or <c>null</c>.</summary>
+        /// <param name="fragmentId">The fragment.</param>
+        /// <returns><c>activityId:logicalUnitDate</c>.</returns>
+        public string LogicalUnitOf(string fragmentId)
+        {
+            var fragment = State.Model.Fragments.FirstOrDefault(f => f.Id == fragmentId);
+            return fragment == null ? null : LocalOverrides.LogicalUnitId(fragment.ActivityId, fragment.LogicalUnitDate);
+        }
+
+        /// <summary>The activity's own (VGS) equipment, or <c>null</c> for an unknown activity.</summary>
+        /// <param name="activityId">The activity.</param>
+        /// <returns>The equipment.</returns>
+        public string ActivityResource(string activityId) => activityId != null && catalog.TryGetValue(activityId, out var info) ? info.Resource : null;
+
+        /// <summary>The equipment assigned locally to a logical unit, or <c>null</c> (the activity's own).</summary>
+        /// <param name="logicalUnitId">The logical unit.</param>
+        /// <returns>The equipment.</returns>
+        public string AssignedResource(string logicalUnitId) => overrides.ResourceOf(logicalUnitId);
+
+        /// <summary>Whether a logical unit is exempt from the capacity limit.</summary>
+        /// <param name="logicalUnitId">The logical unit.</param>
+        /// <returns>Exempt.</returns>
+        public bool IsCapacityExempt(string logicalUnitId) => overrides.IsExempt(logicalUnitId);
+
+        /// <summary>Whether an activity's days can be exempted (it has a VGS type: template <c>capacityExemptible</c>).</summary>
+        /// <param name="activityId">The activity.</param>
+        /// <returns>Exemptible.</returns>
+        public bool IsCapacityExemptible(string activityId) => activityId != null && catalog.TryGetValue(activityId, out var info) && info.HasType;
+
+        /// <summary>
+        /// "Asignar equipo": the equipment of one pending day (template <c>setFragmentResourceOverride</c>). Local only,
+        /// saved per project; not a plan step and never sent to VGS.
+        /// </summary>
+        /// <param name="logicalUnitId">The day (<see cref="DaySegment.LogicalUnitId"/>).</param>
+        /// <param name="resource">One of <see cref="ResourceOptions"/>, or <c>null</c>/empty for the activity's own.</param>
+        /// <returns>The outcome.</returns>
+        public PlannerOutcome AssignResource(string logicalUnitId, string resource)
+        {
+            if (busy) return Report(PlannerOutcome.Failure(PlannerMessages.Busy));
+            if (!IsPendingUnit(logicalUnitId, out var activity)) return Report(PlannerOutcome.Failure(PlannerMessages.DayNotEditable, "invalid"));
+            if (!string.IsNullOrEmpty(resource) && !ResourceOptions.Contains(resource)) return Report(PlannerOutcome.Failure(PlannerMessages.UnknownResource, "invalid"));
+            if (catalog.TryGetValue(activity, out var info) && resource == info.Resource) resource = null;   // the activity's own = no override
+            return ChangeOverrides(() => overrides.SetResource(logicalUnitId, resource),
+                string.IsNullOrEmpty(resource) ? PlannerMessages.ResourceCleared : PlannerMessages.ResourceAssigned);
+        }
+
+        /// <summary>
+        /// "Exentar Límite" / "Quitar exención": the day's quantity no longer counts against its type's capacity
+        /// objective (template <c>setFragmentCapacityExemption</c>). Local only, saved per project.
+        /// </summary>
+        /// <param name="logicalUnitId">The day.</param>
+        /// <param name="exempt">Exempt or not.</param>
+        /// <returns>The outcome.</returns>
+        public PlannerOutcome SetCapacityExemption(string logicalUnitId, bool exempt)
+        {
+            if (busy) return Report(PlannerOutcome.Failure(PlannerMessages.Busy));
+            if (!IsPendingUnit(logicalUnitId, out var activity)) return Report(PlannerOutcome.Failure(PlannerMessages.DayNotEditable, "invalid"));
+            if (exempt && !IsCapacityExemptible(activity)) return Report(PlannerOutcome.Failure(PlannerMessages.NotExemptible, "invalid"));
+            return ChangeOverrides(() => overrides.SetExempt(logicalUnitId, exempt), exempt ? PlannerMessages.ExemptionSet : PlannerMessages.ExemptionCleared);
+        }
+
+        private bool IsPendingUnit(string logicalUnitId, out string activityId)
+        {
+            activityId = null;
+            if (string.IsNullOrEmpty(logicalUnitId)) return false;
+            var fragment = State.Model.Fragments.FirstOrDefault(f => !f.LockedCompleted && LocalOverrides.LogicalUnitId(f.ActivityId, f.LogicalUnitDate) == logicalUnitId);
+            activityId = fragment?.ActivityId;
+            return fragment != null;
+        }
+
+        private PlannerOutcome ChangeOverrides(Func<bool> change, string message)
+        {
+            if (change())
+            {
+                try
+                {
+                    overrides.Save(storage, Snapshot.ProjectKey);
+                }
+                catch (Exception error) when (error is System.IO.IOException || error is UnauthorizedAccessException)
+                {
+                    RefreshView();
+                    return Report(PlannerOutcome.Failure(PlannerMessages.OverridesNotSaved + error.Message, "storage", error.Message));
+                }
+
+                RefreshView();
+            }
+
+            return Report(PlannerOutcome.Success(message));
+        }
+
         // ------------------------------------------------------------------ VGS
 
         /// <summary>Gets a value indicating whether "Aplicar a VGS" is enabled.</summary>
@@ -569,6 +665,9 @@ namespace Maptek.Vulcan.Stp.Planner
             baseModel = model;
             catalog = ActivityCatalog.Build(snapshot, options);
             typeColors = TypePalette.Assign(catalog.Values.Select(a => a.Type));
+            overrides = LocalOverrides.Load(storage, snapshot.ProjectKey);
+            ResourceOptions = catalog.Values.Select(a => a.Resource).Distinct(StringComparer.Ordinal)
+                .OrderBy(r => r, StringComparer.Create(CultureInfo.GetCultureInfo("es-MX"), true)).ToList();
             Attributes = snapshot.Activities.SelectMany(a => a.GridColumns.Select(c => c.Key)).Distinct(StringComparer.Ordinal).ToList();
             controller = next;
             ConflictAssessment = PlannerLogic.AssessPrecedenceConflicts(model, PrecedencePolicy);
@@ -578,6 +677,7 @@ namespace Maptek.Vulcan.Stp.Planner
             if (selectedActivityId != null && !catalog.ContainsKey(selectedActivityId)) selectedActivityId = null;
             RefreshAll();
             OnPropertyChanged(nameof(Attributes));
+            OnPropertyChanged(nameof(ResourceOptions));
             OnPropertyChanged(nameof(SelectedActivityId));
         }
 
@@ -681,6 +781,7 @@ namespace Maptek.Vulcan.Stp.Planner
                 SelectedActivityId = selectedActivityId,
                 Objectives = objectives,
                 TypeColors = typeColors,
+                Overrides = overrides,
             });
             RaiseView();
         }

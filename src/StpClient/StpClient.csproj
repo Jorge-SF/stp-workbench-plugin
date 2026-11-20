@@ -85,6 +85,8 @@
     <Compile Include="Views\Planner\DesignPlannerViewModel.cs" />
     <Compile Include="Views\Planner\PlannerScreenViewModel.cs" />
     <Compile Include="Views\Planner\PlannerTimelineModel.cs" />
+    <Compile Include="Views\Planner\PlannerEditRouter.cs" />
+    <Compile Include="Views\Planner\ResourcePickerWindow.cs" />
     <Compile Include="Views\Planner\PlannerDocumentViewModel.cs" />
     <Compile Include="Views\Planner\PlannerContent.xaml.cs">
       <DependentUpon>PlannerContent.xaml</DependentUpon>

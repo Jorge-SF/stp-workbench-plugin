@@ -1,13 +1,15 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using Maptek.Vulcan.Stp.Timeline;
 
 namespace Maptek.Vulcan.Stp.Views.Planner
 {
     /// <summary>
-    /// The planner screen. Set DataContext to an <see cref="IPlannerViewModel"/>. The only code here keeps the
-    /// bottom panel's row in step with <see cref="IPlannerViewModel.ShowCapacityPanel"/> (a GridSplitter writes a
-    /// fixed row height, so hiding the panel must zero the row and showing it restores the height the user left).
+    /// The planner screen. Set DataContext to an <see cref="IPlannerViewModel"/>. The code here forwards the
+    /// timeline's edit requests to <see cref="IPlannerViewModel.Editor"/>, and keeps the bottom panel's row in step with
+    /// <see cref="IPlannerViewModel.ShowCapacityPanel"/> (a GridSplitter writes a fixed row height, so hiding the panel
+    /// must zero the row and showing it restores the height the user left).
     /// </summary>
     public partial class PlannerContent : UserControl
     {
@@ -18,7 +20,31 @@ namespace Maptek.Vulcan.Stp.Views.Planner
         {
             InitializeComponent();
             DataContextChanged += (s, e) => Attach(e.NewValue as IPlannerViewModel);
+            Timeline.MoveRequested += OnEditRequested;
+            Timeline.DeferRequested += OnEditRequested;
+            Timeline.StaggerRequested += OnEditRequested;
+            Timeline.AssignResourceRequested += OnEditRequested;
+            Timeline.CapacityExemptionRequested += OnEditRequested;
+            Timeline.UndoRequested += OnEditRequested;
+            Timeline.RedoRequested += OnEditRequested;
+            Timeline.BlockMenuOpening += OnBlockMenuOpening;
         }
+
+        /// <summary>
+        /// The timeline only asks; the view model's Editor applies the request to the plan. A refusal on an activity
+        /// flashes its blocks red with the Spanish reason; the status bar shows every outcome.
+        /// </summary>
+        private void OnEditRequested(object sender, TimelineEditEventArgs e)
+        {
+            var editor = _vm?.Editor;
+            if (editor == null) return;
+            var outcome = editor.Apply(PlannerEditRequest.From(e));
+            if (outcome != null && !outcome.Ok && e.Row != null) e.Reject(outcome.Message);
+            e.Handled = true;
+        }
+
+        private void OnBlockMenuOpening(object sender, TimelineMenuEventArgs e) =>
+            _vm?.Editor?.PrepareMenu(e.Row?.Key, e.Block.Tag, e.Items);
 
         private void Attach(IPlannerViewModel vm)
         {

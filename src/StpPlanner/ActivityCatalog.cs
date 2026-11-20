@@ -19,6 +19,9 @@ namespace Maptek.Vulcan.Stp.Planner
         /// <summary>Gets the activity type (<c>Sin tipo</c> when the grid has none).</summary>
         public string Type { get; init; }
 
+        /// <summary>Gets a value indicating whether the grid gives a type (v1_compat_logic.js <c>hasVgsActivityTypeFor</c>).</summary>
+        public bool HasType { get; init; }
+
         /// <summary>Gets the level (<c>Sin nivel</c> when the grid has none).</summary>
         public string Level { get; init; }
 
@@ -74,6 +77,7 @@ namespace Maptek.Vulcan.Stp.Planner
                     Id = activity.Id,
                     Name = Identity(activity),
                     Type = Text(grid, options.TypeColumns) is string type && type.Length > 0 ? type : NoType,
+                    HasType = !string.IsNullOrEmpty(Text(grid, options.TypeColumns)),
                     Level = Text(grid, options.LevelColumns) is string level && level.Length > 0 ? level : NoLevel,
                     Resource = Text(grid, options.ResourceColumns) is string resource && resource.Length > 0 ? resource : NoResource,
                     Rate = Rate(Text(grid, options.RateColumns)),

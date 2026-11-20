@@ -28,6 +28,9 @@ namespace Maptek.Vulcan.Stp.Views.Planner
         /// <summary>The activity selected in the mockup.</summary>
         public const string SelectedActivity = "REZ-1425-01";
 
+        /// <summary>The design project's key.</summary>
+        public static readonly string ProjectKey = new string('d', 64);
+
         private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
 
         private sealed class Act
@@ -71,7 +74,7 @@ namespace Maptek.Vulcan.Stp.Views.Planner
         {
             var w = new StringBuilder();
             w.Append("{\"schema\":\"vgs-stp-snapshot/2\",\"projectName\":\"mina_demo.vgantt\",\"projectPath\":\"X:\\\\demo\\\\mina_demo.vgantt\",");
-            w.Append("\"projectKey\":\"").Append(new string('d', 64)).Append("\",\"projectFingerprint\":\"").Append(new string('e', 64));
+            w.Append("\"projectKey\":\"").Append(ProjectKey).Append("\",\"projectFingerprint\":\"").Append(new string('e', 64));
             w.Append("\",\"precedenceFingerprint\":\"").Append(new string('f', 64)).Append("\",\"exportedAt\":\"").Append(Iso(ExportedAt));
             w.Append("\",\"dateFormat\":\"dd/MM/yyyy\",\"activities\":[");
             w.Append(string.Join(",", Acts.Select(ActivityJson)));
@@ -88,11 +91,13 @@ namespace Maptek.Vulcan.Stp.Views.Planner
         /// A session as the mockup shows it: no live bridge, the type column of the design data, the goals, one direct
         /// move (two cascades follow) and REZ-1425-01 selected.
         /// </summary>
-        public static PlannerSession CreateSession()
+        /// <param name="config">Bridge config; default: static ("Sin conexión").</param>
+        /// <param name="bridge">The bridge of a live config (tests use a fake one).</param>
+        public static PlannerSession CreateSession(BridgeConfig config = null, IPlannerBridge bridge = null)
         {
-            var config = BridgeConfig.Parse("{\"mode\":\"static\",\"endpoint\":\"\",\"token\":\"\",\"projectKey\":\"" + new string('d', 64)
+            config = config ?? BridgeConfig.Parse("{\"mode\":\"static\",\"endpoint\":\"\",\"token\":\"\",\"projectKey\":\"" + ProjectKey
                 + "\",\"bridgeId\":\"\",\"message\":\"Vista previa con datos de diseño.\"}");
-            var session = new PlannerSession(Snapshot(), config, null, new MemoryHorizonStorage(), new PlannerOptions { TypeObjectives = Goals });
+            var session = new PlannerSession(Snapshot(), config, bridge, new MemoryHorizonStorage(), new PlannerOptions { TypeObjectives = Goals });
             session.SetRangeStart(Day0.ToString("yyyy-MM-dd", Inv));
             session.SetDuration(14);
             session.MoveActivity(MovedActivity, 1);

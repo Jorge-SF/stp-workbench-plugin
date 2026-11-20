@@ -185,4 +185,9 @@ Archivo: {1}</value></data>
   <data name="Msg_BridgeNotLive" xml:space="preserve"><value>El puente con VGS no está en vivo: {0}
 
 El planificador se abre con la instantánea, pero Actualizar y Aplicar a VGS quedan desactivados. Para trabajar en vivo, cierre el planificador y vuelva a abrirlo.</value></data>
+  <!-- Timeline editing (block menu) -->
+  <data name="Planner_PickResourceTitle" xml:space="preserve"><value>Asignar equipo</value></data>
+  <data name="Planner_PickResourceNote" xml:space="preserve"><value>El equipo se asigna sólo a este día y sólo en la vista local; VGS no cambia.</value></data>
+  <data name="Planner_PickResourceDefault" xml:space="preserve"><value>Predeterminado de actividad ({0})</value></data>
+  <data name="Planner_PickResourceOk" xml:space="preserve"><value>Asignar</value></data>
 </root>

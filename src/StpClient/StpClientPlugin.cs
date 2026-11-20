@@ -286,6 +286,8 @@ namespace Maptek.Vulcan.Stp
             public bool Confirm(string text) => Ask(text);
 
             public void Notify(string text, bool isError) => Show(text, isError ? MessageBoxImage.Warning : MessageBoxImage.Information);
+
+            public PickedResource PickResource(ResourcePickRequest request) => ResourcePickerWindow.Show(OwnerWindow(), request);
         }
 
         #endregion
