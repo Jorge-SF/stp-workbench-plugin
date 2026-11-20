@@ -1,0 +1,481 @@
+{
+  "case": "slots_basic",
+  "description": "Explicit and hidden slots: set, hide, clear, restore, visibility queries.",
+  "initial": {
+    "byDay": [],
+    "byFragment": [],
+    "slots": [],
+    "hidden": []
+  },
+  "steps": [
+    {
+      "op": "hasAny",
+      "outcome": false,
+      "state": {
+        "byDay": [],
+        "byFragment": [],
+        "slots": [],
+        "hidden": []
+      }
+    },
+    {
+      "op": "setSlot",
+      "outcome": null,
+      "state": {
+        "byDay": [],
+        "byFragment": [],
+        "slots": [
+          [
+            "[\"A-1\",\"2026-11-19\"]",
+            true
+          ]
+        ],
+        "hidden": []
+      }
+    },
+    {
+      "op": "hasSlot",
+      "outcome": true,
+      "state": {
+        "byDay": [],
+        "byFragment": [],
+        "slots": [
+          [
+            "[\"A-1\",\"2026-11-19\"]",
+            true
+          ]
+        ],
+        "hidden": []
+      }
+    },
+    {
+      "op": "hasAny",
+      "outcome": true,
+      "state": {
+        "byDay": [],
+        "byFragment": [],
+        "slots": [
+          [
+            "[\"A-1\",\"2026-11-19\"]",
+            true
+          ]
+        ],
+        "hidden": []
+      }
+    },
+    {
+      "op": "setSlot",
+      "outcome": null,
+      "state": {
+        "byDay": [],
+        "byFragment": [],
+        "slots": [
+          [
+            "[\"A-1\",\"2026-11-19\"]",
+            true
+          ],
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ]
+        ],
+        "hidden": []
+      }
+    },
+    {
+      "op": "setHidden",
+      "outcome": null,
+      "state": {
+        "byDay": [],
+        "byFragment": [],
+        "slots": [
+          [
+            "[\"A-1\",\"2026-11-19\"]",
+            true
+          ],
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ]
+        ],
+        "hidden": [
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ]
+        ]
+      }
+    },
+    {
+      "op": "hasHidden",
+      "outcome": true,
+      "state": {
+        "byDay": [],
+        "byFragment": [],
+        "slots": [
+          [
+            "[\"A-1\",\"2026-11-19\"]",
+            true
+          ],
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ]
+        ],
+        "hidden": [
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ]
+        ]
+      }
+    },
+    {
+      "op": "hasVisibleSlotInDays",
+      "outcome": false,
+      "state": {
+        "byDay": [],
+        "byFragment": [],
+        "slots": [
+          [
+            "[\"A-1\",\"2026-11-19\"]",
+            true
+          ],
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ]
+        ],
+        "hidden": [
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ]
+        ]
+      }
+    },
+    {
+      "op": "hasVisibleSlotInDays",
+      "outcome": true,
+      "state": {
+        "byDay": [],
+        "byFragment": [],
+        "slots": [
+          [
+            "[\"A-1\",\"2026-11-19\"]",
+            true
+          ],
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ]
+        ],
+        "hidden": [
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ]
+        ]
+      }
+    },
+    {
+      "op": "hasVisibleSlotInDays",
+      "outcome": false,
+      "state": {
+        "byDay": [],
+        "byFragment": [],
+        "slots": [
+          [
+            "[\"A-1\",\"2026-11-19\"]",
+            true
+          ],
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ]
+        ],
+        "hidden": [
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ]
+        ]
+      }
+    },
+    {
+      "op": "visibleSlotActivityIds",
+      "outcome": [
+        "A-1"
+      ],
+      "state": {
+        "byDay": [],
+        "byFragment": [],
+        "slots": [
+          [
+            "[\"A-1\",\"2026-11-19\"]",
+            true
+          ],
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ]
+        ],
+        "hidden": [
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ]
+        ]
+      }
+    },
+    {
+      "op": "setHidden",
+      "outcome": null,
+      "state": {
+        "byDay": [],
+        "byFragment": [],
+        "slots": [
+          [
+            "[\"A-1\",\"2026-11-19\"]",
+            true
+          ],
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ]
+        ],
+        "hidden": []
+      }
+    },
+    {
+      "op": "visibleSlotActivityIds",
+      "outcome": [
+        "A-1",
+        "B-2"
+      ],
+      "state": {
+        "byDay": [],
+        "byFragment": [],
+        "slots": [
+          [
+            "[\"A-1\",\"2026-11-19\"]",
+            true
+          ],
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ]
+        ],
+        "hidden": []
+      }
+    },
+    {
+      "op": "setSlot",
+      "outcome": null,
+      "state": {
+        "byDay": [],
+        "byFragment": [],
+        "slots": [
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ]
+        ],
+        "hidden": []
+      }
+    },
+    {
+      "op": "setSlot",
+      "outcome": null,
+      "state": {
+        "byDay": [],
+        "byFragment": [],
+        "slots": [
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ]
+        ],
+        "hidden": []
+      }
+    },
+    {
+      "op": "setSlot",
+      "outcome": null,
+      "state": {
+        "byDay": [],
+        "byFragment": [],
+        "slots": [
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ]
+        ],
+        "hidden": []
+      }
+    },
+    {
+      "op": "setValue",
+      "outcome": null,
+      "state": {
+        "byDay": [
+          [
+            "[\"A-1\",\"2026-11-16\"]",
+            4
+          ]
+        ],
+        "byFragment": [],
+        "slots": [
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ]
+        ],
+        "hidden": []
+      }
+    },
+    {
+      "op": "clearSlot",
+      "outcome": null,
+      "state": {
+        "byDay": [],
+        "byFragment": [],
+        "slots": [
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ]
+        ],
+        "hidden": [
+          [
+            "[\"A-1\",\"2026-11-16\"]",
+            true
+          ]
+        ]
+      }
+    },
+    {
+      "op": "hasHidden",
+      "outcome": true,
+      "state": {
+        "byDay": [],
+        "byFragment": [],
+        "slots": [
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ]
+        ],
+        "hidden": [
+          [
+            "[\"A-1\",\"2026-11-16\"]",
+            true
+          ]
+        ]
+      }
+    },
+    {
+      "op": "restoreSlot",
+      "outcome": null,
+      "state": {
+        "byDay": [],
+        "byFragment": [],
+        "slots": [
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ]
+        ],
+        "hidden": []
+      }
+    },
+    {
+      "op": "restoreSlot",
+      "outcome": null,
+      "state": {
+        "byDay": [],
+        "byFragment": [],
+        "slots": [
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ],
+          [
+            "[\"A-1\",\"2026-11-21\"]",
+            true
+          ]
+        ],
+        "hidden": []
+      }
+    },
+    {
+      "op": "setValue",
+      "outcome": null,
+      "state": {
+        "byDay": [
+          [
+            "[\"A-1\",\"2026-11-21\"]",
+            2
+          ]
+        ],
+        "byFragment": [],
+        "slots": [
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ],
+          [
+            "[\"A-1\",\"2026-11-21\"]",
+            true
+          ]
+        ],
+        "hidden": []
+      }
+    },
+    {
+      "op": "clearSlot",
+      "outcome": null,
+      "state": {
+        "byDay": [],
+        "byFragment": [],
+        "slots": [
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ]
+        ],
+        "hidden": []
+      }
+    },
+    {
+      "op": "setHidden",
+      "outcome": null,
+      "state": {
+        "byDay": [],
+        "byFragment": [],
+        "slots": [
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ]
+        ],
+        "hidden": []
+      }
+    },
+    {
+      "op": "hasAny",
+      "outcome": true,
+      "state": {
+        "byDay": [],
+        "byFragment": [],
+        "slots": [
+          [
+            "[\"B-2\",\"2026-11-20\"]",
+            true
+          ]
+        ],
+        "hidden": []
+      }
+    }
+  ]
+}

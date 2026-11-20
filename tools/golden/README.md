@@ -52,3 +52,15 @@ Step ops map 1:1 to the controller: `moveActivity`, `moveDailyTail`, `deferDaily
 * Canonical JSON means recursively sorted keys, `JSON.stringify` with no whitespace, and UTF-8. This is identical to Python's `json.dumps(sort_keys=True, separators=(",",":"), ensure_ascii=False)`, and `verify_canonical.py` proves it for every golden package. In .NET, sort keys with ordinal comparison and do not escape non-ASCII characters (use `JavaScriptEncoder.UnsafeRelaxedJsonEscaping`, or a custom writer).
 * All times are naive civil datetimes. They are rendered without a zone, and a fraction is included only when non-zero.
 * When `planner_logic.js` changes, `index.json.plannerLogicSha256` changes, and `--check` fails until `expected/` is regenerated and reviewed.
+
+## Actual progress ("Avance real")
+
+`actual_progress.mjs` is a second harness, for the local actual-progress rules of [`reference/web/v1_compat_logic.js`](../../reference/web/v1_compat_logic.js) (`localActualProgress*`, `*LocalActualProgress*`, `buildActualProgressByType` and the period totals, L588-L952). It loads that file unchanged the same way and also carries the template glue that combines those functions (`applyVisibleActualProgressSlotCascade`, `applyVisibleActualProgressCascade`, the value-box handler and the context-menu rules of `short_term_planner_template_v2.html`), copied with the `currentView` row lookup turned into a `row` argument.
+
+```bash
+node tools/golden/actual_progress.mjs            # regenerate tools/golden/expected_actual_progress/
+node tools/golden/actual_progress.mjs --check    # compare with the committed files
+```
+
+The steps live in `fixtures/actual_progress.steps.json`; each case starts from a seeded state and runs queries and edits in order. Every step records its outcome and the state after it. Maps are written as ordered `[key, value]` lists, so the C# port (`src/StpEngine/ActualProgress.cs`, tested by `ActualProgressGoldenTests`) is checked for JS property order too: array-index keys such as a type named `100` come first. In the fixtures, the strings `"NaN"` and `"Infinity"` stand for those numbers.
+

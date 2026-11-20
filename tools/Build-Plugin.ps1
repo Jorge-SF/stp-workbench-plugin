@@ -151,6 +151,9 @@ if ($Test) {
         Write-Host '  golden check'
         & node (Join-Path $root 'tools\golden\run.mjs') --check
         if ($LASTEXITCODE -ne 0) { $testFailures += 'golden check' }
+        Write-Host '  golden check (actual progress)'
+        & node (Join-Path $root 'tools\golden\actual_progress.mjs') --check
+        if ($LASTEXITCODE -ne 0) { $testFailures += 'golden check (actual progress)' }
     } else {
         Write-Host '  node not found: golden check skipped' -ForegroundColor Yellow
     }

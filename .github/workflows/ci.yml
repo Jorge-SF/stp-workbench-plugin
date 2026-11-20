@@ -45,6 +45,9 @@ jobs:
       - name: Golden harness (JS planner rules) matches expected/
         run: node tools/golden/run.mjs --check
 
+      - name: Golden harness (JS actual-progress rules) matches expected_actual_progress/
+        run: node tools/golden/actual_progress.mjs --check
+
       - name: Golden apply packages match Python canonical JSON
         run: python -I tools/golden/verify_canonical.py
 
