@@ -77,6 +77,9 @@ namespace Maptek.Vulcan.Stp.Views.Planner
         /// <summary>Shows or hides the bottom panel (Capacidad, Reportes, Gráficos, Avance real).</summary>
         bool ShowCapacityPanel { get; set; }
 
+        /// <summary>"Avance real" mode: value boxes under the timeline days, actual values in the tab and charts.</summary>
+        bool ShowActualProgress { get; set; }
+
         // ---- Command bar: Resumen ----------------------------------------------------------------------------------
         int ActivityCount { get; }
         int PendingCount { get; }
@@ -129,6 +132,15 @@ namespace Maptek.Vulcan.Stp.Views.Planner
         /// candidate plan, with <see cref="CapacityCell.IsPreviewExcess"/> on the cells the move would take over the goal.
         /// </summary>
         IReadOnlyList<CapacityRow> CapacityRows { get; }
+
+        /// <summary>"Avance real" tab: one row per type (empty while the mode is off).</summary>
+        IReadOnlyList<ActualProgressRow> ActualProgressRows { get; }
+
+        /// <summary>"Gráficos" tab: daily and total progress charts per type.</summary>
+        IReadOnlyList<ProgressChartModel> ProgressCharts { get; }
+
+        /// <summary>Applies the timeline's "Avance real" requests.</summary>
+        ActualProgressRouter ActualProgress { get; }
 
         // ---- Right panel -------------------------------------------------------------------------------------------
         /// <summary>Actividad seleccionada; null when nothing is selected.</summary>

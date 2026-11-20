@@ -20,6 +20,47 @@ namespace Maptek.Vulcan.Stp.Timeline.Layout
         public override string ToString() => $"row {Row}, block {Block}";
     }
 
+    /// <summary>Which part of an "Avance real" box a point is on.</summary>
+    public enum TimelineProgressPart
+    {
+        /// <summary>Not on a box.</summary>
+        None,
+
+        /// <summary>The drag grip (template <c>.actual-progress-drag-grip</c>, "↕").</summary>
+        Grip,
+
+        /// <summary>The value field.</summary>
+        Value,
+    }
+
+    /// <summary>The "Avance real" box under a point.</summary>
+    public readonly struct TimelineProgressHit
+    {
+        public static readonly TimelineProgressHit None = new TimelineProgressHit(-1, -1, -1, TimelineProgressPart.None);
+
+        public TimelineProgressHit(int row, int box, int day, TimelineProgressPart part)
+        {
+            Row = row;
+            Box = box;
+            Day = day;
+            Part = part;
+        }
+
+        /// <summary>Gets the row (-1: none).</summary>
+        public int Row { get; }
+
+        /// <summary>Gets the box index in the row (-1: the point is in the box band of a day without a box).</summary>
+        public int Box { get; }
+
+        /// <summary>Gets the day under the point (-1: none).</summary>
+        public int Day { get; }
+
+        /// <summary>Gets the part.</summary>
+        public TimelineProgressPart Part { get; }
+
+        public override string ToString() => $"row {Row}, box {Box}, day {Day}, {Part}";
+    }
+
     /// <summary>
     /// Pure math behind the editing interactions (no WPF input or drawing): hit testing, pixel to day delta, what a
     /// move carries along, the completed-work lock, and keyboard block navigation. Unit-tested directly.
@@ -51,7 +92,7 @@ namespace Maptek.Vulcan.Stp.Timeline.Layout
             {
                 double inRow = contentY - layout.RowTop(row);
                 double inset = BlockInset - 2;
-                if (inRow >= inset && inRow <= layout.RowHeight(row) - inset)
+                if (inRow >= inset && inRow <= layout.BlockBandHeight(row) - inset)
                 {
                     int day = layout.XToDay(contentX);
                     int k = FirstBlockAtOrAfter(r.Blocks, day);
@@ -174,6 +215,68 @@ namespace Maptek.Vulcan.Stp.Timeline.Layout
             string sign = delta > 0 ? "+" : delta < 0 ? "−" : string.Empty;
             int n = Math.Abs(delta);
             return sign + n + (n == 1 ? " día" : " días");
+        }
+    
+        /// <summary>Width of the drag grip of a box; 0 when days are too narrow for one (then the box only edits).</summary>
+        public static double ProgressGripWidth(double dayWidth) => dayWidth >= 30 ? 10 : 0;
+
+        /// <summary>The "Avance real" box geometry of a day, relative to the row top and the day's left edge: grip, then value.</summary>
+        public static (double GripX, double GripWidth, double ValueX, double ValueWidth, double Top, double Height) ProgressBoxGeometry(double dayWidth)
+        {
+            double grip = ProgressGripWidth(dayWidth);
+            double left = 2, right = Math.Max(left + grip + 4, dayWidth - 2);
+            return (left, grip, left + grip, right - left - grip, TimelineLayout.ProgressBoxTop, TimelineLayout.ProgressBoxHeight);
+        }
+
+        /// <summary>
+        /// The box under a content point of a progress row (scroll offsets already added). A point in the box band of a
+        /// day without a box returns that day with <see cref="TimelineProgressHit.Box"/> = -1.
+        /// </summary>
+        public static TimelineProgressHit ProgressHitTest(TimelineLayout layout, IReadOnlyList<ITimelineRow> rows, double contentX, double contentY, int dayCount)
+        {
+            if (layout == null || rows == null) return TimelineProgressHit.None;
+            int row = layout.RowAt(contentY);
+            if (row < 0 || row >= rows.Count || rows[row] == null || rows[row].Kind != TimelineRowKind.Activity) return TimelineProgressHit.None;
+            int day = layout.XToDay(contentX);
+            if (day < 0 || day >= dayCount) return TimelineProgressHit.None;
+            double inRow = contentY - layout.RowTop(row);
+            var g = ProgressBoxGeometry(layout.DayWidth);
+            if (inRow < g.Top - 1 || inRow > g.Top + g.Height + 1) return new TimelineProgressHit(row, -1, day, TimelineProgressPart.None);
+            var boxes = (rows[row] as ITimelineProgressRow)?.ProgressBoxes;
+            int index = ProgressBoxOnDay(boxes, day);
+            if (index < 0) return new TimelineProgressHit(row, -1, day, TimelineProgressPart.None);
+            double inDay = contentX - layout.DayToX(day);
+            var part = g.GripWidth > 0 && inDay < g.ValueX ? TimelineProgressPart.Grip : TimelineProgressPart.Value;
+            return new TimelineProgressHit(row, index, day, part);
+        }
+
+        /// <summary>Index of the box on <paramref name="day"/>, or -1 (boxes are sorted by day).</summary>
+        public static int ProgressBoxOnDay(IReadOnlyList<TimelineProgressBox> boxes, int day)
+        {
+            if (boxes == null) return -1;
+            int lo = 0, hi = boxes.Count;
+            while (lo < hi)
+            {
+                int mid = (lo + hi) >> 1;
+                if (boxes[mid].Day < day) lo = mid + 1; else hi = mid;
+            }
+            return lo < boxes.Count && boxes[lo].Day == day ? lo : -1;
+        }
+
+        /// <summary>
+        /// The value typed in a box: empty is <c>null</c> (clears the value); a comma also works as the decimal mark.
+        /// Returns false for anything that is not a number &gt;= 0.
+        /// </summary>
+        public static bool TryParseProgressValue(string text, out double? value)
+        {
+            value = null;
+            string t = (text ?? string.Empty).Trim();
+            if (t.Length == 0) return true;
+            if (t.IndexOf(',') >= 0 && t.IndexOf('.') < 0) t = t.Replace(',', '.');
+            if (!double.TryParse(t, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double v)
+                || double.IsNaN(v) || double.IsInfinity(v) || v < 0) return false;
+            value = v;
+            return true;
         }
     }
 }

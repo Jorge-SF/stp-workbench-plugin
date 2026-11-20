@@ -54,6 +54,7 @@ namespace Maptek.Vulcan.Stp.Views.Planner
         private bool _showResources = true;
         private bool _showCapacityPanel = true;
         private bool _exporting;
+        private IReadOnlyList<ProgressChartModel> _charts;
 
         public PlannerScreenViewModel(PlannerSession session, IPlannerHost host)
         {
@@ -98,6 +99,7 @@ namespace Maptek.Vulcan.Stp.Views.Planner
             RebuildResources();
 
             _timeline = new PlannerTimelineModel(session);
+            ActualProgress = new ActualProgressRouter(session);
             Editor = new PlannerEditRouter(session, host == null ? (Func<ResourcePickRequest, PickedResource>)null : host.PickResource);
             _selected = BuildSelected(session.Selected);
             Session.PropertyChanged += OnSessionChanged;
@@ -138,6 +140,8 @@ namespace Maptek.Vulcan.Stp.Views.Planner
         public bool ShowResources { get => _showResources; set => Set(ref _showResources, value); }
 
         public bool ShowCapacityPanel { get => _showCapacityPanel; set => Set(ref _showCapacityPanel, value); }
+
+        public bool ShowActualProgress { get => Session.ShowActualProgress; set => Session.ShowActualProgress = value; }
 
         // ---- Resumen -----------------------------------------------------------------------------------------------
         public int ActivityCount => Session.Counters.Activities;
@@ -209,6 +213,12 @@ namespace Maptek.Vulcan.Stp.Views.Planner
 
         public IReadOnlyList<HorizonDay> CapacityDays => Session.Days;
         public IReadOnlyList<CapacityRow> CapacityRows => Session.DragPreview?.Capacity ?? Session.Capacity;
+
+        public IReadOnlyList<ActualProgressRow> ActualProgressRows => Session.ActualProgressRows;
+
+        public IReadOnlyList<ProgressChartModel> ProgressCharts => _charts ?? (_charts = global::Maptek.Vulcan.Stp.Views.Planner.ProgressCharts.Build(Session.ActualProgressSummary, Session.ShowActualProgress));
+
+        public ActualProgressRouter ActualProgress { get; }
 
         // ---- Right panel -------------------------------------------------------------------------------------------
         public SelectedActivity Selected => _selected;
@@ -406,6 +416,7 @@ namespace Maptek.Vulcan.Stp.Views.Planner
             {
                 case "":
                     RebuildResources();
+                    _charts = null;
                     _selected = BuildSelected(Session.Selected);
                     OnPropertyChanged(string.Empty);
                     break;
@@ -420,6 +431,12 @@ namespace Maptek.Vulcan.Stp.Views.Planner
                 case nameof(PlannerSession.Days): Raise(nameof(CapacityDays)); break;
                 case nameof(PlannerSession.Capacity): Raise(nameof(CapacityRows)); break;
                 case nameof(PlannerSession.DragPreview): Raise(nameof(CapacityRows)); break;
+                case nameof(PlannerSession.ActualProgressRows): Raise(nameof(ActualProgressRows)); break;
+                case nameof(PlannerSession.ActualProgressSummary):
+                    _charts = null;
+                    Raise(nameof(ProgressCharts));
+                    break;
+                case nameof(PlannerSession.ShowActualProgress): Raise(nameof(ShowActualProgress)); break;
                 case nameof(PlannerSession.RangeStart): Raise(nameof(RangeStart)); break;
                 case nameof(PlannerSession.RangeFinish): Raise(nameof(RangeEnd)); break;
                 case nameof(PlannerSession.DurationDays): Raise(nameof(RangeDays)); break;

@@ -22,7 +22,7 @@ namespace Maptek.Vulcan.Stp.Timeline.Model
         public void NotifyChanged() => Changed?.Invoke(this, EventArgs.Empty);
     }
 
-    public class TimelineRow : ITimelineRow
+    public class TimelineRow : ITimelineRow, ITimelineProgressRow
     {
         public TimelineRowKind Kind { get; set; }
         public string Key { get; set; }
@@ -35,6 +35,11 @@ namespace Maptek.Vulcan.Stp.Timeline.Model
         public TimelineMoveKind Move { get; set; }
         public int GroupCount { get; set; }
         public List<TimelineBlock> Blocks { get; } = new List<TimelineBlock>();
+
+        /// <summary>Gets the "Avance real" value boxes, sorted by day.</summary>
+        public List<TimelineProgressBox> ProgressBoxes { get; } = new List<TimelineProgressBox>();
+
+        IReadOnlyList<TimelineProgressBox> ITimelineProgressRow.ProgressBoxes => ProgressBoxes;
 
         IReadOnlyList<TimelineBlock> ITimelineRow.Blocks => Blocks;
 

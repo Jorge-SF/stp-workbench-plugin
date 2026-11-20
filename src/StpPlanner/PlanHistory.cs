@@ -69,17 +69,19 @@ namespace Maptek.Vulcan.Stp.Planner
     }
 
     /// <summary>
-    /// A plan state: the horizon it starts from plus the accepted operations since then, and the equipment settings
-    /// (manual resources and assignments) at that point.
+    /// A plan state: the horizon it starts from plus the accepted operations since then, and, at that point, the
+    /// equipment settings (manual resources and assignments) and the local actual progress ("Avance real"), so
+    /// undo/redo covers all of them.
     /// </summary>
     internal sealed class PlanState
     {
-        public PlanState(CivilHorizon seed, IReadOnlyList<PlanOperation> operations, string description, ResourceState resources = null)
+        public PlanState(CivilHorizon seed, IReadOnlyList<PlanOperation> operations, string description, ResourceState resources = null, ActualProgressState progress = null)
         {
             Seed = seed;
             Operations = operations;
             Description = description;
             Resources = resources ?? ResourceState.Empty;
+            Progress = progress ?? ActualProgressState.Empty;
         }
 
         public CivilHorizon Seed { get; }
@@ -92,10 +94,16 @@ namespace Maptek.Vulcan.Stp.Planner
         /// <summary>Gets the equipment settings.</summary>
         public ResourceState Resources { get; }
 
-        public PlanState With(PlanOperation operation) => new PlanState(Seed, Operations.Concat(new[] { operation }).ToList(), operation.Description, Resources);
+        /// <summary>Gets the local actual progress.</summary>
+        public ActualProgressState Progress { get; }
+
+        public PlanState With(PlanOperation operation) => new PlanState(Seed, Operations.Concat(new[] { operation }).ToList(), operation.Description, Resources, Progress);
 
         /// <summary>The same plan with other equipment settings (no replay needed).</summary>
-        public PlanState With(ResourceState resources, string description) => new PlanState(Seed, Operations, description, resources);
+        public PlanState With(ResourceState resources, string description) => new PlanState(Seed, Operations, description, resources, Progress);
+
+        /// <summary>The same plan with another actual progress (an "Avance real" edit).</summary>
+        public PlanState WithProgress(ActualProgressState progress, string description) => new PlanState(Seed, Operations, description, Resources, progress);
     }
 
     /// <summary>Undo/redo stacks of <see cref="PlanState"/>.</summary>

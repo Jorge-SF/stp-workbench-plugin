@@ -38,14 +38,29 @@ namespace Maptek.Vulcan.Stp.Timeline.Layout
 
         private readonly double[] _tops; // _tops[i] = top of row i; _tops[n] = extent height
 
-        public TimelineLayout(IReadOnlyList<TimelineRowKind> kinds, double dayWidth = DefaultDayWidth)
+        public TimelineLayout(IReadOnlyList<TimelineRowKind> kinds, double dayWidth = DefaultDayWidth, double activityRowHeight = ActivityRowHeight)
         {
             if (kinds == null) throw new ArgumentNullException(nameof(kinds));
             _tops = new double[kinds.Count + 1];
             for (int i = 0; i < kinds.Count; i++)
-                _tops[i + 1] = _tops[i] + HeightOf(kinds[i]);
+                _tops[i + 1] = _tops[i] + (kinds[i] == TimelineRowKind.Group ? GroupRowHeight : activityRowHeight);
             DayWidth = CoerceDayWidth(dayWidth);
         }
+
+        /// <summary>Activity row height in "Avance real" mode: the block band plus a value box under each day.</summary>
+        public const double ProgressRowHeight = 50;
+
+        /// <summary>Top of the value boxes inside a progress row (template: below the segment, + 2 px).</summary>
+        public const double ProgressBoxTop = ActivityRowHeight - 4;
+
+        /// <summary>Height of a value box.</summary>
+        public const double ProgressBoxHeight = 17;
+
+        /// <summary>
+        /// Height of the band the day blocks are drawn in: the row, but never taller than a normal activity row, so
+        /// "Avance real" rows keep their blocks on top and the value boxes below.
+        /// </summary>
+        public double BlockBandHeight(int row) => Math.Min(RowHeight(row), ActivityRowHeight);
 
         public static double HeightOf(TimelineRowKind kind) =>
             kind == TimelineRowKind.Group ? GroupRowHeight : ActivityRowHeight;

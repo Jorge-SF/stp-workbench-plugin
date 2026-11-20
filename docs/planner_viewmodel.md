@@ -92,6 +92,25 @@ Plan commands return a `PlannerOutcome`. `Message` is the Spanish text to show (
 
 ## Not yet covered
 
-Frentes per day and per resource (`dailyFronts`, `resourceCapacities`), resource colours, the reports, charts, actual-progress and print/Excel
-tabs (v1_compat_logic.js), drag previews and capacity warnings (`previewExcesses`), persisted visual preferences
+Frentes per day and per resource (`dailyFronts`, `resourceCapacities`), resource colours, the reports tab, actual
+progress in the print/Excel/STP suelto exports (v1_compat_logic.js), persisted visual preferences
 (`vgs-stp-v2:visual:`), and `precedenceLines` geometry.
+
+## Avance real
+
+`PlannerSession.ShowActualProgress` is the mode toggle (Vista → "Avance real"). It starts on when the project already
+has values or added boxes. The rules are the C# port in `StpEngine/ActualProgress.cs`, golden-tested against
+`v1_compat_logic.js`.
+
+* **State:** `ActualProgressState` holds values per activity day, explicit boxes and hidden boxes. It is local only:
+  stored as `stp-plugin:actual-progress:<projectKey>` in the browser's `standaloneLocalState` field names, and never
+  sent to VGS.
+* **Commands:** `SetActualProgress`, `AddActualProgress`, `RemoveActualProgress` and `MoveActualProgress` (a box drag;
+  forward drags carry the later boxes along). `PreviewActualProgressMove` shows what a drag would move. Each is a plan
+  step, so Deshacer/Rehacer cover it. A plan move does not change the values, and Descartar keeps them, as in the
+  browser.
+* **View:** `ActualProgressBoxes` holds the timeline boxes per row. `ActualProgressRows` is the "Avance real" tab
+  (`real/plan` per day, red under plan, `Real: x / Plan: y`). `ActualProgressSummary` feeds the "Gráficos" charts.
+  An activity with a visible added box stays on the timeline even when it has no plan in the range.
+* **Legacy migration:** fragment-keyed values from old standalone pages are migrated once, on load.
+

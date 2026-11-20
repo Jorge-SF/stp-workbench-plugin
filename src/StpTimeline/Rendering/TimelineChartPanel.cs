@@ -16,7 +16,7 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
     /// toggle or a drag frame only redraws its own layer. Every layer draws only the visible rows x visible days.
     /// Editing input (drag, right-click) lives here too; it only expresses intent through the owner's events.
     /// </summary>
-    internal sealed class TimelineChartPanel : LayeredPanel
+    internal sealed partial class TimelineChartPanel : LayeredPanel
     {
         internal const int BackLayer = 0, LinkLayer = 1, BlockLayer = 2, OverlayLayer = 3, FrontLayer = 4;
         private const double BlockInset = TimelineEditMath.BlockInset; // mockup: y + 6, height RH - 12
@@ -125,8 +125,8 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
                     {
                         if (link == null || !_owner.TryGetSpan(link.FromKey, out int ra, out _, out int lastA)) continue;
                         if (!_owner.TryGetSpan(link.ToKey, out int rb, out int firstB, out _)) continue;
-                        double y1 = RowScreenTop(ra) + layout.RowHeight(ra) / 2;
-                        double y2 = RowScreenTop(rb) + layout.RowHeight(rb) / 2;
+                        double y1 = RowScreenTop(ra) + layout.BlockBandHeight(ra) / 2;
+                        double y2 = RowScreenTop(rb) + layout.BlockBandHeight(rb) / 2;
                         if (Math.Max(y1, y2) < viewTop - 6 || Math.Min(y1, y2) > viewBottom + 6) continue;
                         double x1 = DayScreenX(lastA + 1) - 2, x2 = DayScreenX(firstB) + 2;
                         double mx = Math.Max(x1 + 6, x2 - 8);
@@ -171,8 +171,9 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
                 {
                     var row = _owner.Rows[i];
                     var blocks = row.Blocks;
+                    if (row.Kind == TimelineRowKind.Activity && _owner.ShowActualProgress) DrawProgressBoxes(dc, i, days);
                     if (row.Kind != TimelineRowKind.Activity || blocks == null || blocks.Count == 0) continue;
-                    double top = RowScreenTop(i), rh = layout.RowHeight(i);
+                    double top = RowScreenTop(i), rh = layout.BlockBandHeight(i);
                     double bh = Math.Max(2, rh - BlockInset * 2);
                     var fill = T.ForColor(row.Color);
                     Pen movePen = row.Move == TimelineMoveKind.Direct ? T.DirectMove
@@ -303,6 +304,8 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
                         if (InHorizon(day)) dc.DrawRoundedRectangle(fill, pen, BlockRect(flash.Row, day), 2, 2);
                 }
 
+                if (_progressDrag != null && rows.Contains(_progressDrag.Row)) DrawProgressDrag(dc, _progressDrag);
+
                 if (_drag != null && rows.Contains(_drag.Row) && _drag.Row < _owner.Rows.Count)
                 {
                     var blocks = _owner.Rows[_drag.Row].Blocks;
@@ -328,7 +331,7 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
         private Rect BlockRect(int row, int day)
         {
             var layout = _owner.Layout;
-            double top = RowScreenTop(row), rh = layout.RowHeight(row);
+            double top = RowScreenTop(row), rh = layout.BlockBandHeight(row);
             return new Rect(DayScreenX(day) + 1, top + TimelineEditMath.BlockInset, Math.Max(1, layout.DayWidth - 2), Math.Max(2, rh - TimelineEditMath.BlockInset * 2));
         }
 
@@ -463,7 +466,13 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
             if (_pressed) { e.Handled = true; return; }
             var p = e.GetPosition(this);
             var hit = HitTest(p);
-            if (hit.Block >= 0) _owner.OpenBlockMenu(hit.Row, hit.Block, this, p);
+            bool shown = hit.Block >= 0 && _owner.OpenBlockMenu(hit.Row, hit.Block, this, p) != null;
+            // "Avance real": completed blocks and empty days get "Agregar / Eliminar avance real" (template handleTimelineContextMenu)
+            if (_owner.ShowActualProgress)
+            {
+                var progress = ProgressHit(p);
+                if (progress.Box >= 0 || !shown) _owner.OpenProgressMenu(progress, this, p);
+            }
             e.Handled = true;
         }
 
@@ -473,6 +482,7 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
             _owner.Focus();
             _owner.HideHover();
             _owner.HideReason();
+            if (_owner.ShowActualProgress && PressProgress(p)) return;
             var hit = HitTest(p);
             if (hit.Row >= 0) _owner.SelectRowFromInput(hit.Row, hit.Block);
             if (hit.Block >= 0)
@@ -489,6 +499,11 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
         /// <summary>Mouse move: drag threshold, drag update, or hover (cursor and tooltip).</summary>
         internal void PointerMove(Point p, ModifierKeys mods)
         {
+            if (_progressDrag != null)
+            {
+                UpdateProgressDrag(p);
+                return;
+            }
             if (_pressed && !_dragStarted)
             {
                 if (Math.Abs(p.X - _pressPoint.X) < SystemParameters.MinimumHorizontalDragDistance &&
@@ -560,6 +575,11 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
         /// <summary>Left button up: raise the move (drag), the click (no drag), or flash a locked block.</summary>
         internal void Release(Point p)
         {
+            if (_progressDrag != null)
+            {
+                FinishProgressDrag(p);
+                return;
+            }
             var drag = _drag;
             bool click = _pressed && !_dragStarted, blocked = _pressBlocked;
             var hit = _pressHit;
@@ -573,6 +593,7 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
         /// <summary>Escape or lost capture: drop the drag without raising anything.</summary>
         internal void CancelDrag()
         {
+            if (_progressDrag != null) EndProgressDrag();
             if (!_pressed && _drag == null) return;
             EndPress();
         }
@@ -580,6 +601,7 @@ namespace Maptek.Vulcan.Stp.Timeline.Rendering
         protected override void OnLostMouseCapture(MouseEventArgs e)
         {
             base.OnLostMouseCapture(e);
+            if (_progressDrag != null) EndProgressDrag();
             if (_pressed || _drag != null) EndPress();
         }
 

@@ -101,6 +101,45 @@ namespace Maptek.Vulcan.Stp.Timeline.Model
     }
 
     /// <summary>A precedence: an elbow line from the end of <see cref="FromKey"/> to the start of <see cref="ToKey"/>.</summary>
+    /// <summary>One "Avance real" value box under a day (template <c>.actual-progress-control</c>).</summary>
+    public readonly struct TimelineProgressBox
+    {
+        /// <summary>Initializes a new instance of the <see cref="TimelineProgressBox"/> struct.</summary>
+        /// <param name="day">Day index (0 = <see cref="ITimelineModel.StartDate"/>).</param>
+        /// <param name="value">The entered value, or <c>null</c> for an empty box.</param>
+        /// <param name="text">The value as shown and edited (empty for none).</param>
+        /// <param name="tag">Host data.</param>
+        public TimelineProgressBox(int day, double? value, string text, object tag = null)
+        {
+            Day = day;
+            Value = value;
+            Text = text ?? string.Empty;
+            Tag = tag;
+        }
+
+        /// <summary>Gets the day index.</summary>
+        public int Day { get; }
+
+        /// <summary>Gets the value, or <c>null</c>.</summary>
+        public double? Value { get; }
+
+        /// <summary>Gets the text.</summary>
+        public string Text { get; }
+
+        /// <summary>Gets the host data.</summary>
+        public object Tag { get; }
+    }
+
+    /// <summary>
+    /// Optional: a row with "Avance real" value boxes, drawn when <see cref="TimelineView.ShowActualProgress"/> is on.
+    /// Boxes are sorted by day.
+    /// </summary>
+    public interface ITimelineProgressRow
+    {
+        /// <summary>Gets the value boxes.</summary>
+        IReadOnlyList<TimelineProgressBox> ProgressBoxes { get; }
+    }
+
     public interface ITimelineLink
     {
         string FromKey { get; }

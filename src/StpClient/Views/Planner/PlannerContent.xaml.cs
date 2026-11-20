@@ -28,6 +28,8 @@ namespace Maptek.Vulcan.Stp.Views.Planner
             Timeline.UndoRequested += OnEditRequested;
             Timeline.RedoRequested += OnEditRequested;
             Timeline.BlockMenuOpening += OnBlockMenuOpening;
+            Timeline.ActualProgressRequested += (s, e) => _vm?.ActualProgress?.Apply(e);
+            Timeline.ActualProgressQuery += (s, e) => _vm?.ActualProgress?.Answer(e);
             Timeline.DragPreviewChanged += OnDragPreviewChanged;
         }
 

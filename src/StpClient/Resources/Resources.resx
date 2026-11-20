@@ -121,6 +121,14 @@ guardado</value></data>
   <data name="Planner_TabReports" xml:space="preserve"><value>Reportes</value></data>
   <data name="Planner_TabCharts" xml:space="preserve"><value>Gráficos</value></data>
   <data name="Planner_TabActuals" xml:space="preserve"><value>Avance real</value></data>
+  <data name="Planner_ViewActualProgress" xml:space="preserve"><value>Avance real</value></data>
+  <data name="Planner_ViewActualProgressTip" xml:space="preserve"><value>Modo de avance real: registre lo realmente ejecutado por día bajo cada día del cronograma. Sólo local; VGS no se modifica.</value></data>
+  <data name="Planner_ActualsEmpty" xml:space="preserve"><value>Active «Avance real» en Vista para registrar lo realmente ejecutado por día.</value></data>
+  <data name="Planner_ActualsHint" xml:space="preserve"><value>Clic en la casilla bajo un día para escribir el avance; arrastre ↕ para desplazarlo con los días siguientes; clic derecho para agregar o eliminar.</value></data>
+  <data name="Planner_ActualsPeriod" xml:space="preserve"><value>Periodo</value></data>
+  <data name="Planner_ChartsDaily" xml:space="preserve"><value>Cumplimiento diario</value></data>
+  <data name="Planner_ChartsGeneral" xml:space="preserve"><value>Gráficas generales</value></data>
+  <data name="Planner_ChartsEmpty" xml:space="preserve"><value>No hay trabajo pendiente visible en el rango.</value></data>
   <data name="Planner_CapDaily" xml:space="preserve"><value>Capacidad diaria</value></data>
   <data name="Planner_CapGoal" xml:space="preserve"><value>meta</value></data>
   <data name="Planner_ComingSoon" xml:space="preserve"><value>Próximamente.</value></data>

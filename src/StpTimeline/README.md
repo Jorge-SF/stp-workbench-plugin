@@ -81,6 +81,23 @@ applies the requests with simplified rules (horizon, completed work, predecessor
 undo/redo) and rejects others, so the red flash can be seen: e.g. select REZ-1425-01 and press Ctrl+Shift+Left.
 `--demo drag|drag-activity|blocked|menu|tooltip|stagger --screenshot x.png` stages a state for screenshots.
 
+## Avance real
+
+`ShowActualProgress = true` turns on the browser's actual-progress mode. Activity rows grow to
+`TimelineLayout.ProgressRowHeight`, the blocks keep their normal band, and a value box is drawn under every day listed in
+`ITimelineProgressRow.ProgressBoxes` (`TimelineRow.ProgressBoxes`: `TimelineProgressBox(day, value, text, tag)`).
+Dashed blue arrows link the boxes of a row. As with the other edits, the control only raises requests:
+
+| Input | Event | Planner call |
+|---|---|---|
+| Click a box's value, type, then Enter / Tab / click away (Esc cancels; blank clears; `,` or `.` decimals) | `ActualProgressRequested`, `Action = Edit`, `Value` | `SetActualProgress(activity, day, value)` |
+| Drag a box's ↕ grip onto another day of the same row | `ActualProgressQuery` (`IsPreview`, the host calls `SetMoves`) while dragging, then `ActualProgressRequested` `Move` | `PreviewActualProgressMove` / `MoveActualProgress` |
+| Right-click a box: "Eliminar avance real" | `ActualProgressRequested` `Remove` | `RemoveActualProgress` |
+| Right-click a day without a box (or a completed block): "Agregar avance real" when `ActualProgressQuery` sets `CanAdd` | `ActualProgressRequested` `Add` | `AddActualProgress` |
+
+A value that is not a number >= 0 is refused locally. `e.Reject(reason)` flashes the day. Hit testing and box geometry
+are in `TimelineEditMath.ProgressHitTest` / `ProgressBoxGeometry`. Days narrower than 30 px have no grip.
+
 ## Why DrawingVisual (not SkiaSharp)
 
 - **No dependency.** SkiaSharp ships with the Workbench, but referencing it would tie this library to the

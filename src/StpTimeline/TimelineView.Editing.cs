@@ -214,7 +214,7 @@ namespace Maptek.Vulcan.Stp.Timeline
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
-            if (e.Handled) return;
+            if (e.Handled || e.OriginalSource is TextBox) return;   // typing in an "Avance real" box
             var key = e.Key == Key.System ? e.SystemKey : e.Key;
             if (key == Key.LeftShift || key == Key.RightShift) { _chart.RefreshDragScope(); return; }
             if (HandleKey(key, Keyboard.Modifiers)) e.Handled = true;
