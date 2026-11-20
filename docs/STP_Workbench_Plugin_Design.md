@@ -292,16 +292,16 @@ Vulcan.
 
 ## 6. Phases and rough effort (one experienced C#/WPF developer)
 
-| Phase | Content | Effort |
-|---|---|---|
-| 0 | Resolve the script-0 version drift. Unbundle Python into one package. No behaviour change, verified in VGS | 2-3 d |
-| 1 | Plugin skeleton from Pit Design: STP menu + toolbar running scripts 1-4 inside Envisage (verify `ExecutePythonScript`/`RunPythonScript`); optionally host today's HTML in `WebBrowserView` (option C) | 3-5 d |
-| 2 | Engine port (PL/TL/CL) + Node-generated golden tests + canonical JSON/SHA-256 | 2-3 wk |
-| 3 | Bridge client + plugin-mode script 2 + read-only timeline (rows, bars, statuses, links) | 1.5-2 wk |
-| 4 | Interactions: drag tail with preview, keyboard, context menu, stagger, next period, resources, exemptions, horizon edit, refresh with rollback, package prepare | 2-3 wk |
-| 5 | Options tabs, preferences store, aggregate rows, report engine UI, actual-progress mode | 1.5-2 wk |
-| 6 | Charts, Excel export (PNG capture), print/PDF report | 1.5-2 wk |
-| 7 | Spanish/English resx, installer (MSI from Pit Design), testing inside Vulcan on real projects | 1-1.5 wk |
+| Phase | Content | Effort | Status (2026-11-19) |
+|---|---|---|---|
+| 0 | Resolve the script-0 version drift. Unbundle Python into one package. No behaviour change, verified in VGS | 2-3 d | **Mostly done.** Python unbundled into `python/stp_core` (PR #1); web reference and golden harness (PR #2). Drift documented in `docs/drift_script0.md`; choosing the script-0 version is still open |
+| 1 | Plugin skeleton from Pit Design: STP menu + toolbar running scripts 1-4 inside Envisage (verify `ExecutePythonScript`/`RunPythonScript`); optionally host today's HTML in `WebBrowserView` (option C) | 3-5 d | **Done** (PR #4, plus Envisage binding for any Vulcan version). Optional option C not done |
+| 2 | Engine port (PL/TL/CL) + Node-generated golden tests + canonical JSON/SHA-256 | 2-3 wk | **Done** (PRs #5, #6, #8). KI-1 documented in `docs/known_issues.md` |
+| 3 | Bridge client + plugin-mode script 2 + read-only timeline (rows, bars, statuses, links) | 1.5-2 wk | **In progress.** Bridge client (PRs #5, #7) and plugin-mode script 2 (PR #3) done; read-only timeline not started |
+| 4 | Interactions: drag tail with preview, keyboard, context menu, stagger, next period, resources, exemptions, horizon edit, refresh with rollback, package prepare | 2-3 wk | Not started |
+| 5 | Options tabs, preferences store, aggregate rows, report engine UI, actual-progress mode | 1.5-2 wk | Not started |
+| 6 | Charts, Excel export (PNG capture), print/PDF report | 1.5-2 wk | Not started |
+| 7 | Spanish/English resx, installer (MSI from Pit Design), testing inside Vulcan on real projects | 1-1.5 wk | **Partly done.** Build script and MSI installer done; per-user runtime folder (KI-2 fixed). Only one `Resources.resx` so far (no English/Spanish pair); testing on real projects pending |
 
 Total ≈ **10-14 weeks**. Phases 2 and 4 carry most of the risk.
 
