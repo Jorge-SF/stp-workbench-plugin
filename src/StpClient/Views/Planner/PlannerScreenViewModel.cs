@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Maptek.Vulcan.Stp.Planner;
+using Maptek.Vulcan.Stp.Planner.Export;
 using Maptek.Vulcan.Stp.Timeline.Model;
 using Res = Maptek.Vulcan.Stp.Resources.Resources;
 
@@ -29,6 +30,12 @@ namespace Maptek.Vulcan.Stp.Views.Planner
 
         /// <summary>"Asignar equipo": asks for the day's equipment; null = cancelled.</summary>
         PickedResource PickResource(ResourcePickRequest request);
+
+        /// <summary>Exportar: asks where to save a file (SaveFileDialog); null = cancelled.</summary>
+        string PickSaveFile(string title, string filter, string fileName);
+
+        /// <summary>The per-user runtime folder that holds the web resources script 2 copied (STP suelto); null if unknown.</summary>
+        string WebResourcesFolder { get; }
     }
 
     public class PlannerScreenViewModel : ObservableObject, IPlannerViewModel, IDisposable
@@ -43,6 +50,7 @@ namespace Maptek.Vulcan.Stp.Views.Planner
         private SelectedActivity _selected;
         private bool _showResources = true;
         private bool _showCapacityPanel = true;
+        private bool _exporting;
 
         public PlannerScreenViewModel(PlannerSession session, IPlannerHost host)
         {
@@ -63,8 +71,13 @@ namespace Maptek.Vulcan.Stp.Views.Planner
             ApplyToVgsCommand = apply;
             VerifySaveCommand = verify;
             ToggleTypeCommand = toggle;
-            ExportExcelCommand = ExportPdfCommand = ExportStandaloneCommand = RelayCommand.Disabled();
-            _commands = new[] { refresh, undo, redo, discard, apply, verify };
+            var excel = new RelayCommand(() => Run(ExportExcelAsync), () => !_exporting && Session.CanExportExcel);
+            var pdf = new RelayCommand(ExportPdf, () => !_exporting && !Session.IsBusy && Session.Rows.Count > 0);
+            var standalone = new RelayCommand(ExportStandalone, () => !_exporting && !Session.IsBusy);
+            ExportExcelCommand = excel;
+            ExportPdfCommand = pdf;
+            ExportStandaloneCommand = standalone;
+            _commands = new[] { refresh, undo, redo, discard, apply, verify, excel, pdf, standalone };
 
             GroupByOptions = new[] { Res.Planner_GroupType, Res.Planner_GroupLevel, Res.Planner_GroupResource, Res.Planner_GroupNone };
             SortOptions = new[] { Res.Planner_SortStart, Res.Planner_SortId, Res.Planner_SortSource };
@@ -102,8 +115,9 @@ namespace Maptek.Vulcan.Stp.Views.Planner
         public string ApplyTip => Session.CanApply ? Res.Planner_ApplyTip : Session.ApplyBlockedReason;
         public ICommand VerifySaveCommand { get; }
 
-        // ---- Exportar (not built yet: disabled, "próximamente" tooltip in the view) -------------------------------
+        // ---- Exportar: read-only, to a file the user picks (PlannerExports) ------------------------------------------
         public ICommand ExportExcelCommand { get; }
+        public string ExportExcelTip => Session.CanExportExcel ? Res.Planner_ExportExcelTip : Session.ExportExcelBlockedReason;
         public ICommand ExportPdfCommand { get; }
         public ICommand ExportStandaloneCommand { get; }
 
@@ -232,6 +246,60 @@ namespace Maptek.Vulcan.Stp.Views.Planner
             _host?.Notify(outcome.Message, !outcome.Ok);
         }
 
+        private async Task ExportExcelAsync()
+        {
+            string path = _host?.PickSaveFile(Res.Planner_SaveExcelTitle, Res.Planner_SaveExcelFilter, PlannerExports.ExcelFileName);
+            if (path == null) return;
+            SetExporting(true);
+            try
+            {
+                var outcome = await PlannerExports.ExcelAsync(Session, path);
+                _host?.Notify(outcome.Message, !outcome.Ok);
+            }
+            finally
+            {
+                SetExporting(false);
+            }
+        }
+
+        private void ExportPdf()
+        {
+            string path = _host?.PickSaveFile(Res.Planner_SavePdfTitle, Res.Planner_SavePdfFilter, PlannerExports.PdfFileName);
+            if (path == null) return;
+            Export(() => PlannerExports.Pdf(Session, path));
+        }
+
+        private void ExportStandalone()
+        {
+            string path = _host?.PickSaveFile(Res.Planner_SaveStandaloneTitle, Res.Planner_SaveStandaloneFilter, StandalonePlanner.DefaultFileName);
+            if (path == null) return;
+            Export(() => PlannerExports.Standalone(Session, _host.WebResourcesFolder, path));
+        }
+
+        private void Export(Func<PlannerOutcome> export)
+        {
+            SetExporting(true);
+            try
+            {
+                var outcome = export();
+                _host?.Notify(outcome.Message, !outcome.Ok);
+            }
+            catch (Exception ex)
+            {
+                _host?.Notify(string.Format(Res.Msg_PlannerCommandFailed, ex.Message), true);
+            }
+            finally
+            {
+                SetExporting(false);
+            }
+        }
+
+        private void SetExporting(bool value)
+        {
+            _exporting = value;
+            foreach (var command in _commands) command.RaiseCanExecuteChanged();
+        }
+
         /// <summary>Runs an async command without letting an exception reach the dispatcher (it would take Vulcan down).</summary>
         private async void Run(Func<Task> command)
         {
@@ -319,6 +387,7 @@ namespace Maptek.Vulcan.Stp.Views.Planner
                 case nameof(PlannerSession.UndoDescription): Raise(nameof(UndoTip)); break;
                 case nameof(PlannerSession.RedoDescription): Raise(nameof(RedoTip)); break;
                 case nameof(PlannerSession.ApplyBlockedReason): Raise(nameof(ApplyTip)); break;
+                case nameof(PlannerSession.IsBusy): Raise(nameof(ExportExcelTip)); break;
                 case nameof(PlannerSession.ShowCompleted): Raise(nameof(ShowCompleted)); break;
                 case nameof(PlannerSession.ShowPrecedences): Raise(nameof(ShowPrecedences)); break;
                 case nameof(PlannerSession.SearchText): Raise(nameof(SearchText)); break;
@@ -326,7 +395,7 @@ namespace Maptek.Vulcan.Stp.Views.Planner
                 case nameof(PlannerSession.Sort): Raise(nameof(SortBy)); break;
             }
 
-            if (name.Length == 0 || name.StartsWith("Can", StringComparison.Ordinal) || name == nameof(PlannerSession.IsBusy))
+            if (name.Length == 0 || name.StartsWith("Can", StringComparison.Ordinal) || name == nameof(PlannerSession.IsBusy) || name == nameof(PlannerSession.Rows))
             {
                 foreach (var command in _commands) command.RaiseCanExecuteChanged();
             }

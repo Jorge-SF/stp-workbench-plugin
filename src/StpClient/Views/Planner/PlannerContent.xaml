@@ -232,11 +232,11 @@
             <TextBlock DockPanel.Dock="Bottom" Style="{StaticResource GroupLabel}" Text="{x:Static res:Resources.Planner_GroupExport}"/>
             <StackPanel Orientation="Horizontal">
               <Button Style="{StaticResource BarButton}" Tag="&#x1F4C4;" Command="{Binding ExportExcelCommand}" Content="{x:Static res:Resources.Planner_ExportExcel}"
-                      ToolTip="{x:Static res:Resources.Planner_ComingSoonTip}"/>
+                      ToolTipService.ShowOnDisabled="True" ToolTip="{Binding ExportExcelTip}"/>
               <Button Style="{StaticResource BarButton}" Tag="&#x1F5A8;" Command="{Binding ExportPdfCommand}" Content="{x:Static res:Resources.Planner_ExportPdf}"
-                      ToolTip="{x:Static res:Resources.Planner_ComingSoonTip}"/>
+                      ToolTip="{x:Static res:Resources.Planner_ExportPdfTip}"/>
               <Button Style="{StaticResource BarButton}" Tag="&#x2197;" Command="{Binding ExportStandaloneCommand}" Content="{x:Static res:Resources.Planner_ExportStandalone}"
-                      ToolTip="{x:Static res:Resources.Planner_ComingSoonTip}"/>
+                      ToolTip="{x:Static res:Resources.Planner_ExportStandaloneTip}"/>
             </StackPanel>
           </DockPanel>
         </Border>

@@ -21,7 +21,7 @@ namespace Maptek.Vulcan.Stp.Planner
     /// continuations (which change bound state) run back on the caller's context. Every change raises
     /// <see cref="System.ComponentModel.INotifyPropertyChanged.PropertyChanged"/> for the affected properties.
     /// </remarks>
-    public sealed class PlannerSession : ObservableObject, IDisposable
+    public sealed partial class PlannerSession : ObservableObject, IDisposable
     {
         private static readonly string[] ViewProperties =
         {
